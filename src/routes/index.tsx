@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
       { title: "Zurify — Complete tasks. Get paid." },
       { name: "description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
       { property: "og:title", content: "Zurify — Complete tasks. Get paid." },
-      { property: "og:description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal." },
+      { property: "og:description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
     ],
   }),
   component: LandingPage,
