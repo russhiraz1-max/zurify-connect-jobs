@@ -1,204 +1,132 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, Briefcase, Rocket, Search, Sparkles, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, CheckCircle2, DollarSign, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
-import { Suspense } from "react";
 
 export const Route = createFileRoute("/")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(featuredJobsQuery);
-  },
+  head: () => ({
+    meta: [
+      { title: "Zurify — Complete tasks. Get paid." },
+      { name: "description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
+      { property: "og:title", content: "Zurify — Complete tasks. Get paid." },
+      { property: "og:description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal." },
+    ],
+  }),
   component: LandingPage,
 });
 
-const featuredJobsQuery = {
-  queryKey: ["featured-jobs"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("id,title,company,location,remote,employment_type,salary_min,salary_max,tags")
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(6);
-    if (error) throw error;
-    return data ?? [];
-  },
-};
+type FeaturedTask = { id: string; title: string; description: string; reward_cents: number; est_minutes: number | null };
+
+function formatUSD(cents: number) {
+  return `$${(cents / 100).toFixed(2)}`;
+}
 
 function LandingPage() {
+  const [tasks, setTasks] = useState<FeaturedTask[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("tasks")
+      .select("id,title,description,reward_cents,est_minutes")
+      .eq("status", "published")
+      .order("featured", { ascending: false })
+      .order("priority", { ascending: false })
+      .limit(6)
+      .then(({ data }) => setTasks((data ?? []) as FeaturedTask[]));
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Hero />
-        <Stats />
-        <Suspense fallback={null}>
-          <FeaturedJobs />
-        </Suspense>
-        <ForEmployers />
-        <CTA />
+        {/* Hero */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-brand-gradient opacity-10" />
+          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <div className="mx-auto max-w-3xl text-center">
+              <Badge variant="secondary" className="mb-6">
+                <Sparkles className="mr-1 h-3 w-3" /> Get paid for simple tasks
+              </Badge>
+              <h1 className="font-display text-4xl font-bold tracking-tight sm:text-6xl">
+                Complete tasks. <span className="bg-brand-gradient bg-clip-text text-transparent">Get paid.</span>
+              </h1>
+              <p className="mt-6 text-lg text-muted-foreground">
+                Zurify pays you in real USD for completing small online tasks. Withdraw to PayPal starting at just $3.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <Button asChild size="lg">
+                  <Link to="/auth" search={{ mode: "signup" }}>
+                    Start earning <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/how-it-works">How it works</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Value props */}
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { icon: DollarSign, title: "Real USD rewards", body: "Every task pays real money credited to your wallet on approval." },
+              { icon: ShieldCheck, title: "Manually reviewed", body: "Our team reviews every submission to keep the platform trustworthy." },
+              { icon: CheckCircle2, title: "$3 minimum payout", body: "Withdraw to PayPal starting at $3. Payments sent within 48 hours." },
+            ].map((v) => (
+              <Card key={v.title}>
+                <CardContent className="p-6">
+                  <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-brand-gradient text-primary-foreground">
+                    <v.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold">{v.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{v.body}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Featured tasks */}
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-bold sm:text-3xl">Available tasks</h2>
+              <p className="mt-2 text-sm text-muted-foreground">Sign in to submit and earn.</p>
+            </div>
+            <Button asChild variant="ghost">
+              <Link to="/auth">
+                See all <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          {tasks.length === 0 ? (
+            <Card><CardContent className="p-10 text-center text-sm text-muted-foreground">New tasks arriving soon. Create an account to be notified.</CardContent></Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {tasks.map((t) => (
+                <Card key={t.id} className="transition-shadow hover:shadow-md">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-semibold leading-tight">{t.title}</h3>
+                      <Badge className="shrink-0 bg-brand-gradient text-primary-foreground">{formatUSD(t.reward_cents)}</Badge>
+                    </div>
+                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{t.description}</p>
+                    {t.est_minutes ? <p className="mt-3 text-xs text-muted-foreground">~{t.est_minutes} min</p> : null}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
       <SiteFooter />
     </div>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="relative overflow-hidden bg-hero-radial">
-      <div className="mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 sm:pt-28 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <Badge variant="secondary" className="mb-6 gap-1.5 rounded-full border border-border/60 bg-surface px-3 py-1 text-xs font-medium text-muted-foreground">
-            <Sparkles className="h-3 w-3 text-primary" />
-            Now hiring across 2,400+ companies
-          </Badge>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
-            The modern way to <span className="bg-brand-gradient bg-clip-text text-transparent">find work you love</span>.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Zurify connects thoughtful, ambitious people with companies building the future. Curated roles, transparent salaries, one-click apply.
-          </p>
-          <div className="mx-auto mt-10 flex max-w-xl flex-col items-stretch gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 px-6 text-base">
-              <Link to="/jobs">
-                <Search className="mr-2 h-4 w-4" /> Browse jobs
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 px-6 text-base">
-              <Link to="/auth" search={{ mode: "signup" }}>Create free account</Link>
-            </Button>
-          </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary" /> Vetted companies</span>
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary" /> Salary transparency</span>
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary" /> Free forever</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Stats() {
-  const stats = [
-    { label: "Active roles", value: "12,400+" },
-    { label: "Companies", value: "2,400" },
-    { label: "Avg. time to offer", value: "18 days" },
-    { label: "Candidate rating", value: "4.9 / 5" },
-  ];
-  return (
-    <section className="border-y border-border/60 bg-surface">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:grid-cols-4 sm:px-6 lg:px-8">
-        {stats.map((s) => (
-          <div key={s.label}>
-            <div className="font-display text-2xl font-bold text-foreground sm:text-3xl">{s.value}</div>
-            <div className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FeaturedJobs() {
-  const qc = useQueryClient();
-  const { data: jobs } = useSuspenseQuery({ ...featuredJobsQuery, queryClient: qc } as typeof featuredJobsQuery);
-
-  return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mb-10 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="font-display text-3xl font-bold tracking-tight">Featured openings</h2>
-          <p className="mt-2 text-muted-foreground">Fresh roles from teams we love.</p>
-        </div>
-        <Button asChild variant="ghost" className="hidden sm:inline-flex">
-          <Link to="/jobs">View all <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
-        </Button>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {jobs.map((job) => (
-          <Link
-            key={job.id}
-            to="/jobs/$id"
-            params={{ id: job.id }}
-            className="group flex flex-col rounded-2xl border border-border/70 bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
-                <Briefcase className="h-5 w-5" />
-              </div>
-              {job.remote && <Badge variant="secondary" className="rounded-full">Remote</Badge>}
-            </div>
-            <div className="text-sm font-medium text-muted-foreground">{job.company}</div>
-            <div className="mt-1 font-display text-lg font-semibold group-hover:text-primary">{job.title}</div>
-            <div className="mt-1 text-sm text-muted-foreground">{job.location} · {job.employment_type}</div>
-            {job.salary_min && job.salary_max && (
-              <div className="mt-3 text-sm font-medium text-foreground">
-                ${job.salary_min.toLocaleString()} – ${job.salary_max.toLocaleString()}
-              </div>
-            )}
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {(job.tags ?? []).slice(0, 3).map((t) => (
-                <span key={t} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">{t}</span>
-              ))}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ForEmployers() {
-  const features = [
-    { icon: Users, title: "Reach quality candidates", body: "Post roles and reach thousands of engaged, vetted job seekers." },
-    { icon: Rocket, title: "Hire faster", body: "Track applications, coordinate interviews, and make offers in one place." },
-    { icon: BadgeCheck, title: "Transparent by default", body: "Salary ranges and structured job posts build trust with candidates." },
-  ];
-  return (
-    <section className="bg-surface-muted/50">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-bold tracking-tight">Built for teams that hire well</h2>
-          <p className="mt-3 text-muted-foreground">Zurify gives employers everything they need to attract and hire the right people, quickly.</p>
-        </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {features.map((f) => (
-            <div key={f.title} className="rounded-2xl border border-border/70 bg-surface p-6">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-gradient text-primary-foreground">
-                <f.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 font-display text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CTA() {
-  return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-3xl bg-brand-gradient p-10 text-primary-foreground sm:p-16">
-        <div className="relative z-10 mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-bold sm:text-4xl">Your next role is one click away</h2>
-          <p className="mt-3 text-primary-foreground/85">Create a free Zurify profile and start applying today.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" variant="secondary" className="h-12 px-6 text-base">
-              <Link to="/auth" search={{ mode: "signup" }}>Create account</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 border-primary-foreground/30 bg-transparent px-6 text-base text-primary-foreground hover:bg-primary-foreground/10">
-              <Link to="/jobs">Browse jobs</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }

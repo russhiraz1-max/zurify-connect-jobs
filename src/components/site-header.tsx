@@ -57,7 +57,6 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navItem("/jobs", "Browse jobs")}
           {user && navItem("/dashboard", "Dashboard")}
         </nav>
 

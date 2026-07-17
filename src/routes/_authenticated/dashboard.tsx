@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Briefcase, ClipboardList, Search, Sparkles } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { useEffect, useState } from "react";
+import { Wallet, Clock, TrendingUp, ArrowUpRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
@@ -9,144 +9,86 @@ import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
-const applicationsQuery = (userId: string) => ({
-  queryKey: ["applications", userId],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("applications")
-      .select("id,status,created_at,cover_letter,job_id,jobs(id,title,company,location,employment_type)")
-      .eq("applicant_id", userId)
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  },
-});
-
-const recommendedQuery = {
-  queryKey: ["jobs", "recommended"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("id,title,company,location,tags,remote")
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(5);
-    if (error) throw error;
-    return data ?? [];
-  },
-};
-
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Zurify" }] }),
-  component: Dashboard,
+  component: DashboardPage,
 });
 
-function Dashboard() {
-  const { user } = useSession();
-  if (!user) return null;
-  return <DashboardContent userId={user.id} name={user.user_metadata?.full_name ?? user.email ?? ""} />;
-}
+type Wallet = { available_cents: number; pending_cents: number; lifetime_earned_cents: number; lifetime_withdrawn_cents: number };
+type Task = { id: string; title: string; description: string; reward_cents: number; est_minutes: number | null };
 
-function DashboardContent({ userId, name }: { userId: string; name: string }) {
-  const { data: apps } = useSuspenseQuery(applicationsQuery(userId));
-  const { data: recs } = useSuspenseQuery(recommendedQuery);
+const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
+
+function DashboardPage() {
+  const { user } = useSession();
+  const [wallet, setWallet] = useState<Wallet | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("wallets").select("available_cents,pending_cents,lifetime_earned_cents,lifetime_withdrawn_cents").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setWallet(data as Wallet | null));
+    supabase.from("tasks").select("id,title,description,reward_cents,est_minutes").eq("status", "published").order("featured", { ascending: false }).limit(9)
+      .then(({ data }) => setTasks((data ?? []) as Task[]));
+  }, [user]);
 
   const stats = [
-    { label: "Applications", value: apps.length, icon: ClipboardList },
-    { label: "In review", value: apps.filter((a) => a.status === "submitted").length, icon: Sparkles },
-    { label: "Saved searches", value: 0, icon: Search },
+    { label: "Available balance", value: usd(wallet?.available_cents ?? 0), icon: Wallet },
+    { label: "Pending", value: usd(wallet?.pending_cents ?? 0), icon: Clock },
+    { label: "Lifetime earned", value: usd(wallet?.lifetime_earned_cents ?? 0), icon: TrendingUp },
+    { label: "Lifetime withdrawn", value: usd(wallet?.lifetime_withdrawn_cents ?? 0), icon: ArrowUpRight },
   ];
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="flex-1">
-        <div className="border-b border-border/60 bg-surface-muted/50">
-          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight">Welcome back, {name.split(" ")[0]}</h1>
-            <p className="mt-2 text-muted-foreground">Here's what's happening with your job search today.</p>
-          </div>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6">
+          <h1 className="font-display text-2xl font-bold sm:text-3xl">Welcome back</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Complete tasks below to grow your balance.</p>
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {stats.map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border/70 bg-surface p-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
-                  <s.icon className="h-4 w-4 text-muted-foreground" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((s) => (
+            <Card key={s.label}>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="grid h-11 w-11 place-items-center rounded-lg bg-brand-gradient text-primary-foreground">
+                  <s.icon className="h-5 w-5" />
                 </div>
-                <div className="mt-3 font-display text-3xl font-bold">{s.value}</div>
-              </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                  <p className="mt-1 text-xl font-semibold">{s.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="mt-8 flex items-end justify-between">
+          <h2 className="font-display text-xl font-semibold">Available tasks</h2>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/dashboard">Refresh</Link>
+          </Button>
+        </div>
+
+        {tasks.length === 0 ? (
+          <Card className="mt-4"><CardContent className="p-10 text-center text-sm text-muted-foreground">No published tasks yet. Check back soon.</CardContent></Card>
+        ) : (
+          <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {tasks.map((t) => (
+              <Card key={t.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold leading-tight">{t.title}</h3>
+                    <Badge className="shrink-0 bg-brand-gradient text-primary-foreground">{usd(t.reward_cents)}</Badge>
+                  </div>
+                  <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{t.description}</p>
+                  {t.est_minutes ? <p className="mt-3 text-xs text-muted-foreground">~{t.est_minutes} min</p> : null}
+                </CardContent>
+              </Card>
             ))}
           </div>
-
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
-            <section>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-display text-xl font-semibold">Your applications</h2>
-                <Button asChild variant="ghost" size="sm"><Link to="/jobs">Browse more</Link></Button>
-              </div>
-              {apps.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
-                  <Briefcase className="mx-auto h-8 w-8 text-muted-foreground" />
-                  <p className="mt-3 font-display text-lg font-semibold">No applications yet</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Start applying to open roles to see them here.</p>
-                  <Button asChild className="mt-5"><Link to="/jobs">Find your first role</Link></Button>
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {apps.map((a) => {
-                    const j = a.jobs as { id: string; title: string; company: string; location: string; employment_type: string } | null;
-                    if (!j) return null;
-                    return (
-                      <li key={a.id}>
-                        <Link
-                          to="/jobs/$id"
-                          params={{ id: j.id }}
-                          className="flex items-center gap-4 rounded-2xl border border-border/70 bg-surface p-5 transition-colors hover:border-primary/40"
-                        >
-                          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
-                            <Briefcase className="h-5 w-5" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="font-display font-semibold">{j.title}</div>
-                            <div className="text-sm text-muted-foreground">{j.company} · {j.location}</div>
-                          </div>
-                          <div className="text-right">
-                            <Badge variant="secondary" className="capitalize">{a.status}</Badge>
-                            <div className="mt-1 text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-
-            <aside>
-              <h2 className="mb-4 font-display text-xl font-semibold">Recommended for you</h2>
-              <ul className="space-y-3">
-                {recs.map((j) => (
-                  <li key={j.id}>
-                    <Link
-                      to="/jobs/$id"
-                      params={{ id: j.id }}
-                      className="block rounded-2xl border border-border/70 bg-surface p-5 transition-colors hover:border-primary/40"
-                    >
-                      <div className="text-xs font-medium text-muted-foreground">{j.company}</div>
-                      <div className="mt-0.5 font-display font-semibold">{j.title}</div>
-                      <div className="mt-0.5 text-xs text-muted-foreground">{j.location}{j.remote ? " · Remote" : ""}</div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </aside>
-          </div>
-        </div>
+        )}
       </main>
       <SiteFooter />
     </div>
