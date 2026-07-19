@@ -29,7 +29,7 @@ function AdminUsers() {
     const { data } = await supabase.from("profiles")
       .select("id,full_name,created_at,wallets(available_cents,lifetime_earned_cents),user_roles(role)")
       .order("created_at", { ascending: false }).limit(500);
-    setRows((data ?? []) as Row[]);
+    setRows(((data ?? []) as unknown) as Row[]);
   }
   useEffect(() => { load(); }, []);
 

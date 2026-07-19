@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin/tickets")({
   component: AdminTickets,
 });
 
-type Ticket = { id: string; subject: string; status: string; user_id: string; created_at: string; updated_at: string; profiles: { full_name: string | null } | null };
+type Ticket = { id: string; subject: string; status: string; user_id: string; created_at: string; updated_at: string; };
 type Message = { id: string; author_id: string; body: string; created_at: string; is_staff_reply: boolean };
 
 function AdminTickets() {
@@ -28,9 +28,9 @@ function AdminTickets() {
 
   async function load() {
     const { data } = await supabase.from("support_tickets")
-      .select("*,profiles!support_tickets_user_id_fkey(full_name)")
+      .select("*")
       .order("updated_at", { ascending: false }).limit(200);
-    setTickets((data ?? []) as Ticket[]);
+    setTickets(((data ?? []) as unknown) as Ticket[]);
   }
   useEffect(() => { load(); }, []);
 
@@ -44,13 +44,13 @@ function AdminTickets() {
     if (!user || !openId || !reply.trim()) return;
     const { error } = await supabase.from("support_ticket_messages").insert({ ticket_id: openId, author_id: user.id, body: reply, is_staff_reply: true });
     if (error) return toast.error(error.message);
-    await supabase.from("support_tickets").update({ status: "pending" }).eq("id", openId);
+    await supabase.from("support_tickets").update({ status: "pending" as const }).eq("id", openId);
     setReply("");
     open(openId);
     load();
   }
 
-  async function setStatus(id: string, status: string) {
+  async function setStatus(id: string, status: "open"|"pending"|"resolved"|"closed") {
     await supabase.from("support_tickets").update({ status }).eq("id", id);
     load();
   }
@@ -68,7 +68,7 @@ function AdminTickets() {
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
                       <p className="font-medium">{t.subject}</p>
-                      <p className="text-xs text-muted-foreground">{t.profiles?.full_name ?? "User"} · {dateTime(t.updated_at)}</p>
+                      <p className="text-xs text-muted-foreground">{t.user_id.slice(0,8)} · {dateTime(t.updated_at)}</p>
                     </div>
                     <Badge variant={t.status === "resolved" ? "default" : "secondary"}>{t.status}</Badge>
                   </CardContent>

@@ -22,8 +22,7 @@ type Row = {
   id: string; status: string; created_at: string;
   proof_text: string | null; proof_url: string | null; attachments: { path: string; name: string }[] | null;
   tasks: { title: string; reward_cents: number } | null;
-  profiles: { full_name: string | null } | null;
-  rejection_reason: string | null;
+    rejection_reason: string | null;
 };
 
 function AdminSubmissions() {
@@ -35,9 +34,9 @@ function AdminSubmissions() {
 
   async function load() {
     const { data } = await supabase.from("task_submissions")
-      .select("id,status,created_at,proof_text,proof_url,attachments,rejection_reason,tasks(title,reward_cents),profiles!task_submissions_user_id_fkey(full_name)")
+      .select("id,status,created_at,proof_text,proof_url,attachments,rejection_reason,tasks(title,reward_cents)")
       .order("created_at", { ascending: false }).limit(500);
-    setRows((data ?? []) as Row[]);
+    setRows(((data ?? []) as unknown) as Row[]);
   }
   useEffect(() => { load(); }, []);
 
@@ -82,7 +81,7 @@ function AdminSubmissions() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium">{r.tasks?.title} <span className="ml-2 text-xs text-muted-foreground">{usd(r.tasks?.reward_cents ?? 0)}</span></p>
-                    <p className="text-xs text-muted-foreground">{r.profiles?.full_name ?? "User"} · {dateTime(r.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">{"User"} · {dateTime(r.created_at)}</p>
                   </div>
                   <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge>
                 </div>

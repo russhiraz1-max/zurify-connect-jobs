@@ -19,8 +19,8 @@ export const Route = createFileRoute("/_authenticated/admin/withdrawals")({
 
 type Row = {
   id: string; status: string; amount_cents: number; fee_cents: number; net_cents: number;
-  destination: { paypal_email?: string }; created_at: string; rejection_reason: string | null;
-  profiles: { full_name: string | null } | null; user_id: string;
+  destination: { paypal_email?: string } | null; created_at: string; rejection_reason: string | null;
+  user_id: string;
 };
 
 function AdminWithdrawals() {
@@ -31,9 +31,9 @@ function AdminWithdrawals() {
 
   async function load() {
     const { data } = await supabase.from("withdrawal_requests")
-      .select("id,status,amount_cents,fee_cents,net_cents,destination,created_at,rejection_reason,user_id,profiles!withdrawal_requests_user_id_fkey(full_name)")
+      .select("id,status,amount_cents,fee_cents,net_cents,destination,created_at,rejection_reason,user_id")
       .order("created_at", { ascending: false }).limit(500);
-    setRows((data ?? []) as Row[]);
+    setRows(((data ?? []) as unknown) as Row[]);
   }
   useEffect(() => { load(); }, []);
 
@@ -76,8 +76,8 @@ function AdminWithdrawals() {
                     <TableRow><TableCell colSpan={7} className="p-8 text-center text-sm text-muted-foreground">Nothing here.</TableCell></TableRow>
                   ) : filtered.map(r => (
                     <TableRow key={r.id}>
-                      <TableCell>{r.profiles?.full_name ?? "—"}</TableCell>
-                      <TableCell className="text-sm">{r.destination?.paypal_email ?? "—"}</TableCell>
+                      <TableCell>{r.user_id.slice(0,8)}</TableCell>
+                      <TableCell className="text-sm">{(r.destination as {paypal_email?:string} | null)?.paypal_email ?? "—"}</TableCell>
                       <TableCell>{usd(r.amount_cents)}</TableCell>
                       <TableCell className="font-medium">{usd(r.net_cents)}</TableCell>
                       <TableCell><Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge></TableCell>

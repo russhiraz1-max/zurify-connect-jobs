@@ -30,7 +30,7 @@ function AdminSettings() {
 
   async function save() {
     if (!s) return;
-    const { error } = await supabase.from("application_settings").update(s).eq("singleton", true);
+    const { error } = await supabase.from("application_settings").update(s as never).eq("singleton", true);
     if (error) return toast.error(error.message);
     toast.success("Saved");
   }

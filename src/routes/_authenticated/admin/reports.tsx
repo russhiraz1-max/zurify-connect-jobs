@@ -24,7 +24,7 @@ function AdminReports() {
   }
   useEffect(() => { load(); }, []);
 
-  async function update(id: string, status: string) {
+  async function update(id: string, status: "open"|"investigating"|"resolved"|"dismissed") {
     const { error } = await supabase.from("reports").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
     load();

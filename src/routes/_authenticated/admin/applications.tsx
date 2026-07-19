@@ -20,8 +20,7 @@ type Row = {
   id: string; status: string; created_at: string; note: string | null;
   user_id: string; rejection_reason: string | null;
   tasks: { title: string } | null;
-  profiles: { full_name: string | null } | null;
-};
+  };
 
 function AdminApplications() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -31,9 +30,9 @@ function AdminApplications() {
 
   async function load() {
     const { data } = await supabase.from("task_applications")
-      .select("id,status,created_at,note,user_id,rejection_reason,tasks(title),profiles!task_applications_user_id_fkey(full_name)")
+      .select("id,status,created_at,note,user_id,rejection_reason,tasks(title)")
       .order("created_at", { ascending: false }).limit(500);
-    setRows((data ?? []) as Row[]);
+    setRows(((data ?? []) as unknown) as Row[]);
   }
   useEffect(() => { load(); }, []);
 
@@ -71,7 +70,7 @@ function AdminApplications() {
               <CardContent className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
                   <p className="truncate font-medium">{r.tasks?.title ?? "Task"}</p>
-                  <p className="text-xs text-muted-foreground">{r.profiles?.full_name ?? "User"} · {dateTime(r.created_at)}</p>
+                  <p className="text-xs text-muted-foreground">{r.user_id.slice(0,8)} · {dateTime(r.created_at)}</p>
                   {r.note && <p className="mt-1 text-xs text-muted-foreground">Note: {r.note}</p>}
                   {r.rejection_reason && <p className="mt-1 text-xs text-destructive">Rejected: {r.rejection_reason}</p>}
                 </div>

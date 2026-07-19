@@ -27,7 +27,7 @@ function AdminStaff() {
     const { data } = await supabase.from("profiles")
       .select("id,full_name,user_roles(role),staff_permissions(permission)")
       .limit(500);
-    const filtered = ((data ?? []) as Staff[]).filter(r => r.user_roles.some(x => ["staff", "super_admin", "admin"].includes(x.role)));
+    const filtered = (((data ?? []) as unknown) as Staff[]).filter(r => r.user_roles.some(x => ["staff", "super_admin", "admin"].includes(x.role)));
     setRows(filtered);
   }
   useEffect(() => { load(); }, []);
