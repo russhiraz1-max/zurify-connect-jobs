@@ -1,17 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon } from "lucide-react";
+import { Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { useRoles } from "@/lib/roles";
 
 function initials(name?: string | null, email?: string | null) {
   const source = (name || email || "?").trim();
@@ -21,6 +18,7 @@ function initials(name?: string | null, email?: string | null) {
 
 export function SiteHeader() {
   const { user } = useSession();
+  const { isStaff } = useRoles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -32,13 +30,8 @@ export function SiteHeader() {
   const navItem = (to: string, label: string) => {
     const active = pathname === to || (to !== "/" && pathname.startsWith(to));
     return (
-      <Link
-        to={to}
-        className={
-          "text-sm font-medium transition-colors " +
-          (active ? "text-foreground" : "text-muted-foreground hover:text-foreground")
-        }
-      >
+      <Link to={to}
+        className={"text-sm font-medium transition-colors " + (active ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>
         {label}
       </Link>
     );
@@ -57,42 +50,58 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
+          {!user && navItem("/how-it-works", "How it works")}
+          {!user && navItem("/faq", "FAQ")}
+          {!user && navItem("/contact", "Contact")}
           {user && navItem("/dashboard", "Dashboard")}
+          {user && navItem("/tasks", "Tasks")}
+          {user && navItem("/wallet", "Wallet")}
         </nav>
 
         <div className="flex items-center gap-2">
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full border border-border bg-surface px-1.5 py-1 pr-3 transition-colors hover:bg-accent">
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="bg-brand-gradient text-xs font-semibold text-primary-foreground">
-                      {initials(name, user.email)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden max-w-[140px] truncate text-sm font-medium sm:inline">
-                    {name}
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard" })}>
-                  <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
-                  <UserIcon className="mr-2 h-4 w-4" /> Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
-                  <SettingsIcon className="mr-2 h-4 w-4" /> Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={signOut} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" /> Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <Button asChild variant="ghost" size="icon" className="relative">
+                <Link to="/notifications" aria-label="Notifications"><Bell className="h-4 w-4" /></Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full border border-border bg-surface px-1.5 py-1 pr-3 transition-colors hover:bg-accent">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="bg-brand-gradient text-xs font-semibold text-primary-foreground">
+                        {initials(name, user.email)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden max-w-[140px] truncate text-sm font-medium sm:inline">{name}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard" })}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
+                    <UserIcon className="mr-2 h-4 w-4" /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                    <SettingsIcon className="mr-2 h-4 w-4" /> Settings
+                  </DropdownMenuItem>
+                  {isStaff && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => navigate({ to: "/admin" })}>
+                        <Shield className="mr-2 h-4 w-4" /> Admin console
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={signOut} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
