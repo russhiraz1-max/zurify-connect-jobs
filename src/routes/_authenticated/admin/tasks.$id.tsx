@@ -30,13 +30,18 @@ function EditTask() {
 
   async function save() {
     if (!form) return;
+    const f = form as Record<string, unknown>;
     const { error } = await supabase.from("tasks").update({
-      title: form.title, description: form.description, instructions: form.instructions,
-      proof_requirements: form.proof_requirements, category_id: form.category_id || null,
-      reward_cents: form.reward_cents, est_minutes: form.est_minutes,
-      max_per_user: form.max_per_user, max_total: form.max_total,
-      requires_application: form.requires_application, allow_reapplication: form.allow_reapplication,
-      featured: form.featured, priority: form.priority, status: form.status,
+      title: String(f.title ?? ""), description: String(f.description ?? ""),
+      instructions: (f.instructions as string) ?? null,
+      proof_requirements: (f.proof_requirements as string) ?? null,
+      category_id: (f.category_id as string) || null as never,
+      reward_cents: Number(f.reward_cents ?? 0), est_minutes: Number(f.est_minutes ?? 0),
+      max_per_user: Number(f.max_per_user ?? 1),
+      max_total: (f.max_total as number) ?? null,
+      requires_application: Boolean(f.requires_application), allow_reapplication: Boolean(f.allow_reapplication),
+      featured: Boolean(f.featured), priority: Number(f.priority ?? 0),
+      status: f.status as "draft" | "published" | "paused" | "archived",
     }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Saved");

@@ -42,9 +42,15 @@ function AdminTasks() {
   async function duplicate(id: string) {
     const { data } = await supabase.from("tasks").select("*").eq("id", id).single();
     if (!data) return;
-    const { id: _, created_at, updated_at, ...rest } = data as never;
-    void _; void created_at; void updated_at;
-    const { error } = await supabase.from("tasks").insert({ ...rest, title: `${rest.title} (copy)`, status: "draft" });
+    const src = data as Record<string, unknown>;
+    const insert: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(src)) {
+      if (k === "id" || k === "created_at" || k === "updated_at") continue;
+      insert[k] = v;
+    }
+    insert.title = `${src.title as string} (copy)`;
+    insert.status = "draft";
+    const { error } = await supabase.from("tasks").insert(insert as never);
     if (error) return toast.error(error.message);
     toast.success("Duplicated");
     load();

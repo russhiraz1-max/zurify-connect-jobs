@@ -40,7 +40,7 @@ function NewTask() {
       description: form.description,
       instructions: form.instructions || null,
       proof_requirements: form.proof_requirements || null,
-      category_id: form.category_id || null,
+      category_id: form.category_id || null as never,
       reward_cents: form.reward_cents,
       est_minutes: form.est_minutes,
       max_per_user: form.max_per_user,
