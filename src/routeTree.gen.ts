@@ -9,16 +9,84 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedWithdrawalsRouteImport } from './routes/_authenticated/withdrawals'
+import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
+import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
+import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedWithdrawalsNewRouteImport } from './routes/_authenticated/withdrawals.new'
+import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks.$id'
+import { Route as AuthenticatedAdminWithdrawalsRouteImport } from './routes/_authenticated/admin/withdrawals'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin/tickets'
+import { Route as AuthenticatedAdminTasksRouteImport } from './routes/_authenticated/admin/tasks'
+import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin/submissions'
+import { Route as AuthenticatedAdminStaffRouteImport } from './routes/_authenticated/admin/staff'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
+import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin/audit-logs'
+import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
+import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin/announcements'
+import { Route as AuthenticatedAdminTasksNewRouteImport } from './routes/_authenticated/admin/tasks.new'
+import { Route as AuthenticatedAdminTasksIdRouteImport } from './routes/_authenticated/admin/tasks.$id'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -30,6 +98,33 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedWithdrawalsRoute =
+  AuthenticatedWithdrawalsRouteImport.update({
+    id: '/withdrawals',
+    path: '/withdrawals',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSubmissionsRoute =
+  AuthenticatedSubmissionsRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -40,63 +135,445 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedApplicationsRoute =
+  AuthenticatedApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedWithdrawalsNewRoute =
+  AuthenticatedWithdrawalsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedWithdrawalsRoute,
+  } as any)
+const AuthenticatedTasksIdRoute = AuthenticatedTasksIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedTasksRoute,
+} as any)
+const AuthenticatedAdminWithdrawalsRoute =
+  AuthenticatedAdminWithdrawalsRouteImport.update({
+    id: '/withdrawals',
+    path: '/withdrawals',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminTicketsRoute =
+  AuthenticatedAdminTicketsRouteImport.update({
+    id: '/tickets',
+    path: '/tickets',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminTasksRoute = AuthenticatedAdminTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminSubmissionsRoute =
+  AuthenticatedAdminSubmissionsRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminStaffRoute = AuthenticatedAdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAuditLogsRoute =
+  AuthenticatedAdminAuditLogsRouteImport.update({
+    id: '/audit-logs',
+    path: '/audit-logs',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminApplicationsRoute =
+  AuthenticatedAdminApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAnnouncementsRoute =
+  AuthenticatedAdminAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminTasksNewRoute =
+  AuthenticatedAdminTasksNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminTasksRoute,
+  } as any)
+const AuthenticatedAdminTasksIdRoute =
+  AuthenticatedAdminTasksIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminTasksRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/applications': typeof AuthenticatedApplicationsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/submissions': typeof AuthenticatedSubmissionsRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/tasks': typeof AuthenticatedTasksRouteWithChildren
+  '/wallet': typeof AuthenticatedWalletRoute
+  '/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/staff': typeof AuthenticatedAdminStaffRoute
+  '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
+  '/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
+  '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
+  '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/applications': typeof AuthenticatedApplicationsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/submissions': typeof AuthenticatedSubmissionsRoute
+  '/support': typeof AuthenticatedSupportRoute
+  '/tasks': typeof AuthenticatedTasksRouteWithChildren
+  '/wallet': typeof AuthenticatedWalletRoute
+  '/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/staff': typeof AuthenticatedAdminStaffRoute
+  '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
+  '/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
+  '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
+  '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
+  '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/tasks': typeof AuthenticatedTasksRouteWithChildren
+  '/_authenticated/wallet': typeof AuthenticatedWalletRoute
+  '/_authenticated/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
+  '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
+  '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/staff': typeof AuthenticatedAdminStaffRoute
+  '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
+  '/_authenticated/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
+  '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
+  '/_authenticated/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
+  '/_authenticated/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/profile' | '/settings'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/cookies'
+    | '/faq'
+    | '/how-it-works'
+    | '/privacy'
+    | '/terms'
+    | '/admin'
+    | '/applications'
+    | '/dashboard'
+    | '/notifications'
+    | '/profile'
+    | '/settings'
+    | '/submissions'
+    | '/support'
+    | '/tasks'
+    | '/wallet'
+    | '/withdrawals'
+    | '/admin/announcements'
+    | '/admin/applications'
+    | '/admin/audit-logs'
+    | '/admin/categories'
+    | '/admin/notifications'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/submissions'
+    | '/admin/tasks'
+    | '/admin/tickets'
+    | '/admin/users'
+    | '/admin/withdrawals'
+    | '/tasks/$id'
+    | '/withdrawals/new'
+    | '/admin/'
+    | '/admin/tasks/$id'
+    | '/admin/tasks/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/profile' | '/settings'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/cookies'
+    | '/faq'
+    | '/how-it-works'
+    | '/privacy'
+    | '/terms'
+    | '/applications'
+    | '/dashboard'
+    | '/notifications'
+    | '/profile'
+    | '/settings'
+    | '/submissions'
+    | '/support'
+    | '/tasks'
+    | '/wallet'
+    | '/withdrawals'
+    | '/admin/announcements'
+    | '/admin/applications'
+    | '/admin/audit-logs'
+    | '/admin/categories'
+    | '/admin/notifications'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/submissions'
+    | '/admin/tasks'
+    | '/admin/tickets'
+    | '/admin/users'
+    | '/admin/withdrawals'
+    | '/tasks/$id'
+    | '/withdrawals/new'
+    | '/admin'
+    | '/admin/tasks/$id'
+    | '/admin/tasks/new'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/auth'
+    | '/contact'
+    | '/cookies'
+    | '/faq'
+    | '/how-it-works'
+    | '/privacy'
+    | '/terms'
+    | '/_authenticated/admin'
+    | '/_authenticated/applications'
     | '/_authenticated/dashboard'
+    | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/settings'
+    | '/_authenticated/submissions'
+    | '/_authenticated/support'
+    | '/_authenticated/tasks'
+    | '/_authenticated/wallet'
+    | '/_authenticated/withdrawals'
+    | '/_authenticated/admin/announcements'
+    | '/_authenticated/admin/applications'
+    | '/_authenticated/admin/audit-logs'
+    | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/notifications'
+    | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/staff'
+    | '/_authenticated/admin/submissions'
+    | '/_authenticated/admin/tasks'
+    | '/_authenticated/admin/tickets'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/admin/withdrawals'
+    | '/_authenticated/tasks/$id'
+    | '/_authenticated/withdrawals/new'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/tasks/$id'
+    | '/_authenticated/admin/tasks/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  FaqRoute: typeof FaqRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -113,6 +590,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/withdrawals': {
+      id: '/_authenticated/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/withdrawals'
+      preLoaderRoute: typeof AuthenticatedWithdrawalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wallet': {
+      id: '/_authenticated/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tasks': {
+      id: '/_authenticated/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AuthenticatedTasksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/support': {
+      id: '/_authenticated/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/submissions': {
+      id: '/_authenticated/submissions'
+      path: '/submissions'
+      fullPath: '/submissions'
+      preLoaderRoute: typeof AuthenticatedSubmissionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -127,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -134,19 +653,256 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/applications': {
+      id: '/_authenticated/applications'
+      path: '/applications'
+      fullPath: '/applications'
+      preLoaderRoute: typeof AuthenticatedApplicationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/withdrawals/new': {
+      id: '/_authenticated/withdrawals/new'
+      path: '/new'
+      fullPath: '/withdrawals/new'
+      preLoaderRoute: typeof AuthenticatedWithdrawalsNewRouteImport
+      parentRoute: typeof AuthenticatedWithdrawalsRoute
+    }
+    '/_authenticated/tasks/$id': {
+      id: '/_authenticated/tasks/$id'
+      path: '/$id'
+      fullPath: '/tasks/$id'
+      preLoaderRoute: typeof AuthenticatedTasksIdRouteImport
+      parentRoute: typeof AuthenticatedTasksRoute
+    }
+    '/_authenticated/admin/withdrawals': {
+      id: '/_authenticated/admin/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/admin/withdrawals'
+      preLoaderRoute: typeof AuthenticatedAdminWithdrawalsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/tickets': {
+      id: '/_authenticated/admin/tickets'
+      path: '/tickets'
+      fullPath: '/admin/tickets'
+      preLoaderRoute: typeof AuthenticatedAdminTicketsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/tasks': {
+      id: '/_authenticated/admin/tasks'
+      path: '/tasks'
+      fullPath: '/admin/tasks'
+      preLoaderRoute: typeof AuthenticatedAdminTasksRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/submissions': {
+      id: '/_authenticated/admin/submissions'
+      path: '/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AuthenticatedAdminSubmissionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/staff': {
+      id: '/_authenticated/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AuthenticatedAdminStaffRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/audit-logs': {
+      id: '/_authenticated/admin/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AuthenticatedAdminAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/applications': {
+      id: '/_authenticated/admin/applications'
+      path: '/applications'
+      fullPath: '/admin/applications'
+      preLoaderRoute: typeof AuthenticatedAdminApplicationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/announcements': {
+      id: '/_authenticated/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/tasks/new': {
+      id: '/_authenticated/admin/tasks/new'
+      path: '/new'
+      fullPath: '/admin/tasks/new'
+      preLoaderRoute: typeof AuthenticatedAdminTasksNewRouteImport
+      parentRoute: typeof AuthenticatedAdminTasksRoute
+    }
+    '/_authenticated/admin/tasks/$id': {
+      id: '/_authenticated/admin/tasks/$id'
+      path: '/$id'
+      fullPath: '/admin/tasks/$id'
+      preLoaderRoute: typeof AuthenticatedAdminTasksIdRouteImport
+      parentRoute: typeof AuthenticatedAdminTasksRoute
+    }
   }
 }
 
+interface AuthenticatedAdminTasksRouteChildren {
+  AuthenticatedAdminTasksIdRoute: typeof AuthenticatedAdminTasksIdRoute
+  AuthenticatedAdminTasksNewRoute: typeof AuthenticatedAdminTasksNewRoute
+}
+
+const AuthenticatedAdminTasksRouteChildren: AuthenticatedAdminTasksRouteChildren =
+  {
+    AuthenticatedAdminTasksIdRoute: AuthenticatedAdminTasksIdRoute,
+    AuthenticatedAdminTasksNewRoute: AuthenticatedAdminTasksNewRoute,
+  }
+
+const AuthenticatedAdminTasksRouteWithChildren =
+  AuthenticatedAdminTasksRoute._addFileChildren(
+    AuthenticatedAdminTasksRouteChildren,
+  )
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
+  AuthenticatedAdminApplicationsRoute: typeof AuthenticatedAdminApplicationsRoute
+  AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
+  AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminStaffRoute: typeof AuthenticatedAdminStaffRoute
+  AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
+  AuthenticatedAdminTasksRoute: typeof AuthenticatedAdminTasksRouteWithChildren
+  AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminWithdrawalsRoute: typeof AuthenticatedAdminWithdrawalsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
+    AuthenticatedAdminApplicationsRoute: AuthenticatedAdminApplicationsRoute,
+    AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
+    AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+    AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
+    AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+    AuthenticatedAdminStaffRoute: AuthenticatedAdminStaffRoute,
+    AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
+    AuthenticatedAdminTasksRoute: AuthenticatedAdminTasksRouteWithChildren,
+    AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+    AuthenticatedAdminWithdrawalsRoute: AuthenticatedAdminWithdrawalsRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedTasksRouteChildren {
+  AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
+}
+
+const AuthenticatedTasksRouteChildren: AuthenticatedTasksRouteChildren = {
+  AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
+}
+
+const AuthenticatedTasksRouteWithChildren =
+  AuthenticatedTasksRoute._addFileChildren(AuthenticatedTasksRouteChildren)
+
+interface AuthenticatedWithdrawalsRouteChildren {
+  AuthenticatedWithdrawalsNewRoute: typeof AuthenticatedWithdrawalsNewRoute
+}
+
+const AuthenticatedWithdrawalsRouteChildren: AuthenticatedWithdrawalsRouteChildren =
+  {
+    AuthenticatedWithdrawalsNewRoute: AuthenticatedWithdrawalsNewRoute,
+  }
+
+const AuthenticatedWithdrawalsRouteWithChildren =
+  AuthenticatedWithdrawalsRoute._addFileChildren(
+    AuthenticatedWithdrawalsRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
+  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedTasksRoute: typeof AuthenticatedTasksRouteWithChildren
+  AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
+  AuthenticatedWithdrawalsRoute: typeof AuthenticatedWithdrawalsRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedApplicationsRoute: AuthenticatedApplicationsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
+  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedTasksRoute: AuthenticatedTasksRouteWithChildren,
+  AuthenticatedWalletRoute: AuthenticatedWalletRoute,
+  AuthenticatedWithdrawalsRoute: AuthenticatedWithdrawalsRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -155,7 +911,14 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  FaqRoute: FaqRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

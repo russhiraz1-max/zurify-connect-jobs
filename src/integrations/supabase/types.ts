@@ -319,6 +319,56 @@ export type Database = {
         }
         Relationships: []
       }
+      task_applications: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          rejection_reason: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          rejection_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          rejection_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_applications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_categories: {
         Row: {
           created_at: string
@@ -404,6 +454,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          allow_reapplication: boolean
           category_id: string | null
           created_at: string
           created_by: string | null
@@ -413,10 +464,12 @@ export type Database = {
           featured: boolean
           id: string
           instructions: string
+          max_applications: number | null
           max_per_user: number
           max_total: number | null
           priority: number
           proof_requirements: string | null
+          requires_application: boolean
           reward_cents: number
           starts_at: string | null
           status: Database["public"]["Enums"]["task_status"]
@@ -424,6 +477,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_reapplication?: boolean
           category_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -433,10 +487,12 @@ export type Database = {
           featured?: boolean
           id?: string
           instructions: string
+          max_applications?: number | null
           max_per_user?: number
           max_total?: number | null
           priority?: number
           proof_requirements?: string | null
+          requires_application?: boolean
           reward_cents: number
           starts_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
@@ -444,6 +500,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_reapplication?: boolean
           category_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -453,10 +510,12 @@ export type Database = {
           featured?: boolean
           id?: string
           instructions?: string
+          max_applications?: number | null
           max_per_user?: number
           max_total?: number | null
           priority?: number
           proof_requirements?: string | null
+          requires_application?: boolean
           reward_cents?: number
           starts_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
@@ -627,6 +686,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_to_task: {
+        Args: { _note?: string; _task_id: string }
+        Returns: string
+      }
+      approve_application: {
+        Args: { _id: string; _notes?: string }
+        Returns: undefined
+      }
       approve_submission: {
         Args: { _notes: string; _submission_id: string }
         Returns: undefined
@@ -635,6 +702,7 @@ export type Database = {
         Args: { _id: string; _notes: string }
         Returns: undefined
       }
+      cancel_application: { Args: { _id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -658,6 +726,10 @@ export type Database = {
           net_cents: number
           unit_cents: number
         }[]
+      }
+      reject_application: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
       }
       reject_submission: {
         Args: {
@@ -698,6 +770,7 @@ export type Database = {
         | "staff"
         | "user"
         | "advertiser"
+      application_status: "pending" | "approved" | "rejected" | "cancelled"
       notification_type:
         | "account_verified"
         | "task_approved"
@@ -708,6 +781,9 @@ export type Database = {
         | "featured_task"
         | "system"
         | "announcement"
+        | "application_approved"
+        | "application_rejected"
+        | "support_reply"
       report_status: "open" | "investigating" | "resolved" | "dismissed"
       staff_permission:
         | "review_submissions"
@@ -717,6 +793,7 @@ export type Database = {
         | "view_tasks"
         | "view_withdrawals"
         | "approve_withdrawals"
+        | "review_applications"
       submission_status: "pending" | "approved" | "rejected" | "resubmit"
       task_status: "draft" | "published" | "paused" | "archived"
       ticket_status: "open" | "pending" | "resolved" | "closed"
@@ -859,6 +936,7 @@ export const Constants = {
         "user",
         "advertiser",
       ],
+      application_status: ["pending", "approved", "rejected", "cancelled"],
       notification_type: [
         "account_verified",
         "task_approved",
@@ -869,6 +947,9 @@ export const Constants = {
         "featured_task",
         "system",
         "announcement",
+        "application_approved",
+        "application_rejected",
+        "support_reply",
       ],
       report_status: ["open", "investigating", "resolved", "dismissed"],
       staff_permission: [
@@ -879,6 +960,7 @@ export const Constants = {
         "view_tasks",
         "view_withdrawals",
         "approve_withdrawals",
+        "review_applications",
       ],
       submission_status: ["pending", "approved", "rejected", "resubmit"],
       task_status: ["draft", "published", "paused", "archived"],
