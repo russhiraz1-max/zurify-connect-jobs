@@ -15,7 +15,7 @@ import { MoreHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usd, shortDate } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/admin/tasks")({
+export const Route = createFileRoute("/_authenticated/admin/tasks/")({
   head: () => ({ meta: [{ title: "Admin tasks — Zurify" }] }),
   component: AdminTasks,
 });

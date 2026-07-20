@@ -36,7 +36,6 @@ import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminWithdrawalsRouteImport } from './routes/_authenticated/admin/withdrawals'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin/tickets'
-import { Route as AuthenticatedAdminTasksRouteImport } from './routes/_authenticated/admin/tasks'
 import { Route as AuthenticatedAdminSubmissionsRouteImport } from './routes/_authenticated/admin/submissions'
 import { Route as AuthenticatedAdminStaffRouteImport } from './routes/_authenticated/admin/staff'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
@@ -46,6 +45,7 @@ import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin/audit-logs'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin/announcements'
+import { Route as AuthenticatedAdminTasksIndexRouteImport } from './routes/_authenticated/admin/tasks.index'
 import { Route as AuthenticatedAdminTasksNewRouteImport } from './routes/_authenticated/admin/tasks.new'
 import { Route as AuthenticatedAdminTasksIdRouteImport } from './routes/_authenticated/admin/tasks.$id'
 
@@ -190,11 +190,6 @@ const AuthenticatedAdminTicketsRoute =
     path: '/tickets',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminTasksRoute = AuthenticatedAdminTasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
 const AuthenticatedAdminSubmissionsRoute =
   AuthenticatedAdminSubmissionsRouteImport.update({
     id: '/submissions',
@@ -248,17 +243,23 @@ const AuthenticatedAdminAnnouncementsRoute =
     path: '/announcements',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminTasksIndexRoute =
+  AuthenticatedAdminTasksIndexRouteImport.update({
+    id: '/tasks/',
+    path: '/tasks/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminTasksNewRoute =
   AuthenticatedAdminTasksNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedAdminTasksRoute,
+    id: '/tasks/new',
+    path: '/tasks/new',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminTasksIdRoute =
   AuthenticatedAdminTasksIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdminTasksRoute,
+    id: '/tasks/$id',
+    path: '/tasks/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -291,7 +292,6 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/staff': typeof AuthenticatedAdminStaffRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
   '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
@@ -300,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -330,7 +331,6 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/staff': typeof AuthenticatedAdminStaffRoute
   '/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
   '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
@@ -339,6 +339,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/tasks': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -372,7 +373,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/staff': typeof AuthenticatedAdminStaffRoute
   '/_authenticated/admin/submissions': typeof AuthenticatedAdminSubmissionsRoute
-  '/_authenticated/admin/tasks': typeof AuthenticatedAdminTasksRouteWithChildren
   '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
@@ -381,6 +381,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/_authenticated/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/_authenticated/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -414,7 +415,6 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/submissions'
-    | '/admin/tasks'
     | '/admin/tickets'
     | '/admin/users'
     | '/admin/withdrawals'
@@ -423,6 +423,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/tasks/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -453,7 +454,6 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/submissions'
-    | '/admin/tasks'
     | '/admin/tickets'
     | '/admin/users'
     | '/admin/withdrawals'
@@ -462,6 +462,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/tasks'
   id:
     | '__root__'
     | '/'
@@ -494,7 +495,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/staff'
     | '/_authenticated/admin/submissions'
-    | '/_authenticated/admin/tasks'
     | '/_authenticated/admin/tickets'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/withdrawals'
@@ -503,6 +503,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/admin/tasks/$id'
     | '/_authenticated/admin/tasks/new'
+    | '/_authenticated/admin/tasks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -709,13 +710,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTicketsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/tasks': {
-      id: '/_authenticated/admin/tasks'
-      path: '/tasks'
-      fullPath: '/admin/tasks'
-      preLoaderRoute: typeof AuthenticatedAdminTasksRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
     '/_authenticated/admin/submissions': {
       id: '/_authenticated/admin/submissions'
       path: '/submissions'
@@ -779,38 +773,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/tasks/': {
+      id: '/_authenticated/admin/tasks/'
+      path: '/tasks'
+      fullPath: '/admin/tasks/'
+      preLoaderRoute: typeof AuthenticatedAdminTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/tasks/new': {
       id: '/_authenticated/admin/tasks/new'
-      path: '/new'
+      path: '/tasks/new'
       fullPath: '/admin/tasks/new'
       preLoaderRoute: typeof AuthenticatedAdminTasksNewRouteImport
-      parentRoute: typeof AuthenticatedAdminTasksRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/tasks/$id': {
       id: '/_authenticated/admin/tasks/$id'
-      path: '/$id'
+      path: '/tasks/$id'
       fullPath: '/admin/tasks/$id'
       preLoaderRoute: typeof AuthenticatedAdminTasksIdRouteImport
-      parentRoute: typeof AuthenticatedAdminTasksRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
 }
-
-interface AuthenticatedAdminTasksRouteChildren {
-  AuthenticatedAdminTasksIdRoute: typeof AuthenticatedAdminTasksIdRoute
-  AuthenticatedAdminTasksNewRoute: typeof AuthenticatedAdminTasksNewRoute
-}
-
-const AuthenticatedAdminTasksRouteChildren: AuthenticatedAdminTasksRouteChildren =
-  {
-    AuthenticatedAdminTasksIdRoute: AuthenticatedAdminTasksIdRoute,
-    AuthenticatedAdminTasksNewRoute: AuthenticatedAdminTasksNewRoute,
-  }
-
-const AuthenticatedAdminTasksRouteWithChildren =
-  AuthenticatedAdminTasksRoute._addFileChildren(
-    AuthenticatedAdminTasksRouteChildren,
-  )
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
@@ -822,11 +807,13 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminStaffRoute: typeof AuthenticatedAdminStaffRoute
   AuthenticatedAdminSubmissionsRoute: typeof AuthenticatedAdminSubmissionsRoute
-  AuthenticatedAdminTasksRoute: typeof AuthenticatedAdminTasksRouteWithChildren
   AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminWithdrawalsRoute: typeof AuthenticatedAdminWithdrawalsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminTasksIdRoute: typeof AuthenticatedAdminTasksIdRoute
+  AuthenticatedAdminTasksNewRoute: typeof AuthenticatedAdminTasksNewRoute
+  AuthenticatedAdminTasksIndexRoute: typeof AuthenticatedAdminTasksIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -840,11 +827,13 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminStaffRoute: AuthenticatedAdminStaffRoute,
     AuthenticatedAdminSubmissionsRoute: AuthenticatedAdminSubmissionsRoute,
-    AuthenticatedAdminTasksRoute: AuthenticatedAdminTasksRouteWithChildren,
     AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminWithdrawalsRoute: AuthenticatedAdminWithdrawalsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminTasksIdRoute: AuthenticatedAdminTasksIdRoute,
+    AuthenticatedAdminTasksNewRoute: AuthenticatedAdminTasksNewRoute,
+    AuthenticatedAdminTasksIndexRoute: AuthenticatedAdminTasksIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
