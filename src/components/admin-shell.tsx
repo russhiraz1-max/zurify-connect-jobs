@@ -8,26 +8,43 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
+import { useRoles, type StaffPermission } from "@/lib/roles";
 
-const nav = [
+type NavItem = {
+  to: string; label: string; icon: typeof LayoutDashboard;
+  exact?: boolean;
+  // undefined -> visible to any staff/super-admin; superOnly -> super admin only;
+  // perm -> visible if super admin OR has this permission
+  superOnly?: boolean; perm?: StaffPermission;
+};
+
+const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
-  { to: "/admin/tasks", label: "Tasks", icon: ListChecks },
-  { to: "/admin/applications", label: "Applications", icon: Send },
-  { to: "/admin/submissions", label: "Submissions", icon: FileCheck2 },
-  { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine },
-  { to: "/admin/users", label: "Users", icon: Users },
-  { to: "/admin/staff", label: "Staff", icon: UserCog },
-  { to: "/admin/categories", label: "Categories", icon: Tag },
-  { to: "/admin/reports", label: "Reports", icon: Flag },
-  { to: "/admin/tickets", label: "Support", icon: LifeBuoy },
-  { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
-  { to: "/admin/notifications", label: "Notifications", icon: Bell },
-  { to: "/admin/audit-logs", label: "Audit logs", icon: ScrollText },
-  { to: "/admin/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/admin/tasks", label: "Tasks", icon: ListChecks, perm: "view_tasks" },
+  { to: "/admin/applications", label: "Applications", icon: Send, perm: "review_applications" },
+  { to: "/admin/submissions", label: "Submissions", icon: FileCheck2, perm: "review_submissions" },
+  { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine, perm: "view_withdrawals" },
+  { to: "/admin/tickets", label: "Support", icon: LifeBuoy, perm: "reply_tickets" },
+  { to: "/admin/reports", label: "Reports", icon: Flag, perm: "review_reports" },
+  { to: "/admin/announcements", label: "Announcements", icon: Megaphone, superOnly: true },
+  { to: "/admin/users", label: "Users", icon: Users, superOnly: true },
+  { to: "/admin/staff", label: "Staff", icon: UserCog, superOnly: true },
+  { to: "/admin/categories", label: "Categories", icon: Tag, superOnly: true },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell, superOnly: true },
+  { to: "/admin/audit-logs", label: "Audit logs", icon: ScrollText, superOnly: true },
+  { to: "/admin/settings", label: "Settings", icon: SettingsIcon, superOnly: true },
 ];
 
 export function AdminShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const { isSuperAdmin, has } = useRoles();
+  const nav = NAV.filter(item => {
+    if (item.exact && item.to === "/admin") return true;
+    if (isSuperAdmin) return true;
+    if (item.superOnly) return false;
+    if (item.perm) return has(item.perm);
+    return false;
+  });
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -36,7 +53,7 @@ export function AdminShell({ children, title, subtitle }: { children: ReactNode;
           <div className="sticky top-20 space-y-1">
             <div className="mb-3 flex items-center gap-2 rounded-md bg-brand-gradient px-3 py-2 text-primary-foreground">
               <Shield className="h-4 w-4" />
-              <span className="text-sm font-semibold">Admin Console</span>
+              <span className="text-sm font-semibold">{isSuperAdmin ? "Admin Console" : "Staff Console"}</span>
             </div>
             {nav.map(item => {
               const active = item.exact ? pathname === item.to : pathname === item.to || pathname.startsWith(item.to + "/");
