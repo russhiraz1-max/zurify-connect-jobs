@@ -208,12 +208,23 @@ function TaskDetailPage() {
                 </div>
               )}
               {canApply && task.requires_application && (
-                <div className="mt-4 space-y-2">
-                  <Label htmlFor="app-note">Note to reviewer (optional)</Label>
-                  <Textarea id="app-note" value={note} onChange={e => setNote(e.target.value)} rows={3} />
-                  <Button onClick={apply} disabled={busy} className="w-full">Apply to task</Button>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <Label htmlFor="app-cover">Cover letter <span className="text-destructive">*</span></Label>
+                    <Textarea id="app-cover" value={coverLetter} onChange={e => setCoverLetter(e.target.value)} rows={4} placeholder="Explain why you're a good fit…" />
+                  </div>
+                  <div>
+                    <Label htmlFor="app-exp">Relevant experience (optional)</Label>
+                    <Textarea id="app-exp" value={experience} onChange={e => setExperience(e.target.value)} rows={3} />
+                  </div>
+                  <div>
+                    <Label htmlFor="app-cv">CV / Resume — PDF (optional)</Label>
+                    <Input id="app-cv" type="file" accept="application/pdf" onChange={e => setCvFile(e.target.files?.[0] ?? null)} />
+                  </div>
+                  <Button onClick={apply} disabled={busy || !coverLetter.trim()} className="w-full">Submit application</Button>
                 </div>
               )}
+
               {!task.requires_application && !approved && (
                 <p className="mt-3 text-xs text-muted-foreground">No application required — you can submit directly.</p>
               )}
