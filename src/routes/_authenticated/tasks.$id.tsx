@@ -76,9 +76,10 @@ function TaskDetailPage() {
       _task_id: id,
       _note: coverLetter,
       _cover_letter: coverLetter,
-      _experience: experience || null,
-      _cv_path: cv_path,
+      _experience: experience || undefined,
+      _cv_path: cv_path || undefined,
     });
+
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Application submitted — pending review");
