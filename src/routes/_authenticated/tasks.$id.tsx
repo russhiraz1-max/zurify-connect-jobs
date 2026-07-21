@@ -36,7 +36,9 @@ function TaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [app, setApp] = useState<App | null>(null);
   const [subs, setSubs] = useState<Sub[]>([]);
-  const [note, setNote] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+  const [experience, setExperience] = useState("");
+  const [cvFile, setCvFile] = useState<File | null>(null);
   const [proofText, setProofText] = useState("");
   const [proofUrl, setProofUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -59,14 +61,31 @@ function TaskDetailPage() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id, user?.id]);
 
   async function apply() {
+    if (!user) return;
+    if (!coverLetter.trim()) return toast.error("Please write a cover letter");
     setBusy(true);
-    const { error } = await supabase.rpc("apply_to_task", { _task_id: id, _note: note || "" });
+    let cv_path: string | null = null;
+    if (cvFile) {
+      if (cvFile.type !== "application/pdf") { setBusy(false); return toast.error("CV must be a PDF"); }
+      const path = `${user.id}/applications/${id}/${Date.now()}-${cvFile.name}`;
+      const up = await supabase.storage.from("submission-proofs").upload(path, cvFile);
+      if (up.error) { setBusy(false); return toast.error(up.error.message); }
+      cv_path = path;
+    }
+    const { error } = await supabase.rpc("apply_to_task", {
+      _task_id: id,
+      _note: coverLetter,
+      _cover_letter: coverLetter,
+      _experience: experience || null,
+      _cv_path: cv_path,
+    });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Application submitted for review");
-    setNote("");
+    toast.success("Application submitted — pending review");
+    setCoverLetter(""); setExperience(""); setCvFile(null);
     load();
   }
+
 
   async function submit() {
     if (!user) return;
