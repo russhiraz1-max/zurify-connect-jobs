@@ -321,7 +321,10 @@ export type Database = {
       }
       task_applications: {
         Row: {
+          cover_letter: string | null
           created_at: string
+          cv_path: string | null
+          experience: string | null
           id: string
           note: string | null
           rejection_reason: string | null
@@ -334,7 +337,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cover_letter?: string | null
           created_at?: string
+          cv_path?: string | null
+          experience?: string | null
           id?: string
           note?: string | null
           rejection_reason?: string | null
@@ -347,7 +353,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cover_letter?: string | null
           created_at?: string
+          cv_path?: string | null
+          experience?: string | null
           id?: string
           note?: string | null
           rejection_reason?: string | null
@@ -687,7 +696,13 @@ export type Database = {
     }
     Functions: {
       apply_to_task: {
-        Args: { _note?: string; _task_id: string }
+        Args: {
+          _cover_letter?: string
+          _cv_path?: string
+          _experience?: string
+          _note?: string
+          _task_id: string
+        }
         Returns: string
       }
       approve_application: {
@@ -793,6 +808,8 @@ export type Database = {
         | "application_approved"
         | "application_rejected"
         | "support_reply"
+        | "application_received"
+        | "submission_received"
       report_status: "open" | "investigating" | "resolved" | "dismissed"
       staff_permission:
         | "review_submissions"
@@ -959,6 +976,8 @@ export const Constants = {
         "application_approved",
         "application_rejected",
         "support_reply",
+        "application_received",
+        "submission_received",
       ],
       report_status: ["open", "investigating", "resolved", "dismissed"],
       staff_permission: [

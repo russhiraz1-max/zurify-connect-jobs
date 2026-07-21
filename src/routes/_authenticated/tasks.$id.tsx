@@ -36,7 +36,9 @@ function TaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [app, setApp] = useState<App | null>(null);
   const [subs, setSubs] = useState<Sub[]>([]);
-  const [note, setNote] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+  const [experience, setExperience] = useState("");
+  const [cvFile, setCvFile] = useState<File | null>(null);
   const [proofText, setProofText] = useState("");
   const [proofUrl, setProofUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -59,14 +61,32 @@ function TaskDetailPage() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id, user?.id]);
 
   async function apply() {
+    if (!user) return;
+    if (!coverLetter.trim()) return toast.error("Please write a cover letter");
     setBusy(true);
-    const { error } = await supabase.rpc("apply_to_task", { _task_id: id, _note: note || "" });
+    let cv_path: string | null = null;
+    if (cvFile) {
+      if (cvFile.type !== "application/pdf") { setBusy(false); return toast.error("CV must be a PDF"); }
+      const path = `${user.id}/applications/${id}/${Date.now()}-${cvFile.name}`;
+      const up = await supabase.storage.from("submission-proofs").upload(path, cvFile);
+      if (up.error) { setBusy(false); return toast.error(up.error.message); }
+      cv_path = path;
+    }
+    const { error } = await supabase.rpc("apply_to_task", {
+      _task_id: id,
+      _note: coverLetter,
+      _cover_letter: coverLetter,
+      _experience: experience || undefined,
+      _cv_path: cv_path || undefined,
+    });
+
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Application submitted for review");
-    setNote("");
+    toast.success("Application submitted — pending review");
+    setCoverLetter(""); setExperience(""); setCvFile(null);
     load();
   }
+
 
   async function submit() {
     if (!user) return;
@@ -188,12 +208,23 @@ function TaskDetailPage() {
                 </div>
               )}
               {canApply && task.requires_application && (
-                <div className="mt-4 space-y-2">
-                  <Label htmlFor="app-note">Note to reviewer (optional)</Label>
-                  <Textarea id="app-note" value={note} onChange={e => setNote(e.target.value)} rows={3} />
-                  <Button onClick={apply} disabled={busy} className="w-full">Apply to task</Button>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <Label htmlFor="app-cover">Cover letter <span className="text-destructive">*</span></Label>
+                    <Textarea id="app-cover" value={coverLetter} onChange={e => setCoverLetter(e.target.value)} rows={4} placeholder="Explain why you're a good fit…" />
+                  </div>
+                  <div>
+                    <Label htmlFor="app-exp">Relevant experience (optional)</Label>
+                    <Textarea id="app-exp" value={experience} onChange={e => setExperience(e.target.value)} rows={3} />
+                  </div>
+                  <div>
+                    <Label htmlFor="app-cv">CV / Resume — PDF (optional)</Label>
+                    <Input id="app-cv" type="file" accept="application/pdf" onChange={e => setCvFile(e.target.files?.[0] ?? null)} />
+                  </div>
+                  <Button onClick={apply} disabled={busy || !coverLetter.trim()} className="w-full">Submit application</Button>
                 </div>
               )}
+
               {!task.requires_application && !approved && (
                 <p className="mt-3 text-xs text-muted-foreground">No application required — you can submit directly.</p>
               )}

@@ -19,14 +19,16 @@ export const Route = createFileRoute("/_authenticated/admin/submissions")({
 });
 
 type Row = {
-  id: string; status: string; created_at: string;
+  id: string; status: string; created_at: string; user_id: string;
   proof_text: string | null; proof_url: string | null; attachments: { path: string; name: string }[] | null;
   tasks: { title: string; reward_cents: number } | null;
-    rejection_reason: string | null;
+  rejection_reason: string | null;
 };
+type Profile = { id: string; full_name: string | null };
 
 function AdminSubmissions() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [tab, setTab] = useState("pending");
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
@@ -34,9 +36,17 @@ function AdminSubmissions() {
 
   async function load() {
     const { data } = await supabase.from("task_submissions")
-      .select("id,status,created_at,proof_text,proof_url,attachments,rejection_reason,tasks(title,reward_cents)")
+      .select("id,status,created_at,user_id,proof_text,proof_url,attachments,rejection_reason,tasks(title,reward_cents)")
       .order("created_at", { ascending: false }).limit(500);
-    setRows(((data ?? []) as unknown) as Row[]);
+    const list = ((data ?? []) as unknown) as Row[];
+    setRows(list);
+    const ids = Array.from(new Set(list.map(r => r.user_id)));
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
+      const map: Record<string, Profile> = {};
+      (profs ?? []).forEach((p: Profile) => { map[p.id] = p; });
+      setProfiles(map);
+    }
   }
   useEffect(() => { load(); }, []);
 
@@ -56,9 +66,11 @@ function AdminSubmissions() {
   }
 
   async function proofLink(path: string) {
-    const { data } = await supabase.storage.from("submission-proofs").createSignedUrl(path, 300);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+    const { data, error } = await supabase.storage.from("submission-proofs").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) return toast.error(error?.message ?? "Cannot open file");
+    window.open(data.signedUrl, "_blank");
   }
+
 
   const filtered = rows.filter(r => tab === "all" || r.status === tab);
 
@@ -81,7 +93,7 @@ function AdminSubmissions() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium">{r.tasks?.title} <span className="ml-2 text-xs text-muted-foreground">{usd(r.tasks?.reward_cents ?? 0)}</span></p>
-                    <p className="text-xs text-muted-foreground">{"User"} · {dateTime(r.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">{profiles[r.user_id]?.full_name ?? r.user_id.slice(0,8)} · {dateTime(r.created_at)}</p>
                   </div>
                   <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge>
                 </div>
