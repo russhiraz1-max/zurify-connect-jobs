@@ -21,7 +21,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedWithdrawalsRouteImport } from './routes/_authenticated/withdrawals'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
-import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -30,6 +29,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedWithdrawalsNewRouteImport } from './routes/_authenticated/withdrawals.new'
 import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks.$id'
@@ -109,11 +109,6 @@ const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -157,6 +152,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -169,9 +169,9 @@ const AuthenticatedWithdrawalsNewRoute =
     getParentRoute: () => AuthenticatedWithdrawalsRoute,
   } as any)
 const AuthenticatedTasksIdRoute = AuthenticatedTasksIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedTasksRoute,
+  id: '/tasks/$id',
+  path: '/tasks/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminWithdrawalsRoute =
   AuthenticatedAdminWithdrawalsRouteImport.update({
@@ -280,7 +280,6 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
-  '/tasks': typeof AuthenticatedTasksRouteWithChildren
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -298,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
   '/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
@@ -319,7 +319,6 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
-  '/tasks': typeof AuthenticatedTasksRouteWithChildren
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -337,6 +336,7 @@ export interface FileRoutesByTo {
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/tasks': typeof AuthenticatedTasksIndexRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
   '/admin/tasks': typeof AuthenticatedAdminTasksIndexRoute
@@ -361,7 +361,6 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
-  '/_authenticated/tasks': typeof AuthenticatedTasksRouteWithChildren
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdrawals': typeof AuthenticatedWithdrawalsRouteWithChildren
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -379,6 +378,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/_authenticated/withdrawals/new': typeof AuthenticatedWithdrawalsNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/_authenticated/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
   '/_authenticated/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
@@ -403,7 +403,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submissions'
     | '/support'
-    | '/tasks'
     | '/wallet'
     | '/withdrawals'
     | '/admin/announcements'
@@ -421,6 +420,7 @@ export interface FileRouteTypes {
     | '/tasks/$id'
     | '/withdrawals/new'
     | '/admin/'
+    | '/tasks/'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
     | '/admin/tasks/'
@@ -442,7 +442,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submissions'
     | '/support'
-    | '/tasks'
     | '/wallet'
     | '/withdrawals'
     | '/admin/announcements'
@@ -460,6 +459,7 @@ export interface FileRouteTypes {
     | '/tasks/$id'
     | '/withdrawals/new'
     | '/admin'
+    | '/tasks'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
     | '/admin/tasks'
@@ -483,7 +483,6 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/submissions'
     | '/_authenticated/support'
-    | '/_authenticated/tasks'
     | '/_authenticated/wallet'
     | '/_authenticated/withdrawals'
     | '/_authenticated/admin/announcements'
@@ -501,6 +500,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/$id'
     | '/_authenticated/withdrawals/new'
     | '/_authenticated/admin/'
+    | '/_authenticated/tasks/'
     | '/_authenticated/admin/tasks/$id'
     | '/_authenticated/admin/tasks/new'
     | '/_authenticated/admin/tasks/'
@@ -605,13 +605,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWalletRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/tasks': {
-      id: '/_authenticated/tasks'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/support': {
       id: '/_authenticated/support'
       path: '/support'
@@ -668,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tasks/': {
+      id: '/_authenticated/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -684,10 +684,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/tasks/$id': {
       id: '/_authenticated/tasks/$id'
-      path: '/$id'
+      path: '/tasks/$id'
       fullPath: '/tasks/$id'
       preLoaderRoute: typeof AuthenticatedTasksIdRouteImport
-      parentRoute: typeof AuthenticatedTasksRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/withdrawals': {
       id: '/_authenticated/admin/withdrawals'
@@ -841,17 +841,6 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
-interface AuthenticatedTasksRouteChildren {
-  AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
-}
-
-const AuthenticatedTasksRouteChildren: AuthenticatedTasksRouteChildren = {
-  AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
-}
-
-const AuthenticatedTasksRouteWithChildren =
-  AuthenticatedTasksRoute._addFileChildren(AuthenticatedTasksRouteChildren)
-
 interface AuthenticatedWithdrawalsRouteChildren {
   AuthenticatedWithdrawalsNewRoute: typeof AuthenticatedWithdrawalsNewRoute
 }
@@ -875,9 +864,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
-  AuthenticatedTasksRoute: typeof AuthenticatedTasksRouteWithChildren
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawalsRoute: typeof AuthenticatedWithdrawalsRouteWithChildren
+  AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
+  AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -889,9 +879,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
-  AuthenticatedTasksRoute: AuthenticatedTasksRouteWithChildren,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawalsRoute: AuthenticatedWithdrawalsRouteWithChildren,
+  AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
+  AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
