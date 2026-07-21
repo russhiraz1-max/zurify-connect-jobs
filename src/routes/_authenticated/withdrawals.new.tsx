@@ -29,10 +29,8 @@ function NewWithdrawalPage() {
     if (!user) return;
     supabase.from("wallets").select("available_cents").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => setAvailable((data as { available_cents: number } | null)?.available_cents ?? 0));
-    supabase.from("application_settings")
-      .select("min_withdrawal_cents,withdrawal_unit_cents,fee_bps_per_unit,paypal_instructions")
-      .eq("singleton", true).maybeSingle()
-      .then(({ data }) => setSettings(data as never));
+    supabase.rpc("get_withdrawal_settings")
+      .then(({ data }) => setSettings((Array.isArray(data) ? data[0] : data) as never));
   }, [user?.id]);
 
   const cents = Math.round(parseFloat(amount || "0") * 100);
