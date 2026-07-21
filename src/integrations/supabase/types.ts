@@ -703,6 +703,15 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      get_withdrawal_settings: {
+        Args: never
+        Returns: {
+          fee_bps_per_unit: number
+          min_withdrawal_cents: number
+          paypal_instructions: string
+          withdrawal_unit_cents: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
