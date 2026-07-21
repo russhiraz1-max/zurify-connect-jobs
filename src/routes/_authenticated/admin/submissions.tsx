@@ -93,7 +93,7 @@ function AdminSubmissions() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium">{r.tasks?.title} <span className="ml-2 text-xs text-muted-foreground">{usd(r.tasks?.reward_cents ?? 0)}</span></p>
-                    <p className="text-xs text-muted-foreground">{"User"} · {dateTime(r.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">{profiles[r.user_id]?.full_name ?? r.user_id.slice(0,8)} · {dateTime(r.created_at)}</p>
                   </div>
                   <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge>
                 </div>
