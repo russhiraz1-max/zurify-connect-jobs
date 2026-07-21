@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { usd } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/tasks")({
+export const Route = createFileRoute("/_authenticated/tasks/")({
   head: () => ({ meta: [{ title: "Tasks — Zurify" }] }),
   component: TasksPage,
 });
