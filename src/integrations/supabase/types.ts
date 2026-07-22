@@ -161,8 +161,10 @@ export type Database = {
           headline: string | null
           id: string
           location: string | null
+          suspended: boolean
           updated_at: string
           website: string | null
+          withdrawal_hold: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -172,8 +174,10 @@ export type Database = {
           headline?: string | null
           id: string
           location?: string | null
+          suspended?: boolean
           updated_at?: string
           website?: string | null
+          withdrawal_hold?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -183,8 +187,10 @@ export type Database = {
           headline?: string | null
           id?: string
           location?: string | null
+          suspended?: boolean
           updated_at?: string
           website?: string | null
+          withdrawal_hold?: boolean
         }
         Relationships: []
       }
@@ -617,6 +623,7 @@ export type Database = {
           lifetime_earned_cents: number
           lifetime_withdrawn_cents: number
           pending_cents: number
+          pending_withdrawal_cents: number
           updated_at: string
           user_id: string
         }
@@ -627,6 +634,7 @@ export type Database = {
           lifetime_earned_cents?: number
           lifetime_withdrawn_cents?: number
           pending_cents?: number
+          pending_withdrawal_cents?: number
           updated_at?: string
           user_id: string
         }
@@ -637,6 +645,7 @@ export type Database = {
           lifetime_earned_cents?: number
           lifetime_withdrawn_cents?: number
           pending_cents?: number
+          pending_withdrawal_cents?: number
           updated_at?: string
           user_id?: string
         }
@@ -695,6 +704,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_staff: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_super_admin: boolean
+          last_sign_in_at: string
+          permissions: string[]
+        }[]
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          applications_count: number
+          approved_tasks: number
+          available_cents: number
+          avatar_url: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          lifetime_earned_cents: number
+          lifetime_withdrawn_cents: number
+          pending_tasks: number
+          pending_withdrawal_cents: number
+          roles: string[]
+          suspended: boolean
+          withdrawal_hold: boolean
+          withdrawals_count: number
+        }[]
+      }
+      admin_promote_staff: { Args: { _user_id: string }; Returns: undefined }
+      admin_remove_staff: { Args: { _user_id: string }; Returns: undefined }
+      admin_set_suspended: {
+        Args: { _suspended: boolean; _user_id: string }
+        Returns: undefined
+      }
+      admin_set_withdrawal_hold: {
+        Args: { _hold: boolean; _user_id: string }
+        Returns: undefined
+      }
       apply_to_task: {
         Args: {
           _cover_letter?: string
@@ -763,10 +817,16 @@ export type Database = {
         }
         Returns: undefined
       }
-      reject_withdrawal: {
-        Args: { _id: string; _reason: string }
-        Returns: undefined
-      }
+      reject_withdrawal:
+        | { Args: { _id: string; _reason: string }; Returns: undefined }
+        | {
+            Args: {
+              _id: string
+              _reason: string
+              _suspend_withdrawals?: boolean
+            }
+            Returns: undefined
+          }
       request_withdrawal: {
         Args: {
           _amount_cents: number
@@ -810,6 +870,10 @@ export type Database = {
         | "support_reply"
         | "application_received"
         | "submission_received"
+        | "withdrawal_requested"
+        | "withdrawal_hold_enabled"
+        | "withdrawal_hold_removed"
+        | "reward_credited"
       report_status: "open" | "investigating" | "resolved" | "dismissed"
       staff_permission:
         | "review_submissions"
@@ -978,6 +1042,10 @@ export const Constants = {
         "support_reply",
         "application_received",
         "submission_received",
+        "withdrawal_requested",
+        "withdrawal_hold_enabled",
+        "withdrawal_hold_removed",
+        "reward_credited",
       ],
       report_status: ["open", "investigating", "resolved", "dismissed"],
       staff_permission: [
