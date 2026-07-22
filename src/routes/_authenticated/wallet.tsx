@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
 });
 
-type Wallet = { available_cents: number; pending_cents: number; lifetime_earned_cents: number; lifetime_withdrawn_cents: number };
+type Wallet = { available_cents: number; pending_cents: number; pending_withdrawal_cents: number; lifetime_earned_cents: number; lifetime_withdrawn_cents: number };
 type Tx = { id: string; type: string; amount_cents: number; balance_after_cents: number; memo: string | null; created_at: string };
 
 function WalletPage() {
@@ -24,7 +24,7 @@ function WalletPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("wallets").select("available_cents,pending_cents,lifetime_earned_cents,lifetime_withdrawn_cents")
+    supabase.from("wallets").select("available_cents,pending_cents,pending_withdrawal_cents,lifetime_earned_cents,lifetime_withdrawn_cents")
       .eq("user_id", user.id).maybeSingle().then(({ data }) => setWallet(data as Wallet | null));
     supabase.from("wallet_transactions").select("id,type,amount_cents,balance_after_cents,memo,created_at")
       .eq("user_id", user.id).order("created_at", { ascending: false }).limit(100)
@@ -33,7 +33,7 @@ function WalletPage() {
 
   const stats = [
     { label: "Available", value: usd(wallet?.available_cents ?? 0), icon: WalletIcon },
-    { label: "Pending", value: usd(wallet?.pending_cents ?? 0), icon: Clock },
+    { label: "Pending withdrawal", value: usd(wallet?.pending_withdrawal_cents ?? 0), icon: Clock },
     { label: "Lifetime earned", value: usd(wallet?.lifetime_earned_cents ?? 0), icon: TrendingUp },
     { label: "Lifetime withdrawn", value: usd(wallet?.lifetime_withdrawn_cents ?? 0), icon: ArrowDownToLine },
   ];
