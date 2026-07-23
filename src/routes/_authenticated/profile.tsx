@@ -111,6 +111,7 @@ function ProfilePage() {
               </div>
             </form>
           )}
+          <PromotionCodeSection />
         </div>
       </main>
       <SiteFooter />

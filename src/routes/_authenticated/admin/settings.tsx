@@ -18,6 +18,9 @@ type Settings = {
   site_name: string; super_admin_email: string | null; staff_bootstrap_email: string | null;
   min_withdrawal_cents: number; withdrawal_unit_cents: number; fee_bps_per_unit: number;
   paypal_instructions: string | null;
+  referral_enabled: boolean; referral_welcome_bonus_cents: number; referral_commission_bps: number;
+  referral_min_withdrawal_cents: number; referral_code_length: number; referral_allowed_chars: string;
+  referral_default_max_uses: number | null; referral_unlimited_uses: boolean;
 };
 
 function AdminSettings() {
@@ -52,6 +55,32 @@ function AdminSettings() {
           </div>
           <div><Label>PayPal instructions</Label><Textarea rows={3} value={s.paypal_instructions ?? ""} onChange={e => set("paypal_instructions", e.target.value)} /></div>
           <Button onClick={save}>Save settings</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6 max-w-2xl">
+        <CardContent className="space-y-4 p-6">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Referral settings</h2>
+            <p className="text-sm text-muted-foreground">Control the referral & affiliate program.</p>
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <div><Label>Referral system enabled</Label><p className="text-xs text-muted-foreground">Turn the entire referral program on or off.</p></div>
+            <input type="checkbox" checked={s.referral_enabled} onChange={e => set("referral_enabled", e.target.checked)} className="h-5 w-5" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div><Label>Welcome bonus (cents)</Label><Input type="number" value={s.referral_welcome_bonus_cents} onChange={e => set("referral_welcome_bonus_cents", parseInt(e.target.value || "0"))} /></div>
+            <div><Label>Commission (bps, 1000 = 10%)</Label><Input type="number" value={s.referral_commission_bps} onChange={e => set("referral_commission_bps", parseInt(e.target.value || "0"))} /></div>
+            <div><Label>Min withdrawal for commission (cents)</Label><Input type="number" value={s.referral_min_withdrawal_cents} onChange={e => set("referral_min_withdrawal_cents", parseInt(e.target.value || "0"))} /></div>
+            <div><Label>Default code length</Label><Input type="number" value={s.referral_code_length} onChange={e => set("referral_code_length", parseInt(e.target.value || "0"))} /></div>
+            <div className="sm:col-span-2"><Label>Allowed characters</Label><Input value={s.referral_allowed_chars} onChange={e => set("referral_allowed_chars", e.target.value)} /></div>
+            <div><Label>Default max uses (blank = unlimited)</Label><Input type="number" value={s.referral_default_max_uses ?? ""} onChange={e => set("referral_default_max_uses", e.target.value ? parseInt(e.target.value) : null)} /></div>
+            <div className="flex items-center gap-2 pt-6">
+              <input id="unlim" type="checkbox" checked={s.referral_unlimited_uses} onChange={e => set("referral_unlimited_uses", e.target.checked)} className="h-4 w-4" />
+              <Label htmlFor="unlim" className="cursor-pointer">Unlimited uses by default</Label>
+            </div>
+          </div>
+          <Button onClick={save}>Save referral settings</Button>
         </CardContent>
       </Card>
     </AdminShell>
