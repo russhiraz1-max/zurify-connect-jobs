@@ -23,6 +23,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -46,8 +47,10 @@ import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin/announcements'
 import { Route as AuthenticatedAdminTasksIndexRouteImport } from './routes/_authenticated/admin/tasks.index'
+import { Route as AuthenticatedAdminReferralsIndexRouteImport } from './routes/_authenticated/admin/referrals.index'
 import { Route as AuthenticatedAdminTasksNewRouteImport } from './routes/_authenticated/admin/tasks.new'
 import { Route as AuthenticatedAdminTasksIdRouteImport } from './routes/_authenticated/admin/tasks.$id'
+import { Route as AuthenticatedAdminReferralsIdRouteImport } from './routes/_authenticated/admin/referrals.$id'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -117,6 +120,11 @@ const AuthenticatedSubmissionsRoute =
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
@@ -249,6 +257,12 @@ const AuthenticatedAdminTasksIndexRoute =
     path: '/tasks/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminReferralsIndexRoute =
+  AuthenticatedAdminReferralsIndexRouteImport.update({
+    id: '/referrals/',
+    path: '/referrals/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminTasksNewRoute =
   AuthenticatedAdminTasksNewRouteImport.update({
     id: '/tasks/new',
@@ -259,6 +273,12 @@ const AuthenticatedAdminTasksIdRoute =
   AuthenticatedAdminTasksIdRouteImport.update({
     id: '/tasks/$id',
     path: '/tasks/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminReferralsIdRoute =
+  AuthenticatedAdminReferralsIdRouteImport.update({
+    id: '/referrals/$id',
+    path: '/referrals/$id',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
@@ -277,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -298,8 +319,10 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/withdrawals/': typeof AuthenticatedWithdrawalsIndexRoute
+  '/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/referrals/': typeof AuthenticatedAdminReferralsIndexRoute
   '/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRoutesByTo {
@@ -316,6 +339,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -337,8 +361,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/withdrawals': typeof AuthenticatedWithdrawalsIndexRoute
+  '/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/referrals': typeof AuthenticatedAdminReferralsIndexRoute
   '/admin/tasks': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRoutesById {
@@ -358,6 +384,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
@@ -379,8 +406,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/withdrawals/': typeof AuthenticatedWithdrawalsIndexRoute
+  '/_authenticated/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/_authenticated/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/_authenticated/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/_authenticated/admin/referrals/': typeof AuthenticatedAdminReferralsIndexRoute
   '/_authenticated/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
 }
 export interface FileRouteTypes {
@@ -400,6 +429,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/notifications'
     | '/profile'
+    | '/referrals'
     | '/settings'
     | '/submissions'
     | '/support'
@@ -421,8 +451,10 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/tasks/'
     | '/withdrawals/'
+    | '/admin/referrals/$id'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/referrals/'
     | '/admin/tasks/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -439,6 +471,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/notifications'
     | '/profile'
+    | '/referrals'
     | '/settings'
     | '/submissions'
     | '/support'
@@ -460,8 +493,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/tasks'
     | '/withdrawals'
+    | '/admin/referrals/$id'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/referrals'
     | '/admin/tasks'
   id:
     | '__root__'
@@ -480,6 +515,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
+    | '/_authenticated/referrals'
     | '/_authenticated/settings'
     | '/_authenticated/submissions'
     | '/_authenticated/support'
@@ -501,8 +537,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/tasks/'
     | '/_authenticated/withdrawals/'
+    | '/_authenticated/admin/referrals/$id'
     | '/_authenticated/admin/tasks/$id'
     | '/_authenticated/admin/tasks/new'
+    | '/_authenticated/admin/referrals/'
     | '/_authenticated/admin/tasks/'
   fileRoutesById: FileRoutesById
 }
@@ -617,6 +655,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/profile': {
@@ -780,6 +825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTasksIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/referrals/': {
+      id: '/_authenticated/admin/referrals/'
+      path: '/referrals'
+      fullPath: '/admin/referrals/'
+      preLoaderRoute: typeof AuthenticatedAdminReferralsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/tasks/new': {
       id: '/_authenticated/admin/tasks/new'
       path: '/tasks/new'
@@ -792,6 +844,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks/$id'
       fullPath: '/admin/tasks/$id'
       preLoaderRoute: typeof AuthenticatedAdminTasksIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/referrals/$id': {
+      id: '/_authenticated/admin/referrals/$id'
+      path: '/referrals/$id'
+      fullPath: '/admin/referrals/$id'
+      preLoaderRoute: typeof AuthenticatedAdminReferralsIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
@@ -811,8 +870,10 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminWithdrawalsRoute: typeof AuthenticatedAdminWithdrawalsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminReferralsIdRoute: typeof AuthenticatedAdminReferralsIdRoute
   AuthenticatedAdminTasksIdRoute: typeof AuthenticatedAdminTasksIdRoute
   AuthenticatedAdminTasksNewRoute: typeof AuthenticatedAdminTasksNewRoute
+  AuthenticatedAdminReferralsIndexRoute: typeof AuthenticatedAdminReferralsIndexRoute
   AuthenticatedAdminTasksIndexRoute: typeof AuthenticatedAdminTasksIndexRoute
 }
 
@@ -831,8 +892,11 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminWithdrawalsRoute: AuthenticatedAdminWithdrawalsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminReferralsIdRoute: AuthenticatedAdminReferralsIdRoute,
     AuthenticatedAdminTasksIdRoute: AuthenticatedAdminTasksIdRoute,
     AuthenticatedAdminTasksNewRoute: AuthenticatedAdminTasksNewRoute,
+    AuthenticatedAdminReferralsIndexRoute:
+      AuthenticatedAdminReferralsIndexRoute,
     AuthenticatedAdminTasksIndexRoute: AuthenticatedAdminTasksIndexRoute,
   }
 
@@ -847,6 +911,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
@@ -863,6 +928,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,

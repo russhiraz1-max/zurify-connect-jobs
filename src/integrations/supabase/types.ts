@@ -54,6 +54,14 @@ export type Database = {
           id: string
           min_withdrawal_cents: number
           paypal_instructions: string | null
+          referral_allowed_chars: string
+          referral_code_length: number
+          referral_commission_bps: number
+          referral_default_max_uses: number | null
+          referral_enabled: boolean
+          referral_min_withdrawal_cents: number
+          referral_unlimited_uses: boolean
+          referral_welcome_bonus_cents: number
           singleton: boolean
           site_name: string
           staff_bootstrap_email: string | null
@@ -67,6 +75,14 @@ export type Database = {
           id?: string
           min_withdrawal_cents?: number
           paypal_instructions?: string | null
+          referral_allowed_chars?: string
+          referral_code_length?: number
+          referral_commission_bps?: number
+          referral_default_max_uses?: number | null
+          referral_enabled?: boolean
+          referral_min_withdrawal_cents?: number
+          referral_unlimited_uses?: boolean
+          referral_welcome_bonus_cents?: number
           singleton?: boolean
           site_name?: string
           staff_bootstrap_email?: string | null
@@ -80,6 +96,14 @@ export type Database = {
           id?: string
           min_withdrawal_cents?: number
           paypal_instructions?: string | null
+          referral_allowed_chars?: string
+          referral_code_length?: number
+          referral_commission_bps?: number
+          referral_default_max_uses?: number | null
+          referral_enabled?: boolean
+          referral_min_withdrawal_cents?: number
+          referral_unlimited_uses?: boolean
+          referral_welcome_bonus_cents?: number
           singleton?: boolean
           site_name?: string
           staff_bootstrap_email?: string | null
@@ -193,6 +217,86 @@ export type Database = {
           withdrawal_hold?: boolean
         }
         Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          max_uses: number | null
+          owner_user_id: string
+          status: string
+          total_uses: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_uses?: number | null
+          owner_user_id: string
+          status?: string
+          total_uses?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_uses?: number | null
+          owner_user_id?: string
+          status?: string
+          total_uses?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_uses: {
+        Row: {
+          applied_at: string
+          bonus_amount_cents: number
+          bonus_awarded_at: string | null
+          code: string
+          code_id: string
+          id: string
+          owner_user_id: string
+          referred_user_id: string
+          total_commission_cents: number
+        }
+        Insert: {
+          applied_at?: string
+          bonus_amount_cents?: number
+          bonus_awarded_at?: string | null
+          code: string
+          code_id: string
+          id?: string
+          owner_user_id: string
+          referred_user_id: string
+          total_commission_cents?: number
+        }
+        Update: {
+          applied_at?: string
+          bonus_amount_cents?: number
+          bonus_awarded_at?: string | null
+          code?: string
+          code_id?: string
+          id?: string
+          owner_user_id?: string
+          referred_user_id?: string
+          total_commission_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_uses_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -712,6 +816,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_assign_referral_code: {
+        Args: { _id: string; _new_owner_user_id: string }
+        Returns: undefined
+      }
+      admin_create_referral_code: {
+        Args: { _code: string; _max_uses: number; _owner_user_id: string }
+        Returns: string
+      }
+      admin_delete_referral_code: { Args: { _id: string }; Returns: undefined }
+      admin_list_referral_codes: {
+        Args: never
+        Returns: {
+          awarded_bonus_users: number
+          code: string
+          created_at: string
+          id: string
+          max_uses: number
+          owner_email: string
+          owner_full_name: string
+          owner_user_id: string
+          pending_bonus_users: number
+          status: string
+          total_bonus_cents: number
+          total_commission_cents: number
+          total_uses: number
+          users_referred: number
+        }[]
+      }
       admin_list_staff: {
         Args: never
         Returns: {
@@ -748,7 +880,35 @@ export type Database = {
         }[]
       }
       admin_promote_staff: { Args: { _user_id: string }; Returns: undefined }
+      admin_referral_details: {
+        Args: { _id: string }
+        Returns: {
+          applied_at: string
+          approved_tasks: number
+          bonus_amount_cents: number
+          bonus_awarded_at: string
+          email: string
+          full_name: string
+          lifetime_withdrawn_cents: number
+          referred_user_id: string
+          total_commission_cents: number
+          wallet_available_cents: number
+        }[]
+      }
       admin_remove_staff: { Args: { _user_id: string }; Returns: undefined }
+      admin_search_users_for_referral: {
+        Args: { _q: string }
+        Returns: {
+          email: string
+          full_name: string
+          has_code: boolean
+          id: string
+        }[]
+      }
+      admin_set_referral_status: {
+        Args: { _id: string; _status: string }
+        Returns: undefined
+      }
       admin_set_suspended: {
         Args: { _suspended: boolean; _user_id: string }
         Returns: undefined
@@ -757,6 +917,11 @@ export type Database = {
         Args: { _hold: boolean; _user_id: string }
         Returns: undefined
       }
+      admin_update_referral_code: {
+        Args: { _code: string; _id: string; _max_uses: number }
+        Returns: undefined
+      }
+      apply_referral_code: { Args: { _code: string }; Returns: string }
       apply_to_task: {
         Args: {
           _cover_letter?: string
@@ -780,6 +945,46 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      get_my_referral_code: {
+        Args: never
+        Returns: {
+          awarded_bonus_users: number
+          code: string
+          id: string
+          max_uses: number
+          pending_bonus_users: number
+          status: string
+          total_bonus_cents: number
+          total_commission_cents: number
+          total_uses: number
+          total_withdrawn_by_referred_cents: number
+          users_referred: number
+        }[]
+      }
+      get_my_referral_status: {
+        Args: never
+        Returns: {
+          applied: boolean
+          applied_at: string
+          bonus_amount_cents: number
+          bonus_awarded_at: string
+          code: string
+        }[]
+      }
+      get_my_referred_users: {
+        Args: never
+        Returns: {
+          applied_at: string
+          approved_tasks: number
+          bonus_amount_cents: number
+          bonus_awarded_at: string
+          full_name: string
+          lifetime_withdrawn_cents: number
+          referred_user_id: string
+          total_commission_cents: number
+          wallet_available_cents: number
+        }[]
+      }
       get_withdrawal_settings: {
         Args: never
         Returns: {
@@ -882,6 +1087,12 @@ export type Database = {
         | "withdrawal_hold_enabled"
         | "withdrawal_hold_removed"
         | "reward_credited"
+        | "referral_applied"
+        | "referral_bonus_pending"
+        | "referral_bonus_awarded"
+        | "referral_commission_earned"
+        | "referral_disabled"
+        | "referral_enabled"
       report_status: "open" | "investigating" | "resolved" | "dismissed"
       staff_permission:
         | "review_submissions"
@@ -895,7 +1106,16 @@ export type Database = {
       submission_status: "pending" | "approved" | "rejected" | "resubmit"
       task_status: "draft" | "published" | "paused" | "archived"
       ticket_status: "open" | "pending" | "resolved" | "closed"
-      tx_type: "earning" | "withdrawal" | "fee" | "adjustment" | "refund"
+      tx_type:
+        | "earning"
+        | "withdrawal"
+        | "fee"
+        | "adjustment"
+        | "refund"
+        | "referral_bonus"
+        | "referral_commission"
+        | "manual_credit"
+        | "manual_debit"
       withdrawal_method: "paypal" | "manual"
       withdrawal_status: "pending" | "approved" | "rejected" | "cancelled"
     }
@@ -1054,6 +1274,12 @@ export const Constants = {
         "withdrawal_hold_enabled",
         "withdrawal_hold_removed",
         "reward_credited",
+        "referral_applied",
+        "referral_bonus_pending",
+        "referral_bonus_awarded",
+        "referral_commission_earned",
+        "referral_disabled",
+        "referral_enabled",
       ],
       report_status: ["open", "investigating", "resolved", "dismissed"],
       staff_permission: [
@@ -1069,7 +1295,17 @@ export const Constants = {
       submission_status: ["pending", "approved", "rejected", "resubmit"],
       task_status: ["draft", "published", "paused", "archived"],
       ticket_status: ["open", "pending", "resolved", "closed"],
-      tx_type: ["earning", "withdrawal", "fee", "adjustment", "refund"],
+      tx_type: [
+        "earning",
+        "withdrawal",
+        "fee",
+        "adjustment",
+        "refund",
+        "referral_bonus",
+        "referral_commission",
+        "manual_credit",
+        "manual_debit",
+      ],
       withdrawal_method: ["paypal", "manual"],
       withdrawal_status: ["pending", "approved", "rejected", "cancelled"],
     },
