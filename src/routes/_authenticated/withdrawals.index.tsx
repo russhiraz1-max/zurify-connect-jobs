@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { usd, dateTime } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/withdrawals")({
+export const Route = createFileRoute("/_authenticated/withdrawals/")({
   head: () => ({ meta: [{ title: "Withdrawals — Zurify" }] }),
   component: WithdrawalsPage,
 });
