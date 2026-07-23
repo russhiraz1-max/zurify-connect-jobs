@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Bell } from "lucide-react";
+import { Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Bell, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
@@ -83,6 +83,9 @@ export function SiteHeader() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
                     <UserIcon className="mr-2 h-4 w-4" /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/referrals" })}>
+                    <Gift className="mr-2 h-4 w-4" /> Referrals
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
                     <SettingsIcon className="mr-2 h-4 w-4" /> Settings
