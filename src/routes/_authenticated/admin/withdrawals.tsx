@@ -37,7 +37,7 @@ function AdminWithdrawals() {
 
   async function load() {
     const { data, error } = await supabase.from("withdrawal_requests")
-      .select("id,status,amount_cents,fee_cents,net_cents,destination,created_at,rejection_reason,user_id,profiles(full_name,avatar_url,withdrawal_hold)")
+      .select("id,status,amount_cents,fee_cents,net_cents,destination,created_at,rejection_reason,user_id,profiles!withdrawal_requests_user_id_profiles_fkey(full_name,avatar_url,withdrawal_hold)")
       .order("created_at", { ascending: false }).limit(500);
     if (error) toast.error(error.message);
     const list = ((data ?? []) as unknown) as Row[];
