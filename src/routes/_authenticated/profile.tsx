@@ -118,3 +118,72 @@ function ProfilePage() {
     </div>
   );
 }
+
+type RefStatus = { applied: boolean; code: string | null; applied_at: string | null; bonus_awarded_at: string | null; bonus_amount_cents: number };
+
+function PromotionCodeSection() {
+  const [status, setStatus] = useState<RefStatus | null>(null);
+  const [code, setCode] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    const { data } = await supabase.rpc("get_my_referral_status" as never);
+    const arr = ((data ?? []) as unknown) as RefStatus[];
+    setStatus(arr[0] ?? { applied: false, code: null, applied_at: null, bonus_awarded_at: null, bonus_amount_cents: 0 });
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  async function apply(e: React.FormEvent) {
+    e.preventDefault();
+    if (!code.trim()) return;
+    setSaving(true);
+    const { error } = await supabase.rpc("apply_referral_code" as never, { _code: code.trim().toUpperCase() } as never);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Referral code applied");
+    setCode("");
+    load();
+  }
+
+  if (loading) return null;
+  return (
+    <div className="mt-8 rounded-2xl border border-border/70 bg-surface p-6 sm:p-8">
+      <div className="flex items-center gap-3">
+        <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-gradient text-primary-foreground"><Gift className="h-5 w-5" /></div>
+        <div>
+          <h2 className="font-display text-lg font-semibold">Promotion code</h2>
+          <p className="text-sm text-muted-foreground">Apply a referral code from a Zurify partner. You can only apply one code, and it's locked once accepted.</p>
+        </div>
+      </div>
+      {status?.applied ? (
+        <div className="mt-5 space-y-3 rounded-lg border border-border/70 bg-surface-muted/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Applied code</p>
+              <p className="mt-1 font-mono text-lg font-semibold">{status.code}</p>
+            </div>
+            {status.bonus_awarded_at ? (
+              <Badge className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Bonus awarded {usd(status.bonus_amount_cents)}</Badge>
+            ) : (
+              <Badge variant="secondary" className="gap-1"><Clock className="h-3.5 w-3.5" /> Pending first approved task</Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">Applied on {shortDate(status.applied_at)} · Locked</p>
+        </div>
+      ) : (
+        <form onSubmit={apply} className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <Label htmlFor="promo">Enter referral code</Label>
+            <Input id="promo" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="e.g. JOHN2026" className="mt-1.5 font-mono uppercase" />
+          </div>
+          <Button type="submit" disabled={saving || !code.trim()}>
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Apply code
+          </Button>
+        </form>
+      )}
+    </div>
+  );
+}
