@@ -13,6 +13,7 @@ import { lovable } from "@/integrations/lovable";
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).optional(),
   redirect: z.string().optional(),
+  ref: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth")({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const search = useSearch({ from: "/auth" });
-  const initialTab = search.mode === "signup" ? "signup" : "signin";
+  const initialTab = search.mode === "signup" || search.ref ? "signup" : "signin";
   const navigate = useNavigate();
   const redirectTo = search.redirect ?? "/dashboard";
 
@@ -39,6 +40,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [referralCode, setReferralCode] = useState((search.ref ?? "").toUpperCase());
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -53,7 +55,7 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -61,9 +63,15 @@ function AuthPage() {
         data: { full_name: fullName },
       },
     });
+    if (error) { setLoading(false); return toast.error(error.message); }
+    // Apply referral code if user is immediately signed in (email confirmation disabled)
+    if (referralCode.trim() && data.session) {
+      const { error: refError } = await supabase.rpc("apply_referral_code" as never, { _code: referralCode.trim().toUpperCase() } as never);
+      if (refError) toast.warning(`Referral code not applied: ${refError.message}. You can retry from your profile.`);
+      else toast.success("Referral code applied!");
+    }
     setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Account created! Check your email to confirm.");
+    toast.success("Account created!");
     navigate({ to: redirectTo });
   }
 
@@ -179,6 +187,11 @@ function AuthPage() {
                 <div>
                   <Label htmlFor="password2">Password</Label>
                   <Input id="password2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
+                </div>
+                <div>
+                  <Label htmlFor="ref">Referral code <span className="text-muted-foreground">(optional)</span></Label>
+                  <Input id="ref" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} placeholder="e.g. JOHN2026" className="mt-1.5 font-mono uppercase" />
+                  <p className="mt-1 text-xs text-muted-foreground">You may only enter one referral code for the lifetime of your account.</p>
                 </div>
                 <Button type="submit" className="h-11 w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

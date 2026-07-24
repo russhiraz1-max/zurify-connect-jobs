@@ -19,6 +19,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReferralsLeaderboardRouteImport } from './routes/referrals.leaderboard'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
@@ -99,6 +100,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralsLeaderboardRoute = ReferralsLeaderboardRouteImport.update({
+  id: '/referrals/leaderboard',
+  path: '/referrals/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
@@ -302,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
+  '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/applications': typeof AuthenticatedAdminApplicationsRoute
   '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
     | '/submissions'
     | '/support'
     | '/wallet'
+    | '/referrals/leaderboard'
     | '/admin/announcements'
     | '/admin/applications'
     | '/admin/audit-logs'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/submissions'
     | '/support'
     | '/wallet'
+    | '/referrals/leaderboard'
     | '/admin/announcements'
     | '/admin/applications'
     | '/admin/audit-logs'
@@ -520,6 +531,7 @@ export interface FileRouteTypes {
     | '/_authenticated/submissions'
     | '/_authenticated/support'
     | '/_authenticated/wallet'
+    | '/referrals/leaderboard'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/applications'
     | '/_authenticated/admin/audit-logs'
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ReferralsLeaderboardRoute: typeof ReferralsLeaderboardRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -627,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals/leaderboard': {
+      id: '/referrals/leaderboard'
+      path: '/referrals/leaderboard'
+      fullPath: '/referrals/leaderboard'
+      preLoaderRoute: typeof ReferralsLeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/wallet': {
@@ -953,6 +973,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ReferralsLeaderboardRoute: ReferralsLeaderboardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
