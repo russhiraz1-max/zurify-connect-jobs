@@ -971,6 +971,16 @@ export type Database = {
           code: string
         }[]
       }
+      get_my_referral_timeline: {
+        Args: { _limit?: number }
+        Returns: {
+          actor_name: string
+          amount_cents: number
+          event_at: string
+          kind: string
+          memo: string
+        }[]
+      }
       get_my_referred_users: {
         Args: never
         Returns: {
@@ -983,6 +993,16 @@ export type Database = {
           referred_user_id: string
           total_commission_cents: number
           wallet_available_cents: number
+        }[]
+      }
+      get_referral_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          commission_earned_cents: number
+          display_name: string
+          owner_user_id: string
+          rank: number
+          successful_referrals: number
         }[]
       }
       get_withdrawal_settings: {
