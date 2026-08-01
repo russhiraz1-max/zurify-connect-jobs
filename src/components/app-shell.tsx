@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
   LayoutDashboard, ListChecks, FileCheck2, Wallet as WalletIcon, ArrowDownToLine,
-  Bell, LifeBuoy, User as UserIcon, Settings as SettingsIcon, Send, Shield,
+  Bell, LifeBuoy, User as UserIcon, Settings as SettingsIcon, Send, Shield, BadgeCheck, Gift,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -16,6 +16,8 @@ const userNav = [
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
   { to: "/withdrawals", label: "Withdrawals", icon: ArrowDownToLine },
+  { to: "/verification", label: "Verification", icon: BadgeCheck },
+  { to: "/referrals", label: "Referrals", icon: Gift },
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/support", label: "Support", icon: LifeBuoy },
   { to: "/profile", label: "Profile", icon: UserIcon },
