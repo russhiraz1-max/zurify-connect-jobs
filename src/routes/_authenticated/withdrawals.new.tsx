@@ -66,6 +66,27 @@ function NewWithdrawalPage() {
     navigate({ to: "/withdrawals" });
   }
 
+  if (kyc && kyc !== "approved") {
+    return (
+      <AppShell title="Request withdrawal" subtitle="Identity verification required">
+        <Card className="max-w-xl"><CardContent className="space-y-4 p-6">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-lg bg-brand-gradient text-primary-foreground"><ShieldCheck className="h-5 w-5" /></div>
+            <div>
+              <p className="font-display text-lg font-semibold">One-time identity check</p>
+              <p className="text-sm text-muted-foreground">
+                {kyc === "pending"
+                  ? "Your documents are under review — we'll notify you within 48 hours."
+                  : "Before your first withdrawal can be paid, we need to verify your identity. You only do this once."}
+              </p>
+            </div>
+          </div>
+          <Button asChild className="w-full"><Link to="/verification">Go to identity verification</Link></Button>
+        </CardContent></Card>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell title="Request withdrawal" subtitle={`Available balance: ${usd(available)}`}>
       <Card className="max-w-xl">
