@@ -1,6 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/withdrawals/new")({
   component: NewWithdrawalPage,
 });
 
+type KycStatus = "not_started" | "pending" | "approved" | "rejected";
+
 function NewWithdrawalPage() {
   const { user } = useSession();
   const navigate = useNavigate();
@@ -23,6 +26,7 @@ function NewWithdrawalPage() {
   const [email, setEmail] = useState("");
   const [available, setAvailable] = useState(0);
   const [settings, setSettings] = useState<{ min_withdrawal_cents: number; withdrawal_unit_cents: number; fee_bps_per_unit: number; paypal_instructions: string | null } | null>(null);
+  const [kyc, setKyc] = useState<KycStatus | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -31,7 +35,13 @@ function NewWithdrawalPage() {
       .then(({ data }) => setAvailable((data as { available_cents: number } | null)?.available_cents ?? 0));
     supabase.rpc("get_withdrawal_settings")
       .then(({ data }) => setSettings((Array.isArray(data) ? data[0] : data) as never));
+    supabase.rpc("get_my_kyc" as never).then(({ data }) => {
+      const arr = ((data ?? []) as unknown) as { status: KycStatus; paypal_email: string }[];
+      setKyc(arr[0]?.status ?? "not_started");
+      if (arr[0]?.status === "approved" && arr[0].paypal_email) setEmail(arr[0].paypal_email);
+    });
   }, [user?.id]);
+
 
   const cents = Math.round(parseFloat(amount || "0") * 100);
   const unit = settings?.withdrawal_unit_cents ?? 300;
@@ -54,6 +64,27 @@ function NewWithdrawalPage() {
     if (error) return toast.error(error.message);
     toast.success("Withdrawal requested");
     navigate({ to: "/withdrawals" });
+  }
+
+  if (kyc && kyc !== "approved") {
+    return (
+      <AppShell title="Request withdrawal" subtitle="Identity verification required">
+        <Card className="max-w-xl"><CardContent className="space-y-4 p-6">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-lg bg-brand-gradient text-primary-foreground"><ShieldCheck className="h-5 w-5" /></div>
+            <div>
+              <p className="font-display text-lg font-semibold">One-time identity check</p>
+              <p className="text-sm text-muted-foreground">
+                {kyc === "pending"
+                  ? "Your documents are under review — we'll notify you within 48 hours."
+                  : "Before your first withdrawal can be paid, we need to verify your identity. You only do this once."}
+              </p>
+            </div>
+          </div>
+          <Button asChild className="w-full"><Link to="/verification">Go to identity verification</Link></Button>
+        </CardContent></Card>
+      </AppShell>
+    );
   }
 
   return (
