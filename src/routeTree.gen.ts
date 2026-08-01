@@ -21,6 +21,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReferralsLeaderboardRouteImport } from './routes/referrals.leaderboard'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
+import { Route as AuthenticatedVerificationRouteImport } from './routes/_authenticated/verification'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -47,8 +48,10 @@ import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin/audit-logs'
 import { Route as AuthenticatedAdminApplicationsRouteImport } from './routes/_authenticated/admin/applications'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin/announcements'
+import { Route as AuthenticatedAdminVerificationIndexRouteImport } from './routes/_authenticated/admin/verification.index'
 import { Route as AuthenticatedAdminTasksIndexRouteImport } from './routes/_authenticated/admin/tasks.index'
 import { Route as AuthenticatedAdminReferralsIndexRouteImport } from './routes/_authenticated/admin/referrals.index'
+import { Route as AuthenticatedAdminVerificationIdRouteImport } from './routes/_authenticated/admin/verification.$id'
 import { Route as AuthenticatedAdminTasksNewRouteImport } from './routes/_authenticated/admin/tasks.new'
 import { Route as AuthenticatedAdminTasksIdRouteImport } from './routes/_authenticated/admin/tasks.$id'
 import { Route as AuthenticatedAdminReferralsIdRouteImport } from './routes/_authenticated/admin/referrals.$id'
@@ -112,6 +115,12 @@ const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVerificationRoute =
+  AuthenticatedVerificationRouteImport.update({
+    id: '/verification',
+    path: '/verification',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -257,6 +266,12 @@ const AuthenticatedAdminAnnouncementsRoute =
     path: '/announcements',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminVerificationIndexRoute =
+  AuthenticatedAdminVerificationIndexRouteImport.update({
+    id: '/verification/',
+    path: '/verification/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminTasksIndexRoute =
   AuthenticatedAdminTasksIndexRouteImport.update({
     id: '/tasks/',
@@ -267,6 +282,12 @@ const AuthenticatedAdminReferralsIndexRoute =
   AuthenticatedAdminReferralsIndexRouteImport.update({
     id: '/referrals/',
     path: '/referrals/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminVerificationIdRoute =
+  AuthenticatedAdminVerificationIdRouteImport.update({
+    id: '/verification/$id',
+    path: '/verification/$id',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminTasksNewRoute =
@@ -307,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/verification': typeof AuthenticatedVerificationRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -329,8 +351,10 @@ export interface FileRoutesByFullPath {
   '/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/verification/$id': typeof AuthenticatedAdminVerificationIdRoute
   '/admin/referrals/': typeof AuthenticatedAdminReferralsIndexRoute
   '/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
+  '/admin/verification/': typeof AuthenticatedAdminVerificationIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -350,6 +374,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/verification': typeof AuthenticatedVerificationRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -372,8 +397,10 @@ export interface FileRoutesByTo {
   '/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/admin/verification/$id': typeof AuthenticatedAdminVerificationIdRoute
   '/admin/referrals': typeof AuthenticatedAdminReferralsIndexRoute
   '/admin/tasks': typeof AuthenticatedAdminTasksIndexRoute
+  '/admin/verification': typeof AuthenticatedAdminVerificationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -396,6 +423,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/verification': typeof AuthenticatedVerificationRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/referrals/leaderboard': typeof ReferralsLeaderboardRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
@@ -418,8 +446,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/referrals/$id': typeof AuthenticatedAdminReferralsIdRoute
   '/_authenticated/admin/tasks/$id': typeof AuthenticatedAdminTasksIdRoute
   '/_authenticated/admin/tasks/new': typeof AuthenticatedAdminTasksNewRoute
+  '/_authenticated/admin/verification/$id': typeof AuthenticatedAdminVerificationIdRoute
   '/_authenticated/admin/referrals/': typeof AuthenticatedAdminReferralsIndexRoute
   '/_authenticated/admin/tasks/': typeof AuthenticatedAdminTasksIndexRoute
+  '/_authenticated/admin/verification/': typeof AuthenticatedAdminVerificationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -442,6 +472,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submissions'
     | '/support'
+    | '/verification'
     | '/wallet'
     | '/referrals/leaderboard'
     | '/admin/announcements'
@@ -464,8 +495,10 @@ export interface FileRouteTypes {
     | '/admin/referrals/$id'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/verification/$id'
     | '/admin/referrals/'
     | '/admin/tasks/'
+    | '/admin/verification/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -485,6 +518,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submissions'
     | '/support'
+    | '/verification'
     | '/wallet'
     | '/referrals/leaderboard'
     | '/admin/announcements'
@@ -507,8 +541,10 @@ export interface FileRouteTypes {
     | '/admin/referrals/$id'
     | '/admin/tasks/$id'
     | '/admin/tasks/new'
+    | '/admin/verification/$id'
     | '/admin/referrals'
     | '/admin/tasks'
+    | '/admin/verification'
   id:
     | '__root__'
     | '/'
@@ -530,6 +566,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/submissions'
     | '/_authenticated/support'
+    | '/_authenticated/verification'
     | '/_authenticated/wallet'
     | '/referrals/leaderboard'
     | '/_authenticated/admin/announcements'
@@ -552,8 +589,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/referrals/$id'
     | '/_authenticated/admin/tasks/$id'
     | '/_authenticated/admin/tasks/new'
+    | '/_authenticated/admin/verification/$id'
     | '/_authenticated/admin/referrals/'
     | '/_authenticated/admin/tasks/'
+    | '/_authenticated/admin/verification/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -654,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/verification': {
+      id: '/_authenticated/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof AuthenticatedVerificationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/support': {
@@ -838,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/verification/': {
+      id: '/_authenticated/admin/verification/'
+      path: '/verification'
+      fullPath: '/admin/verification/'
+      preLoaderRoute: typeof AuthenticatedAdminVerificationIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/tasks/': {
       id: '/_authenticated/admin/tasks/'
       path: '/tasks'
@@ -850,6 +903,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/admin/referrals/'
       preLoaderRoute: typeof AuthenticatedAdminReferralsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/verification/$id': {
+      id: '/_authenticated/admin/verification/$id'
+      path: '/verification/$id'
+      fullPath: '/admin/verification/$id'
+      preLoaderRoute: typeof AuthenticatedAdminVerificationIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/tasks/new': {
@@ -893,8 +953,10 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminReferralsIdRoute: typeof AuthenticatedAdminReferralsIdRoute
   AuthenticatedAdminTasksIdRoute: typeof AuthenticatedAdminTasksIdRoute
   AuthenticatedAdminTasksNewRoute: typeof AuthenticatedAdminTasksNewRoute
+  AuthenticatedAdminVerificationIdRoute: typeof AuthenticatedAdminVerificationIdRoute
   AuthenticatedAdminReferralsIndexRoute: typeof AuthenticatedAdminReferralsIndexRoute
   AuthenticatedAdminTasksIndexRoute: typeof AuthenticatedAdminTasksIndexRoute
+  AuthenticatedAdminVerificationIndexRoute: typeof AuthenticatedAdminVerificationIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -915,9 +977,13 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminReferralsIdRoute: AuthenticatedAdminReferralsIdRoute,
     AuthenticatedAdminTasksIdRoute: AuthenticatedAdminTasksIdRoute,
     AuthenticatedAdminTasksNewRoute: AuthenticatedAdminTasksNewRoute,
+    AuthenticatedAdminVerificationIdRoute:
+      AuthenticatedAdminVerificationIdRoute,
     AuthenticatedAdminReferralsIndexRoute:
       AuthenticatedAdminReferralsIndexRoute,
     AuthenticatedAdminTasksIndexRoute: AuthenticatedAdminTasksIndexRoute,
+    AuthenticatedAdminVerificationIndexRoute:
+      AuthenticatedAdminVerificationIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
@@ -935,6 +1001,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedVerificationRoute: typeof AuthenticatedVerificationRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
   AuthenticatedWithdrawalsNewRoute: typeof AuthenticatedWithdrawalsNewRoute
@@ -952,6 +1019,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedVerificationRoute: AuthenticatedVerificationRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
   AuthenticatedWithdrawalsNewRoute: AuthenticatedWithdrawalsNewRoute,

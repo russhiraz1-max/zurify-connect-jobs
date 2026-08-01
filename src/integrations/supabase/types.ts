@@ -143,6 +143,57 @@ export type Database = {
         }
         Relationships: []
       }
+      kyc_verifications: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          id_back_path: string
+          id_front_path: string
+          paypal_email: string
+          phone: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          selfie_path: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          id_back_path: string
+          id_front_path: string
+          paypal_email: string
+          phone: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          selfie_path: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          id_back_path?: string
+          id_front_path?: string
+          paypal_email?: string
+          phone?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          selfie_path?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -218,39 +269,111 @@ export type Database = {
         }
         Relationships: []
       }
-      referral_codes: {
+      referral_campaigns: {
         Row: {
-          code: string
           created_at: string
           created_by: string | null
+          description: string | null
+          eligibility: string
+          ends_at: string
           id: string
+          name: string
+          prize: string
+          starts_at: string
+          status: string
+          updated_at: string
+          winner_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          eligibility?: string
+          ends_at: string
+          id?: string
+          name: string
+          prize: string
+          starts_at: string
+          status?: string
+          updated_at?: string
+          winner_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          eligibility?: string
+          ends_at?: string
+          id?: string
+          name?: string
+          prize?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          winner_count?: number
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          campaign_name: string | null
+          code: string
+          commission_bps: number | null
+          commission_duration_days: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          leaderboard_eligible: boolean
           max_uses: number | null
+          min_withdrawal_cents: number | null
+          notes: string | null
           owner_user_id: string
           status: string
           total_uses: number
           updated_at: string
+          welcome_bonus_cents: number | null
         }
         Insert: {
+          campaign_name?: string | null
           code: string
+          commission_bps?: number | null
+          commission_duration_days?: number | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
           id?: string
+          leaderboard_eligible?: boolean
           max_uses?: number | null
+          min_withdrawal_cents?: number | null
+          notes?: string | null
           owner_user_id: string
           status?: string
           total_uses?: number
           updated_at?: string
+          welcome_bonus_cents?: number | null
         }
         Update: {
+          campaign_name?: string | null
           code?: string
+          commission_bps?: number | null
+          commission_duration_days?: number | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
           id?: string
+          leaderboard_eligible?: boolean
           max_uses?: number | null
+          min_withdrawal_cents?: number | null
+          notes?: string | null
           owner_user_id?: string
           status?: string
           total_uses?: number
           updated_at?: string
+          welcome_bonus_cents?: number | null
         }
         Relationships: []
       }
@@ -261,6 +384,7 @@ export type Database = {
           bonus_awarded_at: string | null
           code: string
           code_id: string
+          commission_expires_at: string | null
           id: string
           owner_user_id: string
           referred_user_id: string
@@ -272,6 +396,7 @@ export type Database = {
           bonus_awarded_at?: string | null
           code: string
           code_id: string
+          commission_expires_at?: string | null
           id?: string
           owner_user_id: string
           referred_user_id: string
@@ -283,6 +408,7 @@ export type Database = {
           bonus_awarded_at?: string | null
           code?: string
           code_id?: string
+          commission_expires_at?: string | null
           id?: string
           owner_user_id?: string
           referred_user_id?: string
@@ -816,23 +942,81 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_analytics_overview: { Args: never; Returns: Json }
+      admin_analytics_series: {
+        Args: { _days?: number }
+        Returns: {
+          day: string
+          expenses_cents: number
+          payout_cents: number
+          profit_cents: number
+          referrals: number
+          revenue_cents: number
+          signups: number
+          tasks_completed: number
+          withdrawals: number
+        }[]
+      }
+      admin_approve_kyc: {
+        Args: { _id: string; _notes?: string }
+        Returns: undefined
+      }
       admin_assign_referral_code: {
         Args: { _id: string; _new_owner_user_id: string }
         Returns: undefined
       }
       admin_create_referral_code: {
-        Args: { _code: string; _max_uses: number; _owner_user_id: string }
+        Args: {
+          _campaign_name?: string
+          _code: string
+          _commission_bps?: number
+          _commission_duration_days?: number
+          _description?: string
+          _expires_at?: string
+          _leaderboard_eligible?: boolean
+          _max_uses: number
+          _min_withdrawal_cents?: number
+          _notes?: string
+          _owner_user_id: string
+          _welcome_bonus_cents?: number
+        }
         Returns: string
       }
       admin_delete_referral_code: { Args: { _id: string }; Returns: undefined }
+      admin_kyc_detail: { Args: { _id: string }; Returns: Json }
+      admin_list_kyc: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          paypal_email: string
+          pending_withdrawals: number
+          phone: string
+          reviewed_at: string
+          status: string
+          suspended: boolean
+          user_id: string
+          withdrawal_hold: boolean
+        }[]
+      }
       admin_list_referral_codes: {
         Args: never
         Returns: {
           awarded_bonus_users: number
+          campaign_name: string
           code: string
+          commission_bps: number
+          commission_duration_days: number
           created_at: string
+          description: string
+          expires_at: string
           id: string
+          leaderboard_eligible: boolean
           max_uses: number
+          min_withdrawal_cents: number
+          notes: string
           owner_email: string
           owner_full_name: string
           owner_user_id: string
@@ -842,6 +1026,7 @@ export type Database = {
           total_commission_cents: number
           total_uses: number
           users_referred: number
+          welcome_bonus_cents: number
         }[]
       }
       admin_list_staff: {
@@ -895,6 +1080,10 @@ export type Database = {
           wallet_available_cents: number
         }[]
       }
+      admin_reject_kyc: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
       admin_remove_staff: { Args: { _user_id: string }; Returns: undefined }
       admin_search_users_for_referral: {
         Args: { _q: string }
@@ -918,7 +1107,20 @@ export type Database = {
         Returns: undefined
       }
       admin_update_referral_code: {
-        Args: { _code: string; _id: string; _max_uses: number }
+        Args: {
+          _campaign_name?: string
+          _code: string
+          _commission_bps?: number
+          _commission_duration_days?: number
+          _description?: string
+          _expires_at?: string
+          _id: string
+          _leaderboard_eligible?: boolean
+          _max_uses: number
+          _min_withdrawal_cents?: number
+          _notes?: string
+          _welcome_bonus_cents?: number
+        }
         Returns: undefined
       }
       apply_referral_code: { Args: { _code: string }; Returns: string }
@@ -945,13 +1147,34 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      get_my_kyc: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          paypal_email: string
+          phone: string
+          rejection_reason: string
+          reviewed_at: string
+          status: string
+        }[]
+      }
       get_my_referral_code: {
         Args: never
         Returns: {
           awarded_bonus_users: number
+          campaign_name: string
           code: string
+          commission_bps: number
+          commission_duration_days: number
+          commission_last_30_cents: number
+          description: string
+          expires_at: string
           id: string
+          leaderboard_eligible: boolean
+          leaderboard_rank: number
           max_uses: number
+          next_commission_expiry: string
           pending_bonus_users: number
           status: string
           total_bonus_cents: number
@@ -959,6 +1182,7 @@ export type Database = {
           total_uses: number
           total_withdrawn_by_referred_cents: number
           users_referred: number
+          welcome_bonus_cents: number
         }[]
       }
       get_my_referral_status: {
@@ -998,11 +1222,14 @@ export type Database = {
       get_referral_leaderboard: {
         Args: { _limit?: number }
         Returns: {
+          badge: string
           commission_earned_cents: number
           display_name: string
+          month_referrals: number
           owner_user_id: string
           rank: number
           successful_referrals: number
+          week_referrals: number
         }[]
       }
       get_withdrawal_settings: {
@@ -1065,6 +1292,16 @@ export type Database = {
           _amount_cents: number
           _destination: Json
           _method: Database["public"]["Enums"]["withdrawal_method"]
+        }
+        Returns: string
+      }
+      submit_kyc: {
+        Args: {
+          _id_back: string
+          _id_front: string
+          _paypal_email: string
+          _phone: string
+          _selfie: string
         }
         Returns: string
       }

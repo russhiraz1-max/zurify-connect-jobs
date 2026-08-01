@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import {
   Shield, LayoutDashboard, ListChecks, Send, FileCheck2, ArrowDownToLine,
   Users, UserCog, Tag, Flag, Megaphone, ScrollText, Settings as SettingsIcon,
-  LifeBuoy, Bell, Gift,
+  LifeBuoy, Bell, Gift, BadgeCheck, Trophy,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -24,10 +24,12 @@ const NAV: NavItem[] = [
   { to: "/admin/applications", label: "Applications", icon: Send, perm: "review_applications" },
   { to: "/admin/submissions", label: "Submissions", icon: FileCheck2, perm: "review_submissions" },
   { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine, perm: "view_withdrawals" },
+  { to: "/admin/verification", label: "Identity Verification", icon: BadgeCheck, perm: "approve_withdrawals" },
   { to: "/admin/tickets", label: "Support", icon: LifeBuoy, perm: "reply_tickets" },
   { to: "/admin/reports", label: "Reports", icon: Flag, perm: "review_reports" },
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone, superOnly: true },
   { to: "/admin/referrals", label: "Referral Program", icon: Gift, superOnly: true },
+  { to: "/admin/campaigns", label: "Campaigns", icon: Trophy, superOnly: true },
   { to: "/admin/users", label: "Users", icon: Users, superOnly: true },
   { to: "/admin/staff", label: "Staff", icon: UserCog, superOnly: true },
   { to: "/admin/categories", label: "Categories", icon: Tag, superOnly: true },
