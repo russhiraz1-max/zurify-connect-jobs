@@ -47,10 +47,18 @@ function AdminUsers() {
     load();
   }
   async function setSuspended(user_id: string, suspended: boolean) {
-    if (!confirm(suspended ? "Suspend this account?" : "Reactivate this account?")) return;
-    const { error } = await supabase.rpc("admin_set_suspended", { _user_id: user_id, _suspended: suspended });
+    let reason: string | null = null;
+    if (suspended) {
+      reason = window.prompt("Reason for suspension (shown to the user):", "");
+      if (reason === null) return;
+    } else if (!confirm("Reactivate this account?")) {
+      return;
+    }
+    const { error } = await supabase.rpc("admin_set_suspended" as never, {
+      _user_id: user_id, _suspended: suspended, _reason: reason,
+    } as never);
     if (error) return toast.error(error.message);
-    toast.success(suspended ? "Suspended" : "Reactivated");
+    toast.success(suspended ? "Suspended — all sessions blocked" : "Reactivated");
     load();
   }
   async function setHold(user_id: string, hold: boolean) {
