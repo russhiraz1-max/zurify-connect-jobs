@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +28,7 @@ function formatUSD(cents: number) {
 }
 
 function LandingPage() {
+  const { user } = useSession();
   const [tasks, setTasks] = useState<FeaturedTask[]>([]);
 
   useEffect(() => {
@@ -60,9 +62,15 @@ function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Button asChild size="lg">
-                  <Link to="/auth" search={{ mode: "signup" }}>
-                    Start earning <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  {user ? (
+                    <Link to="/tasks">
+                      Start earning <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <Link to="/auth" search={{ mode: "signup" }}>
+                      Start earning <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  )}
                 </Button>
                 <Button asChild size="lg" variant="outline">
                   <Link to="/how-it-works">How it works</Link>
@@ -98,10 +106,10 @@ function LandingPage() {
           <div className="mb-8 flex items-end justify-between">
             <div>
               <h2 className="font-display text-2xl font-bold sm:text-3xl">Available tasks</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Sign in to submit and earn.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{user ? "Open a task to apply and submit your proof." : "Sign in to submit and earn."}</p>
             </div>
             <Button asChild variant="ghost">
-              <Link to="/auth">
+              <Link to={user ? "/tasks" : "/auth"}>
                 See all <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
