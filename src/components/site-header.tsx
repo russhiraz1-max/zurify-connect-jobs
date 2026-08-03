@@ -1,14 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Bell, Gift } from "lucide-react";
+import { useState } from "react";
+import {
+  Briefcase, LayoutDashboard, LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Bell, Gift,
+  Menu, ListChecks, Send, FileCheck2, Wallet as WalletIcon, ArrowDownToLine, BadgeCheck, LifeBuoy,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useRoles } from "@/lib/roles";
+import { cn } from "@/lib/utils";
 
 function initials(name?: string | null, email?: string | null) {
   const source = (name || email || "?").trim();
@@ -16,11 +22,34 @@ function initials(name?: string | null, email?: string | null) {
   return (parts[0]?.[0] ?? "?").toUpperCase() + (parts[1]?.[0] ?? "").toUpperCase();
 }
 
+export const authedNav = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/tasks", label: "Browse tasks", icon: ListChecks },
+  { to: "/applications", label: "Applications", icon: Send },
+  { to: "/submissions", label: "Submissions", icon: FileCheck2 },
+  { to: "/wallet", label: "Wallet", icon: WalletIcon },
+  { to: "/withdrawals", label: "Withdrawals", icon: ArrowDownToLine },
+  { to: "/verification", label: "Verification", icon: BadgeCheck },
+  { to: "/referrals", label: "Referrals", icon: Gift },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
+const publicNav = [
+  { to: "/how-it-works", label: "How it works" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/referrals/leaderboard", label: "Leaderboard" },
+  { to: "/contact", label: "Contact" },
+];
+
 export function SiteHeader() {
   const { user } = useSession();
   const { isStaff } = useRoles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -30,7 +59,7 @@ export function SiteHeader() {
   const navItem = (to: string, label: string) => {
     const active = pathname === to || (to !== "/" && pathname.startsWith(to));
     return (
-      <Link to={to}
+      <Link key={to} to={to}
         className={"text-sm font-medium transition-colors " + (active ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>
         {label}
       </Link>
@@ -41,18 +70,81 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-sm">
-            <Briefcase className="h-4 w-4" />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight">Zurify</span>
-        </Link>
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2">
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="-ml-2 md:hidden" aria-label="Open menu">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[85vw] max-w-xs overflow-y-auto p-0">
+              <SheetHeader className="border-b border-border px-4 py-4 text-left">
+                <SheetTitle className="flex items-center gap-2">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-gradient text-primary-foreground">
+                    <Briefcase className="h-4 w-4" />
+                  </span>
+                  Zurify
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="space-y-0.5 p-3">
+                {user ? (
+                  <>
+                    {authedNav.map((item) => {
+                      const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
+                      return (
+                        <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
+                          className={cn(
+                            "flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
+                            active ? "bg-accent font-medium text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                          )}>
+                          <item.icon className="h-4 w-4" /> {item.label}
+                        </Link>
+                      );
+                    })}
+                    {isStaff && (
+                      <Link to="/admin" onClick={() => setMenuOpen(false)}
+                        className="mt-2 flex min-h-11 items-center gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm font-medium text-primary">
+                        <Shield className="h-4 w-4" /> Admin console
+                      </Link>
+                    )}
+                    <button onClick={() => { setMenuOpen(false); void signOut(); }}
+                      className="mt-2 flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10">
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {publicNav.map((item) => (
+                      <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
+                        className="flex min-h-11 items-center rounded-md px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground">
+                        {item.label}
+                      </Link>
+                    ))}
+                    <div className="mt-3 space-y-2 px-1">
+                      <Button asChild variant="outline" className="w-full" onClick={() => setMenuOpen(false)}>
+                        <Link to="/auth">Sign in</Link>
+                      </Button>
+                      <Button asChild className="w-full" onClick={() => setMenuOpen(false)}>
+                        <Link to="/auth" search={{ mode: "signup" }}>Get started</Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-sm">
+              <Briefcase className="h-4 w-4" />
+            </span>
+            <span className="truncate font-display text-lg font-bold tracking-tight">Zurify</span>
+          </Link>
+        </div>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {!user && navItem("/how-it-works", "How it works")}
-          {!user && navItem("/faq", "FAQ")}
-          {!user && navItem("/contact", "Contact")}
+          {!user && publicNav.slice(0, 3).map((i) => navItem(i.to, i.label))}
           {user && navItem("/dashboard", "Dashboard")}
           {user && navItem("/tasks", "Tasks")}
           {user && navItem("/wallet", "Wallet")}
@@ -107,7 +199,7 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link to="/auth">Sign in</Link>
               </Button>
               <Button asChild size="sm">
