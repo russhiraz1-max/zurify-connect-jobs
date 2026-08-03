@@ -164,13 +164,24 @@ function AuthPage() {
                   <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5" />
                 </div>
                 <div>
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <button type="button" onClick={handleForgotPassword}
+                      className="text-xs font-medium text-primary hover:underline">
+                      Forgot password?
+                    </button>
+                  </div>
                   <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
                 </div>
                 <Button type="submit" className="h-11 w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign in
                 </Button>
+                {resetSent && (
+                  <p className="text-xs text-emerald-600">
+                    Recovery email sent. Check your inbox (and spam folder) for the reset link.
+                  </p>
+                )}
               </form>
             </TabsContent>
 
