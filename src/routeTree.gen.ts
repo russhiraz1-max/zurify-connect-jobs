@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SuspendedRouteImport } from './routes/suspended'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -60,6 +61,11 @@ import { Route as AuthenticatedAdminReferralsIdRouteImport } from './routes/_aut
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuspendedRoute = SuspendedRouteImport.update({
+  id: '/suspended',
+  path: '/suspended',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
+  '/suspended': typeof SuspendedRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/applications': typeof AuthenticatedApplicationsRoute
@@ -373,6 +380,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
+  '/suspended': typeof SuspendedRoute
   '/terms': typeof TermsRoute
   '/applications': typeof AuthenticatedApplicationsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -422,6 +430,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
+  '/suspended': typeof SuspendedRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/applications': typeof AuthenticatedApplicationsRoute
@@ -472,6 +481,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/how-it-works'
     | '/privacy'
+    | '/suspended'
     | '/terms'
     | '/admin'
     | '/applications'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/how-it-works'
     | '/privacy'
+    | '/suspended'
     | '/terms'
     | '/applications'
     | '/dashboard'
@@ -568,6 +579,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/how-it-works'
     | '/privacy'
+    | '/suspended'
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/applications'
@@ -618,6 +630,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PrivacyRoute: typeof PrivacyRoute
+  SuspendedRoute: typeof SuspendedRoute
   TermsRoute: typeof TermsRoute
   ReferralsLeaderboardRoute: typeof ReferralsLeaderboardRoute
 }
@@ -629,6 +642,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suspended': {
+      id: '/suspended'
+      path: '/suspended'
+      fullPath: '/suspended'
+      preLoaderRoute: typeof SuspendedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1062,6 +1082,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   HowItWorksRoute: HowItWorksRoute,
   PrivacyRoute: PrivacyRoute,
+  SuspendedRoute: SuspendedRoute,
   TermsRoute: TermsRoute,
   ReferralsLeaderboardRoute: ReferralsLeaderboardRoute,
 }
