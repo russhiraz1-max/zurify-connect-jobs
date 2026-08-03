@@ -36,6 +36,7 @@ function AuthPage() {
   const [tab, setTab] = useState<"signin" | "signup">(initialTab);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,10 +47,29 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setLoading(false); return toast.error(error.message); }
+    const { data: statusRows } = await supabase.rpc("get_my_account_status" as never);
+    const suspended = (statusRows as { suspended: boolean }[] | null)?.[0]?.suspended;
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (suspended) {
+      toast.error("This account is suspended.");
+      navigate({ to: "/suspended", replace: true });
+      return;
+    }
     toast.success("Welcome back!");
     navigate({ to: redirectTo });
+  }
+
+  async function handleForgotPassword() {
+    if (!email.trim()) return toast.error("Enter your email address first.");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    setResetSent(true);
+    toast.success("Password recovery email sent.");
   }
 
   async function handleSignUp(e: React.FormEvent) {
