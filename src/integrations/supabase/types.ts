@@ -237,6 +237,8 @@ export type Database = {
           id: string
           location: string | null
           suspended: boolean
+          suspended_at: string | null
+          suspension_reason: string | null
           updated_at: string
           website: string | null
           withdrawal_hold: boolean
@@ -250,6 +252,8 @@ export type Database = {
           id: string
           location?: string | null
           suspended?: boolean
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
           website?: string | null
           withdrawal_hold?: boolean
@@ -263,6 +267,8 @@ export type Database = {
           id?: string
           location?: string | null
           suspended?: boolean
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
           website?: string | null
           withdrawal_hold?: boolean
@@ -1065,6 +1071,10 @@ export type Database = {
         }[]
       }
       admin_promote_staff: { Args: { _user_id: string }; Returns: undefined }
+      admin_publish_announcement: {
+        Args: { _audience?: string; _body: string; _title: string }
+        Returns: string
+      }
       admin_referral_details: {
         Args: { _id: string }
         Returns: {
@@ -1099,7 +1109,7 @@ export type Database = {
         Returns: undefined
       }
       admin_set_suspended: {
-        Args: { _suspended: boolean; _user_id: string }
+        Args: { _reason?: string; _suspended: boolean; _user_id: string }
         Returns: undefined
       }
       admin_set_withdrawal_hold: {
@@ -1147,6 +1157,15 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      get_my_account_status: {
+        Args: never
+        Returns: {
+          suspended: boolean
+          suspended_at: string
+          suspension_reason: string
+          withdrawal_hold: boolean
+        }[]
+      }
       get_my_kyc: {
         Args: never
         Returns: {
@@ -1257,6 +1276,7 @@ export type Database = {
       }
       is_staff: { Args: { _uid: string }; Returns: boolean }
       is_super_admin: { Args: { _uid: string }; Returns: boolean }
+      is_suspended: { Args: { _uid: string }; Returns: boolean }
       quote_withdrawal_fee: {
         Args: { _amount_cents: number }
         Returns: {
