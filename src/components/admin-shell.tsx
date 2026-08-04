@@ -20,7 +20,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
-  { to: "/admin/tasks", label: "Tasks", icon: ListChecks, perm: "view_tasks" },
+  { to: "/admin/tasks", label: "Jobs", icon: ListChecks, perm: "view_tasks" },
   { to: "/admin/applications", label: "Applications", icon: Send, perm: "review_applications" },
   { to: "/admin/submissions", label: "Submissions", icon: FileCheck2, perm: "review_submissions" },
   { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine, perm: "view_withdrawals" },

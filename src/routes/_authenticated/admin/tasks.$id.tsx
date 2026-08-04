@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { TokenInput } from "./tasks.new";
+import { TokenInput } from "@/components/token-input";
 import { DIFFICULTIES, EXPERIENCE_LEVELS, JOB_TYPES } from "@/lib/jobs";
 
 export const Route = createFileRoute("/_authenticated/admin/tasks/$id")({

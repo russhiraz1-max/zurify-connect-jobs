@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TokenInput } from "@/components/token-input";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { DIFFICULTIES, EXPERIENCE_LEVELS, JOB_TYPES, type ExperienceLevel, type JobDifficulty, type JobType } from "@/lib/jobs";
@@ -19,44 +18,6 @@ export const Route = createFileRoute("/_authenticated/admin/tasks/new")({
   head: () => ({ meta: [{ title: "New job listing — Admin" }] }),
   component: NewJob,
 });
-
-export function TokenInput({ label, placeholder, values, onChange }: {
-  label: string; placeholder: string; values: string[]; onChange: (v: string[]) => void;
-}) {
-  const [draft, setDraft] = useState("");
-  function add() {
-    const v = draft.trim();
-    if (!v || values.includes(v)) return setDraft("");
-    onChange([...values, v]);
-    setDraft("");
-  }
-  return (
-    <div>
-      <Label>{label}</Label>
-      <div className="mt-1 flex gap-2">
-        <Input
-          value={draft}
-          placeholder={placeholder}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } }}
-        />
-        <Button type="button" variant="outline" onClick={add}>Add</Button>
-      </div>
-      {values.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {values.map((v) => (
-            <Badge key={v} variant="secondary" className="gap-1">
-              {v}
-              <button type="button" onClick={() => onChange(values.filter((x) => x !== v))} aria-label={`Remove ${v}`}>
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function NewJob() {
   const navigate = useNavigate();
