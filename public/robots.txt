@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://zurify-connect-jobs.lovable.app/sitemap.xml
