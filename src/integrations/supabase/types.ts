@@ -622,7 +622,10 @@ export type Database = {
       }
       task_categories: {
         Row: {
+          active: boolean
+          color: string
           created_at: string
+          description: string | null
           icon: string | null
           id: string
           name: string
@@ -630,7 +633,10 @@ export type Database = {
           sort_order: number
         }
         Insert: {
+          active?: boolean
+          color?: string
           created_at?: string
+          description?: string | null
           icon?: string | null
           id?: string
           name: string
@@ -638,7 +644,10 @@ export type Database = {
           sort_order?: number
         }
         Update: {
+          active?: boolean
+          color?: string
           created_at?: string
+          description?: string | null
           icon?: string | null
           id?: string
           name?: string
@@ -710,11 +719,17 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string
+          difficulty: Database["public"]["Enums"]["job_difficulty"]
           ends_at: string | null
           est_minutes: number | null
+          experience_level: Database["public"]["Enums"]["experience_level"]
           featured: boolean
           id: string
           instructions: string
+          is_recommended: boolean
+          is_remote: boolean
+          is_urgent: boolean
+          job_type: Database["public"]["Enums"]["job_type"]
           max_applications: number | null
           max_per_user: number
           max_total: number | null
@@ -722,10 +737,13 @@ export type Database = {
           proof_requirements: string | null
           requires_application: boolean
           reward_cents: number
+          skills: string[]
           starts_at: string | null
           status: Database["public"]["Enums"]["task_status"]
+          tags: string[]
           title: string
           updated_at: string
+          views_count: number
         }
         Insert: {
           allow_reapplication?: boolean
@@ -733,11 +751,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description: string
+          difficulty?: Database["public"]["Enums"]["job_difficulty"]
           ends_at?: string | null
           est_minutes?: number | null
+          experience_level?: Database["public"]["Enums"]["experience_level"]
           featured?: boolean
           id?: string
           instructions: string
+          is_recommended?: boolean
+          is_remote?: boolean
+          is_urgent?: boolean
+          job_type?: Database["public"]["Enums"]["job_type"]
           max_applications?: number | null
           max_per_user?: number
           max_total?: number | null
@@ -745,10 +769,13 @@ export type Database = {
           proof_requirements?: string | null
           requires_application?: boolean
           reward_cents: number
+          skills?: string[]
           starts_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[]
           title: string
           updated_at?: string
+          views_count?: number
         }
         Update: {
           allow_reapplication?: boolean
@@ -756,11 +783,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string
+          difficulty?: Database["public"]["Enums"]["job_difficulty"]
           ends_at?: string | null
           est_minutes?: number | null
+          experience_level?: Database["public"]["Enums"]["experience_level"]
           featured?: boolean
           id?: string
           instructions?: string
+          is_recommended?: boolean
+          is_remote?: boolean
+          is_urgent?: boolean
+          job_type?: Database["public"]["Enums"]["job_type"]
           max_applications?: number | null
           max_per_user?: number
           max_total?: number | null
@@ -768,10 +801,13 @@ export type Database = {
           proof_requirements?: string | null
           requires_application?: boolean
           reward_cents?: number
+          skills?: string[]
           starts_at?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[]
           title?: string
           updated_at?: string
+          views_count?: number
         }
         Relationships: [
           {
@@ -1157,6 +1193,19 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      get_job_categories: {
+        Args: never
+        Returns: {
+          color: string
+          description: string
+          icon: string
+          id: string
+          job_count: number
+          name: string
+          slug: string
+          sort_order: number
+        }[]
+      }
       get_my_account_status: {
         Args: never
         Returns: {
@@ -1345,6 +1394,15 @@ export type Database = {
         | "user"
         | "advertiser"
       application_status: "pending" | "approved" | "rejected" | "cancelled"
+      experience_level: "entry" | "intermediate" | "expert"
+      job_difficulty: "easy" | "medium" | "hard"
+      job_type:
+        | "micro_task"
+        | "freelance_project"
+        | "gig"
+        | "remote_job"
+        | "service_request"
+        | "contest"
       notification_type:
         | "account_verified"
         | "task_approved"
@@ -1532,6 +1590,16 @@ export const Constants = {
         "advertiser",
       ],
       application_status: ["pending", "approved", "rejected", "cancelled"],
+      experience_level: ["entry", "intermediate", "expert"],
+      job_difficulty: ["easy", "medium", "hard"],
+      job_type: [
+        "micro_task",
+        "freelance_project",
+        "gig",
+        "remote_job",
+        "service_request",
+        "contest",
+      ],
       notification_type: [
         "account_verified",
         "task_approved",
