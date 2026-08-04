@@ -1,87 +1,265 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { JobCard } from "@/components/job-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { usd } from "@/lib/format";
+import { DIFFICULTIES, EXPERIENCE_LEVELS, JOB_SELECT, JOB_TYPES, readRecentJobs, type JobRow } from "@/lib/jobs";
 
 export const Route = createFileRoute("/_authenticated/tasks/")({
-  head: () => ({ meta: [{ title: "Tasks — Zurify" }] }),
-  component: TasksPage,
+  head: () => ({
+    meta: [
+      { title: "Browse jobs — Zurify" },
+      { name: "description", content: "Browse micro tasks, gigs, freelance projects and remote opportunities on Zurify." },
+      { property: "og:title", content: "Browse jobs — Zurify" },
+      { property: "og:description", content: "Find paid work that fits you: micro tasks, gigs, freelance projects and remote roles." },
+    ],
+  }),
+  component: BrowseJobs,
 });
 
-type Task = { id: string; title: string; description: string; reward_cents: number; est_minutes: number | null; featured: boolean; category_id: string | null };
 type Category = { id: string; name: string; slug: string };
+type Sort = "recommended" | "latest" | "highest" | "quickest" | "trending";
+const PAGE_SIZE = 12;
 
-function TasksPage() {
-  const [tasks, setTasks] = useState<Task[] | null>(null);
+function BrowseJobs() {
+  const [jobs, setJobs] = useState<JobRow[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("all");
+  const [cat, setCat] = useState("all");
+  const [type, setType] = useState("all");
+  const [exp, setExp] = useState("all");
+  const [diff, setDiff] = useState("all");
+  const [minBudget, setMinBudget] = useState("");
+  const [maxBudget, setMaxBudget] = useState("");
+  const [skill, setSkill] = useState("all");
+  const [sort, setSort] = useState<Sort>("recommended");
+  const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
+  const [recent, setRecent] = useState<string[]>([]);
 
   useEffect(() => {
-    supabase.from("tasks").select("id,title,description,reward_cents,est_minutes,featured,category_id")
-      .eq("status", "published").order("featured", { ascending: false }).order("priority", { ascending: false })
-      .then(({ data }) => setTasks((data ?? []) as Task[]));
-    supabase.from("task_categories").select("id,name,slug").order("name")
+    setRecent(readRecentJobs());
+    supabase
+      .from("tasks")
+      .select(JOB_SELECT)
+      .eq("status", "published")
+      .then(({ data }) => setJobs((data ?? []) as unknown as JobRow[]));
+    supabase
+      .from("task_categories")
+      .select("id,name,slug")
+      .order("sort_order")
       .then(({ data }) => setCategories((data ?? []) as Category[]));
   }, []);
 
+  const allSkills = useMemo(() => {
+    const s = new Set<string>();
+    (jobs ?? []).forEach((j) => (j.skills ?? []).forEach((x) => s.add(x)));
+    return [...s].sort();
+  }, [jobs]);
+
   const filtered = useMemo(() => {
-    if (!tasks) return null;
-    return tasks.filter(t =>
-      (cat === "all" || t.category_id === cat) &&
-      (q === "" || t.title.toLowerCase().includes(q.toLowerCase()) || t.description.toLowerCase().includes(q.toLowerCase()))
+    if (!jobs) return null;
+    const min = minBudget ? Number(minBudget) * 100 : null;
+    const max = maxBudget ? Number(maxBudget) * 100 : null;
+    const term = q.trim().toLowerCase();
+    const rows = jobs.filter(
+      (j) =>
+        (cat === "all" || j.category_id === cat) &&
+        (type === "all" || j.job_type === type) &&
+        (exp === "all" || j.experience_level === exp) &&
+        (diff === "all" || j.difficulty === diff) &&
+        (skill === "all" || (j.skills ?? []).includes(skill)) &&
+        (min === null || j.reward_cents >= min) &&
+        (max === null || j.reward_cents <= max) &&
+        (term === "" ||
+          j.title.toLowerCase().includes(term) ||
+          j.description.toLowerCase().includes(term) ||
+          (j.skills ?? []).some((s) => s.toLowerCase().includes(term)) ||
+          (j.tags ?? []).some((s) => s.toLowerCase().includes(term))),
     );
-  }, [tasks, q, cat]);
+    const byDate = (a: JobRow, b: JobRow) => +new Date(b.created_at) - +new Date(a.created_at);
+    switch (sort) {
+      case "latest":
+        return [...rows].sort(byDate);
+      case "highest":
+        return [...rows].sort((a, b) => b.reward_cents - a.reward_cents);
+      case "quickest":
+        return [...rows].sort((a, b) => (a.est_minutes ?? 9999) - (b.est_minutes ?? 9999));
+      case "trending":
+        return [...rows].sort((a, b) => Number(b.is_urgent) - Number(a.is_urgent) || b.priority - a.priority || byDate(a, b));
+      default:
+        return [...rows].sort(
+          (a, b) =>
+            Number(b.is_recommended) - Number(a.is_recommended) ||
+            Number(b.featured) - Number(a.featured) ||
+            b.priority - a.priority ||
+            byDate(a, b),
+        );
+    }
+  }, [jobs, q, cat, type, exp, diff, skill, minBudget, maxBudget, sort]);
+
+  useEffect(() => setPage(1), [q, cat, type, exp, diff, skill, minBudget, maxBudget, sort]);
+
+  const catName = (id: string | null) => categories.find((c) => c.id === id)?.name;
+  const totalPages = filtered ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)) : 1;
+  const pageRows = filtered ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : null;
+  const recentJobs = (jobs ?? []).filter((j) => recent.includes(j.id)).slice(0, 3);
+
+  const activeFilters =
+    (cat !== "all" ? 1 : 0) + (type !== "all" ? 1 : 0) + (exp !== "all" ? 1 : 0) + (diff !== "all" ? 1 : 0) +
+    (skill !== "all" ? 1 : 0) + (minBudget ? 1 : 0) + (maxBudget ? 1 : 0);
+
+  function reset() {
+    setCat("all"); setType("all"); setExp("all"); setDiff("all"); setSkill("all");
+    setMinBudget(""); setMaxBudget("");
+  }
 
   return (
-    <AppShell title="Browse tasks" subtitle="Apply to any task to get started.">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
+    <AppShell title="Browse jobs" subtitle="Micro tasks, gigs, freelance projects and remote opportunities.">
+      {/* Search + sort */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+        <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search tasks…" value={q} onChange={e => setQ(e.target.value)} className="pl-9" />
+          <Input placeholder="Search jobs, skills or tags…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
         </div>
-        <Select value={cat} onValueChange={setCat}>
-          <SelectTrigger className="sm:w-56"><SelectValue placeholder="All categories" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:flex">
+          <Select value={sort} onValueChange={(v) => setSort(v as Sort)}>
+            <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="latest">Latest</SelectItem>
+              <SelectItem value="trending">Trending</SelectItem>
+              <SelectItem value="highest">Highest paying</SelectItem>
+              <SelectItem value="quickest">Quickest</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" className="shrink-0" onClick={() => setShowFilters((s) => !s)}>
+            <SlidersHorizontal className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Filters</span>
+            {activeFilters > 0 && <Badge variant="secondary" className="ml-2">{activeFilters}</Badge>}
+          </Button>
+        </div>
       </div>
 
-      {filtered === null ? (
+      {/* Category chips */}
+      <div className="mb-4 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <Button size="sm" variant={cat === "all" ? "default" : "outline"} className="shrink-0" onClick={() => setCat("all")}>
+          All categories
+        </Button>
+        {categories.map((c) => (
+          <Button key={c.id} size="sm" variant={cat === c.id ? "default" : "outline"} className="shrink-0" onClick={() => setCat(c.id)}>
+            {c.name}
+          </Button>
+        ))}
+      </div>
+
+      {showFilters && (
+        <Card className="mb-5">
+          <CardContent className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <Label>Job type</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  {JOB_TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Experience</Label>
+              <Select value={exp} onValueChange={setExp}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any experience</SelectItem>
+                  {EXPERIENCE_LEVELS.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Difficulty</Label>
+              <Select value={diff} onValueChange={setDiff}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any difficulty</SelectItem>
+                  {DIFFICULTIES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Skill</Label>
+              <Select value={skill} onValueChange={setSkill}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any skill</SelectItem>
+                  {allSkills.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Min budget ($)</Label>
+              <Input type="number" min="0" value={minBudget} onChange={(e) => setMinBudget(e.target.value)} placeholder="0" />
+            </div>
+            <div>
+              <Label>Max budget ($)</Label>
+              <Input type="number" min="0" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} placeholder="Any" />
+            </div>
+            {activeFilters > 0 && (
+              <div className="sm:col-span-2 lg:col-span-3">
+                <Button variant="ghost" size="sm" onClick={reset}><X className="mr-1 h-4 w-4" /> Clear filters</Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {recentJobs.length > 0 && q === "" && activeFilters === 0 && (
+        <section className="mb-6">
+          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Recently viewed</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {recentJobs.map((j) => <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />)}
+          </div>
+        </section>
+      )}
+
+      {pageRows === null ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-40 rounded-lg" />)}
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
         </div>
-      ) : filtered.length === 0 ? (
-        <Card><CardContent className="p-10 text-center text-sm text-muted-foreground">No tasks match your filters.</CardContent></Card>
+      ) : pageRows.length === 0 ? (
+        <Card>
+          <CardContent className="p-10 text-center">
+            <p className="font-medium">No jobs match your filters</p>
+            <p className="mt-1 text-sm text-muted-foreground">Try a different search term or clear your filters.</p>
+            {(activeFilters > 0 || q !== "") && (
+              <Button className="mt-4" variant="outline" onClick={() => { reset(); setQ(""); }}>Clear everything</Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map(t => (
-            <Link key={t.id} to="/tasks/$id" params={{ id: t.id }} className="block">
-              <Card className="h-full transition-shadow hover:shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-semibold leading-tight">{t.title}</h3>
-                    <Badge className="shrink-0 bg-brand-gradient text-primary-foreground">{usd(t.reward_cents)}</Badge>
-                  </div>
-                  <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{t.description}</p>
-                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                    {t.est_minutes ? <span>~{t.est_minutes} min</span> : <span />}
-                    {t.featured && <Badge variant="secondary">Featured</Badge>}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <>
+          <p className="mb-3 text-sm text-muted-foreground">
+            {filtered!.length} {filtered!.length === 1 ? "job" : "jobs"} available
+          </p>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {pageRows.map((j) => <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />)}
+          </div>
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>Previous</Button>
+              <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+              <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
+            </div>
+          )}
+        </>
       )}
     </AppShell>
   );

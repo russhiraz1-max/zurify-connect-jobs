@@ -11,7 +11,7 @@ import { useRoles } from "@/lib/roles";
 
 const userNav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/tasks", label: "Browse tasks", icon: ListChecks },
+  { to: "/tasks", label: "Browse jobs", icon: ListChecks },
   { to: "/applications", label: "Applications", icon: Send },
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
