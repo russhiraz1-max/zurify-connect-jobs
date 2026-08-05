@@ -41,6 +41,8 @@ const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
 function DashboardPage() {
   const { user } = useSession();
+  const { data: eng, refresh: refreshEng } = useEngagement();
+
   const [wallet, setWallet] = useState<WalletRow | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
