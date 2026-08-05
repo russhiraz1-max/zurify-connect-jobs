@@ -11,6 +11,11 @@ import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { dateTime } from "@/lib/format";
+import { useEngagement } from "@/lib/engagement";
+import {
+  StreakCard, LuckyCard, MysteryCard, ChallengesCard, ReputationCard, BadgesCard, ProCard, EventBanners,
+} from "@/components/engagement-widgets";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -108,6 +113,7 @@ function DashboardPage() {
 
   return (
     <AppShell title="Welcome back" subtitle="Your earnings command center.">
+      {eng && <EventBanners e={eng} />}
       {visibleAnnouncements.length > 0 && (
         <div className="mb-6 space-y-2">
           {visibleAnnouncements.map(a => (
@@ -123,6 +129,23 @@ function DashboardPage() {
           ))}
         </div>
       )}
+
+      {eng && (
+        <div className="mb-6 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {eng.settings.streak_enabled && <StreakCard e={eng} onDone={refreshEng} />}
+            {eng.settings.lucky_enabled && <LuckyCard e={eng} onDone={refreshEng} />}
+            {eng.settings.mystery_enabled && <MysteryCard e={eng} onDone={refreshEng} />}
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ReputationCard e={eng} />
+            {eng.settings.challenges_enabled && <ChallengesCard e={eng} onDone={refreshEng} />}
+          </div>
+          {eng.settings.badges_enabled && <BadgesCard e={eng} />}
+          <ProCard e={eng} />
+        </div>
+      )}
+
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
