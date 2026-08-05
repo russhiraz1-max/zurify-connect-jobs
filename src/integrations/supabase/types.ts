@@ -143,6 +143,281 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          metric: string
+          name: string
+          reward_cents: number
+          slug: string
+          sort_order: number
+          threshold: number
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          metric?: string
+          name: string
+          reward_cents?: number
+          slug: string
+          sort_order?: number
+          threshold?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          metric?: string
+          name?: string
+          reward_cents?: number
+          slug?: string
+          sort_order?: number
+          threshold?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      challenge_claims: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          reward_cents: number
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          reward_cents: number
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          reward_cents?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_claims_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          description: string
+          ends_at: string
+          id: string
+          metric: string
+          min_approved_jobs: number
+          name: string
+          require_kyc: boolean
+          reward_cents: number
+          starts_at: string
+          target: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string
+          id?: string
+          metric?: string
+          min_approved_jobs?: number
+          name: string
+          require_kyc?: boolean
+          reward_cents?: number
+          starts_at?: string
+          target?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string
+          id?: string
+          metric?: string
+          min_approved_jobs?: number
+          name?: string
+          require_kyc?: boolean
+          reward_cents?: number
+          starts_at?: string
+          target?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      engagement_settings: {
+        Row: {
+          badges_enabled: boolean
+          challenges_enabled: boolean
+          challenges_require_kyc: boolean
+          created_at: string
+          id: string
+          lucky_cooldown_days: number
+          lucky_duration_minutes: number
+          lucky_enabled: boolean
+          lucky_max_winners: number
+          lucky_min_approved_jobs: number
+          lucky_open_time: string
+          lucky_require_kyc: boolean
+          lucky_reward_cents: number
+          mystery_enabled: boolean
+          mystery_frequency_days: number
+          mystery_min_approved_jobs: number
+          mystery_outcomes: Json
+          mystery_require_kyc: boolean
+          pro_benefits: string[]
+          pro_duration_days: number
+          pro_enabled: boolean
+          pro_faq: string
+          pro_payment_instructions: string
+          pro_price_cents: number
+          rep_star_thresholds: Json
+          rep_star1_label: string
+          rep_w_account_age: number
+          rep_w_approval_rate: number
+          rep_w_approved_jobs: number
+          rep_w_clean_record: number
+          rep_w_completed_jobs: number
+          rep_w_kyc: number
+          rep_w_recent_activity: number
+          rep_w_withdrawals: number
+          singleton: boolean
+          streak_after_30: string
+          streak_enabled: boolean
+          streak_grace_days: number
+          streak_max_reward_cents: number
+          streak_stage1_rewards: number[]
+          streak_stage2_required_jobs: number
+          streak_stage2_rewards: number[]
+          streak_stage3_required_jobs: number
+          streak_stage3_rewards: number[]
+          updated_at: string
+        }
+        Insert: {
+          badges_enabled?: boolean
+          challenges_enabled?: boolean
+          challenges_require_kyc?: boolean
+          created_at?: string
+          id?: string
+          lucky_cooldown_days?: number
+          lucky_duration_minutes?: number
+          lucky_enabled?: boolean
+          lucky_max_winners?: number
+          lucky_min_approved_jobs?: number
+          lucky_open_time?: string
+          lucky_require_kyc?: boolean
+          lucky_reward_cents?: number
+          mystery_enabled?: boolean
+          mystery_frequency_days?: number
+          mystery_min_approved_jobs?: number
+          mystery_outcomes?: Json
+          mystery_require_kyc?: boolean
+          pro_benefits?: string[]
+          pro_duration_days?: number
+          pro_enabled?: boolean
+          pro_faq?: string
+          pro_payment_instructions?: string
+          pro_price_cents?: number
+          rep_star_thresholds?: Json
+          rep_star1_label?: string
+          rep_w_account_age?: number
+          rep_w_approval_rate?: number
+          rep_w_approved_jobs?: number
+          rep_w_clean_record?: number
+          rep_w_completed_jobs?: number
+          rep_w_kyc?: number
+          rep_w_recent_activity?: number
+          rep_w_withdrawals?: number
+          singleton?: boolean
+          streak_after_30?: string
+          streak_enabled?: boolean
+          streak_grace_days?: number
+          streak_max_reward_cents?: number
+          streak_stage1_rewards?: number[]
+          streak_stage2_required_jobs?: number
+          streak_stage2_rewards?: number[]
+          streak_stage3_required_jobs?: number
+          streak_stage3_rewards?: number[]
+          updated_at?: string
+        }
+        Update: {
+          badges_enabled?: boolean
+          challenges_enabled?: boolean
+          challenges_require_kyc?: boolean
+          created_at?: string
+          id?: string
+          lucky_cooldown_days?: number
+          lucky_duration_minutes?: number
+          lucky_enabled?: boolean
+          lucky_max_winners?: number
+          lucky_min_approved_jobs?: number
+          lucky_open_time?: string
+          lucky_require_kyc?: boolean
+          lucky_reward_cents?: number
+          mystery_enabled?: boolean
+          mystery_frequency_days?: number
+          mystery_min_approved_jobs?: number
+          mystery_outcomes?: Json
+          mystery_require_kyc?: boolean
+          pro_benefits?: string[]
+          pro_duration_days?: number
+          pro_enabled?: boolean
+          pro_faq?: string
+          pro_payment_instructions?: string
+          pro_price_cents?: number
+          rep_star_thresholds?: Json
+          rep_star1_label?: string
+          rep_w_account_age?: number
+          rep_w_approval_rate?: number
+          rep_w_approved_jobs?: number
+          rep_w_clean_record?: number
+          rep_w_completed_jobs?: number
+          rep_w_kyc?: number
+          rep_w_recent_activity?: number
+          rep_w_withdrawals?: number
+          singleton?: boolean
+          streak_after_30?: string
+          streak_enabled?: boolean
+          streak_grace_days?: number
+          streak_max_reward_cents?: number
+          streak_stage1_rewards?: number[]
+          streak_stage2_required_jobs?: number
+          streak_stage2_rewards?: number[]
+          streak_stage3_required_jobs?: number
+          streak_stage3_rewards?: number[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kyc_verifications: {
         Row: {
           admin_notes: string | null
@@ -194,6 +469,57 @@ export type Database = {
         }
         Relationships: []
       }
+      lucky_claims: {
+        Row: {
+          amount_cents: number
+          claim_date: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          claim_date?: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          claim_date?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mystery_claims: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          outcome_label: string
+          period_key: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          outcome_label: string
+          period_key: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          outcome_label?: string
+          period_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -223,6 +549,96 @@ export type Database = {
           read_at?: string | null
           title?: string
           type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      platform_events: {
+        Row: {
+          accent: string
+          banner_text: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          ends_at: string
+          id: string
+          name: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accent?: string
+          banner_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string
+          id?: string
+          name: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accent?: string
+          banner_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          ends_at?: string
+          id?: string
+          name?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pro_requests: {
+        Row: {
+          activated_at: string | null
+          admin_notes: string | null
+          created_at: string
+          duration_days: number
+          expires_at: string | null
+          id: string
+          note: string | null
+          payment_reference: string | null
+          price_cents: number
+          reviewer_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          admin_notes?: string | null
+          created_at?: string
+          duration_days?: number
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          payment_reference?: string | null
+          price_cents?: number
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          admin_notes?: string | null
+          created_at?: string
+          duration_days?: number
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          payment_reference?: string | null
+          price_cents?: number
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -492,6 +908,33 @@ export type Database = {
           granted_by?: string | null
           id?: string
           permission?: Database["public"]["Enums"]["staff_permission"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      streak_claims: {
+        Row: {
+          amount_cents: number
+          claim_date: string
+          created_at: string
+          day_number: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          claim_date?: string
+          created_at?: string
+          day_number: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          claim_date?: string
+          created_at?: string
+          day_number?: number
+          id?: string
           user_id?: string
         }
         Relationships: []
@@ -819,6 +1262,35 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          awarded_at: string
+          badge_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -836,6 +1308,36 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          last_claim_date: string | null
+          longest_streak: number
+          total_claimed_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          last_claim_date?: string | null
+          longest_streak?: number
+          total_claimed_cents?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          last_claim_date?: string | null
+          longest_streak?: number
+          total_claimed_cents?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1043,6 +1545,24 @@ export type Database = {
           withdrawal_hold: boolean
         }[]
       }
+      admin_list_pro_requests: {
+        Args: never
+        Returns: {
+          activated_at: string
+          admin_notes: string
+          created_at: string
+          duration_days: number
+          email: string
+          expires_at: string
+          full_name: string
+          id: string
+          note: string
+          payment_reference: string
+          price_cents: number
+          status: string
+          user_id: string
+        }[]
+      }
       admin_list_referral_codes: {
         Args: never
         Returns: {
@@ -1140,6 +1660,10 @@ export type Database = {
           id: string
         }[]
       }
+      admin_set_pro_status: {
+        Args: { _id: string; _notes: string; _status: string }
+        Returns: undefined
+      }
       admin_set_referral_status: {
         Args: { _id: string; _status: string }
         Returns: undefined
@@ -1193,6 +1717,26 @@ export type Database = {
         Returns: undefined
       }
       cancel_application: { Args: { _id: string }; Returns: undefined }
+      challenge_progress: {
+        Args: {
+          _c: Database["public"]["Tables"]["challenges"]["Row"]
+          _user_id: string
+        }
+        Returns: number
+      }
+      claim_challenge: { Args: { _id: string }; Returns: Json }
+      claim_daily_streak: { Args: never; Returns: Json }
+      claim_lucky_reward: { Args: never; Returns: Json }
+      credit_engagement_reward: {
+        Args: {
+          _cents: number
+          _memo: string
+          _ref_id: string
+          _ref_type: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       get_job_categories: {
         Args: never
         Returns: {
@@ -1215,6 +1759,7 @@ export type Database = {
           withdrawal_hold: boolean
         }[]
       }
+      get_my_engagement: { Args: never; Returns: Json }
       get_my_kyc: {
         Args: never
         Returns: {
@@ -1300,6 +1845,7 @@ export type Database = {
           week_referrals: number
         }[]
       }
+      get_user_reputation: { Args: { _user_id: string }; Returns: Json }
       get_withdrawal_settings: {
         Args: never
         Returns: {
@@ -1326,6 +1872,7 @@ export type Database = {
       is_staff: { Args: { _uid: string }; Returns: boolean }
       is_super_admin: { Args: { _uid: string }; Returns: boolean }
       is_suspended: { Args: { _uid: string }; Returns: boolean }
+      open_mystery_box: { Args: never; Returns: Json }
       quote_withdrawal_fee: {
         Args: { _amount_cents: number }
         Returns: {
@@ -1356,6 +1903,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      request_pro: {
+        Args: { _note: string; _payment_reference: string }
+        Returns: string
+      }
       request_withdrawal: {
         Args: {
           _amount_cents: number
@@ -1383,6 +1934,7 @@ export type Database = {
         }
         Returns: string
       }
+      sync_my_badges: { Args: never; Returns: number }
     }
     Enums: {
       app_role:
