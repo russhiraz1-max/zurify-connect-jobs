@@ -55,7 +55,7 @@ function BrowseJobs() {
       .from("tasks")
       .select(JOB_SELECT)
       .eq("status", "published")
-      .then(({ data }) => setJobs((data ?? []) as unknown as JobRow[]));
+      .then(({ data }) => setAllJobs((data ?? []) as unknown as JobRow[]));
     supabase
       .from("task_categories")
       .select("id,name,slug")
@@ -63,11 +63,32 @@ function BrowseJobs() {
       .then(({ data }) => setCategories((data ?? []) as Category[]));
   }, []);
 
+  // Jobs the member already completed, or that were permanently closed to them,
+  // never appear anywhere in the marketplace — they're archived under "My work".
+  const jobs = useMemo(() => {
+    if (!allJobs || progress.loading) return allJobs && progress.loading ? null : allJobs;
+    return allJobs.filter((j) => !isJobLockedForUser(j.id, progress));
+  }, [allJobs, progress]);
+
+  const inProgress = useMemo(() => {
+    if (!jobs) return [];
+    return jobs.filter(
+      (j) =>
+        progress.awaitingReview.has(j.id) ||
+        progress.needsResubmit.has(j.id) ||
+        progress.approved.has(j.id) ||
+        progress.applied.has(j.id),
+    );
+  }, [jobs, progress]);
+
+  const hiddenCount = (allJobs?.length ?? 0) - (jobs?.length ?? 0);
+
   const allSkills = useMemo(() => {
     const s = new Set<string>();
     (jobs ?? []).forEach((j) => (j.skills ?? []).forEach((x) => s.add(x)));
     return [...s].sort();
   }, [jobs]);
+
 
   const filtered = useMemo(() => {
     if (!jobs) return null;
