@@ -277,7 +277,7 @@ function DashboardPage() {
         <Button asChild variant="outline" size="sm"><Link to="/tasks">Browse all</Link></Button>
       </div>
 
-      {tasks.length === 0 ? (
+      {availableTasks.length === 0 ? (
         <Card className="mt-4">
           <CardContent className="p-10 text-center text-sm text-muted-foreground">
             {loading ? "Loading tasks…" : "No published tasks right now. Check back soon."}
@@ -285,7 +285,7 @@ function DashboardPage() {
         </Card>
       ) : (
         <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {tasks.map((t) => (
+          {availableTasks.map((t) => (
             <Card key={t.id} className="transition-shadow hover:shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-3">
