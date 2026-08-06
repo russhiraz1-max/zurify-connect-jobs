@@ -246,6 +246,21 @@ function BrowseJobs() {
         </Card>
       )}
 
+      {inProgress.length > 0 && q === "" && activeFilters === 0 && (
+        <section className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-muted-foreground">Jobs you're working on</h2>
+            <Badge variant="secondary">{inProgress.length}</Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {inProgress.slice(0, 3).map((j) => (
+              <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+
       {recentJobs.length > 0 && q === "" && activeFilters === 0 && (
         <section className="mb-6">
           <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Recently viewed</h2>
