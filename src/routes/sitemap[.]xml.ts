@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-
-const BASE_URL = "https://zurify-connect-jobs.lovable.app";
+import { originFromRequest } from "@/lib/site";
 
 interface SitemapEntry {
   path: string;
@@ -12,7 +11,11 @@ interface SitemapEntry {
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        // Derived from the incoming request so the sitemap is correct on any
+        // domain the app is served from (preview, lovable.app, custom domain).
+        const BASE_URL = originFromRequest(request);
+
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "daily", priority: "1.0" },
           { path: "/how-it-works", changefreq: "monthly", priority: "0.8" },

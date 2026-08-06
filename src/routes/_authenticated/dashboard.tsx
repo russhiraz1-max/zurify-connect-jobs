@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Wallet, Clock, TrendingUp, ArrowUpRight, Bell, Megaphone, BadgeCheck, Gift,
-  Send, FileCheck2, ArrowDownToLine, ListChecks, ArrowRight,
+  Send, FileCheck2, ArrowDownToLine, ListChecks, ArrowRight, ShieldAlert,
 } from "lucide-react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { dateTime } from "@/lib/format";
 import { useEngagement } from "@/lib/engagement";
+import { isJobLockedForUser, useJobProgress } from "@/lib/user-jobs";
+
 import {
   StreakCard, LuckyCard, MysteryCard, ChallengesCard, ReputationCard, BadgesCard, ProCard, EventBanners,
 } from "@/components/engagement-widgets";
@@ -42,6 +45,7 @@ const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 function DashboardPage() {
   const { user } = useSession();
   const { data: eng, refresh: refreshEng } = useEngagement();
+  const progress = useJobProgress();
 
   const [wallet, setWallet] = useState<WalletRow | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -49,16 +53,18 @@ function DashboardPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [counts, setCounts] = useState<Counts | null>(null);
   const [kyc, setKyc] = useState<string | null>(null);
+  const [proStatus, setProStatus] = useState<string | null>(null);
   const [referral, setReferral] = useState<ReferralSummary>(null);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState<string[]>([]);
+
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [w, t, n, a, apps, subs, wds, k, ref] = await Promise.all([
+      const [w, t, n, a, apps, subs, wds, k, ref, pro] = await Promise.all([
         supabase.from("wallets")
           .select("available_cents,pending_cents,pending_withdrawal_cents,lifetime_earned_cents,lifetime_withdrawn_cents")
           .eq("user_id", user.id).maybeSingle(),
@@ -73,7 +79,10 @@ function DashboardPage() {
         supabase.from("withdrawal_requests").select("status").eq("user_id", user.id),
         supabase.rpc("get_my_kyc" as never),
         supabase.rpc("get_my_referral_code" as never),
+        supabase.from("pro_requests").select("status").eq("user_id", user.id)
+          .order("created_at", { ascending: false }).limit(1),
       ]);
+
       if (cancelled) return;
       setWallet((w.data ?? null) as WalletRow | null);
       setTasks((t.data ?? []) as Task[]);
@@ -91,8 +100,10 @@ function DashboardPage() {
         pendingWithdrawals: wdRows.filter(r => r.status === "pending").length,
       });
       setKyc(((k.data as { status: string }[] | null)?.[0]?.status) ?? null);
+      setProStatus(((pro.data as { status: string }[] | null)?.[0]?.status) ?? null);
       const refRow = (ref.data as ReferralSummary[] | null)?.[0] ?? null;
       setReferral(refRow);
+
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -113,9 +124,29 @@ function DashboardPage() {
 
   const visibleAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
 
+  // Finished or permanently closed jobs never resurface as "available".
+  const availableTasks = useMemo(
+    () => tasks.filter(t => !isJobLockedForUser(t.id, progress)),
+    [tasks, progress],
+  );
+
+
   return (
     <AppShell title="Welcome back" subtitle="Your earnings command center.">
       {eng && <EventBanners e={eng} />}
+      {proStatus === "awaiting_kyc" && kyc !== "approved" && (
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">Zurify Pro is waiting on your identity check</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your membership activates automatically as soon as your identity verification is approved.
+            </p>
+          </div>
+          <Button asChild size="sm" variant="outline"><Link to="/verification">Verify now</Link></Button>
+        </div>
+      )}
+
       {visibleAnnouncements.length > 0 && (
         <div className="mb-6 space-y-2">
           {visibleAnnouncements.map(a => (
@@ -259,7 +290,7 @@ function DashboardPage() {
         <Button asChild variant="outline" size="sm"><Link to="/tasks">Browse all</Link></Button>
       </div>
 
-      {tasks.length === 0 ? (
+      {availableTasks.length === 0 ? (
         <Card className="mt-4">
           <CardContent className="p-10 text-center text-sm text-muted-foreground">
             {loading ? "Loading tasks…" : "No published tasks right now. Check back soon."}
@@ -267,7 +298,7 @@ function DashboardPage() {
         </Card>
       ) : (
         <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {tasks.map((t) => (
+          {availableTasks.map((t) => (
             <Card key={t.id} className="transition-shadow hover:shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-3">

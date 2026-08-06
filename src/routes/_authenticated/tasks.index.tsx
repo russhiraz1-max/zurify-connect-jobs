@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { DIFFICULTIES, EXPERIENCE_LEVELS, JOB_SELECT, JOB_TYPES, readRecentJobs, type JobRow } from "@/lib/jobs";
+import { isJobLockedForUser, useJobProgress } from "@/lib/user-jobs";
+
 
 export const Route = createFileRoute("/_authenticated/tasks/")({
   head: () => ({
@@ -30,8 +32,10 @@ type Sort = "recommended" | "latest" | "highest" | "quickest" | "trending";
 const PAGE_SIZE = 12;
 
 function BrowseJobs() {
-  const [jobs, setJobs] = useState<JobRow[] | null>(null);
+  const [allJobs, setAllJobs] = useState<JobRow[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const progress = useJobProgress();
+
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("all");
   const [type, setType] = useState("all");
@@ -51,7 +55,7 @@ function BrowseJobs() {
       .from("tasks")
       .select(JOB_SELECT)
       .eq("status", "published")
-      .then(({ data }) => setJobs((data ?? []) as unknown as JobRow[]));
+      .then(({ data }) => setAllJobs((data ?? []) as unknown as JobRow[]));
     supabase
       .from("task_categories")
       .select("id,name,slug")
@@ -59,11 +63,32 @@ function BrowseJobs() {
       .then(({ data }) => setCategories((data ?? []) as Category[]));
   }, []);
 
+  // Jobs the member already completed, or that were permanently closed to them,
+  // never appear anywhere in the marketplace — they're archived under "My work".
+  const jobs = useMemo(() => {
+    if (!allJobs || progress.loading) return allJobs && progress.loading ? null : allJobs;
+    return allJobs.filter((j) => !isJobLockedForUser(j.id, progress));
+  }, [allJobs, progress]);
+
+  const inProgress = useMemo(() => {
+    if (!jobs) return [];
+    return jobs.filter(
+      (j) =>
+        progress.awaitingReview.has(j.id) ||
+        progress.needsResubmit.has(j.id) ||
+        progress.approved.has(j.id) ||
+        progress.applied.has(j.id),
+    );
+  }, [jobs, progress]);
+
+  const hiddenCount = (allJobs?.length ?? 0) - (jobs?.length ?? 0);
+
   const allSkills = useMemo(() => {
     const s = new Set<string>();
     (jobs ?? []).forEach((j) => (j.skills ?? []).forEach((x) => s.add(x)));
     return [...s].sort();
   }, [jobs]);
+
 
   const filtered = useMemo(() => {
     if (!jobs) return null;
@@ -221,6 +246,21 @@ function BrowseJobs() {
         </Card>
       )}
 
+      {inProgress.length > 0 && q === "" && activeFilters === 0 && (
+        <section className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-muted-foreground">Jobs you're working on</h2>
+            <Badge variant="secondary">{inProgress.length}</Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {inProgress.slice(0, 3).map((j) => (
+              <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+
       {recentJobs.length > 0 && q === "" && activeFilters === 0 && (
         <section className="mb-6">
           <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Recently viewed</h2>
@@ -248,6 +288,8 @@ function BrowseJobs() {
         <>
           <p className="mb-3 text-sm text-muted-foreground">
             {filtered!.length} {filtered!.length === 1 ? "job" : "jobs"} available
+            {hiddenCount > 0 && ` · ${hiddenCount} finished ${hiddenCount === 1 ? "job" : "jobs"} hidden`}
+
           </p>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {pageRows.map((j) => <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />)}

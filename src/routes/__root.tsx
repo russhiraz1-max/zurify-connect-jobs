@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountRealtime } from "@/components/account-realtime";
+import { ThemeProvider } from "@/lib/theme";
+
 
 function NotFoundComponent() {
   return (
@@ -78,6 +80,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Zurify — Complete tasks. Get paid." },
       { name: "description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
       { name: "author", content: "Zurify" },
+      { name: "theme-color", content: "#1d4ed8" },
+      { name: "apple-mobile-web-app-title", content: "Zurify" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "application-name", content: "Zurify" },
+
       { property: "og:title", content: "Zurify — Complete tasks. Get paid." },
       { property: "og:description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
       { property: "og:type", content: "website" },
@@ -92,8 +99,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" },
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -128,9 +140,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccountRealtime />
-      <Outlet />
-      <Toaster richColors position="top-right" />
+      <ThemeProvider>
+        <AccountRealtime />
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </ThemeProvider>
     </QueryClientProvider>
   );
+
 }

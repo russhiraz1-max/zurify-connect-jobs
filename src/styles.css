@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant blue (&:is(.theme-blue *));
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -109,6 +111,37 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.7 0.16 258);
 }
+
+/* Zurify Blue — a deep brand navy surface with bright blue accents. */
+.theme-blue {
+  --background: oklch(0.21 0.055 260);
+  --foreground: oklch(0.97 0.01 240);
+  --surface: oklch(0.25 0.06 260);
+  --surface-muted: oklch(0.28 0.06 260);
+  --card: oklch(0.26 0.06 260);
+  --card-foreground: oklch(0.97 0.01 240);
+  --popover: oklch(0.26 0.06 260);
+  --popover-foreground: oklch(0.97 0.01 240);
+  --primary: oklch(0.72 0.17 250);
+  --primary-hover: oklch(0.78 0.16 250);
+  --primary-foreground: oklch(0.18 0.05 260);
+  --brand: oklch(0.72 0.17 250);
+  --brand-foreground: oklch(0.18 0.05 260);
+  --secondary: oklch(0.32 0.06 260);
+  --secondary-foreground: oklch(0.97 0.01 240);
+  --muted: oklch(0.3 0.055 260);
+  --muted-foreground: oklch(0.76 0.03 250);
+  --accent: oklch(0.36 0.09 255);
+  --accent-foreground: oklch(0.97 0.01 240);
+  --destructive: oklch(0.65 0.2 25);
+  --destructive-foreground: oklch(0.97 0.01 240);
+  --success: oklch(0.72 0.15 155);
+  --success-foreground: oklch(0.18 0.05 260);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.72 0.17 250);
+}
+
 
 @layer base {
   * {

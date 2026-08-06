@@ -1661,7 +1661,7 @@ export type Database = {
         }[]
       }
       admin_set_pro_status: {
-        Args: { _id: string; _notes: string; _status: string }
+        Args: { _id: string; _notes?: string; _status: string }
         Returns: undefined
       }
       admin_set_referral_status: {
@@ -1927,9 +1927,9 @@ export type Database = {
       }
       submit_task: {
         Args: {
-          _attachments: Json
-          _proof_text: string
-          _proof_url: string
+          _attachments?: Json
+          _proof_text?: string
+          _proof_url?: string
           _task_id: string
         }
         Returns: string
