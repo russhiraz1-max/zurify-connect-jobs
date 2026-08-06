@@ -78,6 +78,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Zurify — Complete tasks. Get paid." },
       { name: "description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
       { name: "author", content: "Zurify" },
+      { name: "theme-color", content: "#1d4ed8" },
+      { name: "apple-mobile-web-app-title", content: "Zurify" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "application-name", content: "Zurify" },
+
       { property: "og:title", content: "Zurify — Complete tasks. Get paid." },
       { property: "og:description", content: "Earn real money completing simple online tasks. Fast payouts via PayPal. Join Zurify today." },
       { property: "og:type", content: "website" },
