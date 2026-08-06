@@ -59,10 +59,46 @@ function SettingsPage() {
             </div>
           </Section>
 
+          <Section title="Appearance" description="Pick the look that suits you. Saved on this device.">
+            <div className="grid gap-3 sm:grid-cols-3">
+              {THEMES.map((t) => {
+                const active = theme === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTheme(t.value)}
+                    aria-pressed={active}
+                    className={`rounded-xl border p-4 text-left transition-colors ${
+                      active ? "border-primary bg-accent/50 ring-2 ring-ring" : "border-border/60 bg-background hover:bg-accent/30"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{t.label}</span>
+                      {active && <Check className="h-4 w-4 text-primary" />}
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.hint}</p>
+                    <div className="mt-3 flex gap-1.5" aria-hidden>
+                      {(t.value === "light"
+                        ? ["#ffffff", "#eef2ff", "#2563eb"]
+                        : t.value === "dark"
+                          ? ["#111827", "#1f2937", "#60a5fa"]
+                          : ["#16255c", "#22357a", "#5b93ff"]
+                      ).map((c) => (
+                        <span key={c} className="h-5 w-5 rounded-full border border-border" style={{ background: c }} />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
+
           <Section title="Notifications" description="Choose what Zurify emails you.">
             <ToggleRow label="Application updates" description="Status changes on jobs you've applied to." checked={emailAlerts} onChange={setEmailAlerts} />
             <ToggleRow label="Weekly job digest" description="A curated list of new roles every Monday." checked={weekly} onChange={setWeekly} />
           </Section>
+
 
           <Section title="Password" description="Change the password used for email sign-in.">
             <form onSubmit={updatePassword} className="flex flex-col gap-3 sm:flex-row sm:items-end">
