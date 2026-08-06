@@ -100,8 +100,10 @@ function DashboardPage() {
         pendingWithdrawals: wdRows.filter(r => r.status === "pending").length,
       });
       setKyc(((k.data as { status: string }[] | null)?.[0]?.status) ?? null);
+      setProStatus(((pro.data as { status: string }[] | null)?.[0]?.status) ?? null);
       const refRow = (ref.data as ReferralSummary[] | null)?.[0] ?? null;
       setReferral(refRow);
+
       setLoading(false);
     })();
     return () => { cancelled = true; };
