@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { DIFFICULTIES, EXPERIENCE_LEVELS, JOB_SELECT, JOB_TYPES, readRecentJobs, type JobRow } from "@/lib/jobs";
+import { isJobLockedForUser, useJobProgress } from "@/lib/user-jobs";
+
 
 export const Route = createFileRoute("/_authenticated/tasks/")({
   head: () => ({
