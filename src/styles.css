@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant blue (&:is(.theme-blue *));
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
