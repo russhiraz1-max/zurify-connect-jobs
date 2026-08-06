@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/settings")({
 function SettingsPage() {
   const { user } = useSession();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+
   const [newPass, setNewPass] = useState("");
   const [saving, setSaving] = useState(false);
   const [emailAlerts, setEmailAlerts] = useState(true);
