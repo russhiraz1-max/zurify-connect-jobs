@@ -124,6 +124,13 @@ function DashboardPage() {
 
   const visibleAnnouncements = announcements.filter(a => !dismissed.includes(a.id));
 
+  // Finished or permanently closed jobs never resurface as "available".
+  const availableTasks = useMemo(
+    () => tasks.filter(t => !isJobLockedForUser(t.id, progress)),
+    [tasks, progress],
+  );
+
+
   return (
     <AppShell title="Welcome back" subtitle="Your earnings command center.">
       {eng && <EventBanners e={eng} />}
