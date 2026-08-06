@@ -79,7 +79,10 @@ function DashboardPage() {
         supabase.from("withdrawal_requests").select("status").eq("user_id", user.id),
         supabase.rpc("get_my_kyc" as never),
         supabase.rpc("get_my_referral_code" as never),
+        supabase.from("pro_requests").select("status").eq("user_id", user.id)
+          .order("created_at", { ascending: false }).limit(1),
       ]);
+
       if (cancelled) return;
       setWallet((w.data ?? null) as WalletRow | null);
       setTasks((t.data ?? []) as Task[]);
