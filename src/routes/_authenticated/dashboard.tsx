@@ -64,7 +64,7 @@ function DashboardPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [w, t, n, a, apps, subs, wds, k, ref] = await Promise.all([
+      const [w, t, n, a, apps, subs, wds, k, ref, pro] = await Promise.all([
         supabase.from("wallets")
           .select("available_cents,pending_cents,pending_withdrawal_cents,lifetime_earned_cents,lifetime_withdrawn_cents")
           .eq("user_id", user.id).maybeSingle(),
