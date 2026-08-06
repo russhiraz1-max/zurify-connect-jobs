@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { dateTime } from "@/lib/format";
 import { useEngagement } from "@/lib/engagement";
+import { isJobLockedForUser, useJobProgress } from "@/lib/user-jobs";
+
 import {
   StreakCard, LuckyCard, MysteryCard, ChallengesCard, ReputationCard, BadgesCard, ProCard, EventBanners,
 } from "@/components/engagement-widgets";
