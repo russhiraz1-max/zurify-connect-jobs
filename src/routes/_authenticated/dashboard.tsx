@@ -134,6 +134,19 @@ function DashboardPage() {
   return (
     <AppShell title="Welcome back" subtitle="Your earnings command center.">
       {eng && <EventBanners e={eng} />}
+      {proStatus === "awaiting_kyc" && kyc !== "approved" && (
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">Zurify Pro is waiting on your identity check</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your membership activates automatically as soon as your identity verification is approved.
+            </p>
+          </div>
+          <Button asChild size="sm" variant="outline"><Link to="/verification">Verify now</Link></Button>
+        </div>
+      )}
+
       {visibleAnnouncements.length > 0 && (
         <div className="mb-6 space-y-2">
           {visibleAnnouncements.map(a => (
