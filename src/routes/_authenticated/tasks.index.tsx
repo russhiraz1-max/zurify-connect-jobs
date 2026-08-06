@@ -32,8 +32,10 @@ type Sort = "recommended" | "latest" | "highest" | "quickest" | "trending";
 const PAGE_SIZE = 12;
 
 function BrowseJobs() {
-  const [jobs, setJobs] = useState<JobRow[] | null>(null);
+  const [allJobs, setAllJobs] = useState<JobRow[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const progress = useJobProgress();
+
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("all");
   const [type, setType] = useState("all");
