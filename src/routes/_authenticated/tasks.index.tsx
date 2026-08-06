@@ -288,6 +288,8 @@ function BrowseJobs() {
         <>
           <p className="mb-3 text-sm text-muted-foreground">
             {filtered!.length} {filtered!.length === 1 ? "job" : "jobs"} available
+            {hiddenCount > 0 && ` · ${hiddenCount} finished ${hiddenCount === 1 ? "job" : "jobs"} hidden`}
+
           </p>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {pageRows.map((j) => <JobCard key={j.id} job={j} categoryName={catName(j.category_id)} />)}
