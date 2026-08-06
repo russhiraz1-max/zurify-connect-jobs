@@ -45,6 +45,7 @@ const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 function DashboardPage() {
   const { user } = useSession();
   const { data: eng, refresh: refreshEng } = useEngagement();
+  const progress = useJobProgress();
 
   const [wallet, setWallet] = useState<WalletRow | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -52,9 +53,11 @@ function DashboardPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [counts, setCounts] = useState<Counts | null>(null);
   const [kyc, setKyc] = useState<string | null>(null);
+  const [proStatus, setProStatus] = useState<string | null>(null);
   const [referral, setReferral] = useState<ReferralSummary>(null);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState<string[]>([]);
+
 
   useEffect(() => {
     if (!user) return;
