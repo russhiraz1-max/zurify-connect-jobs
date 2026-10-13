@@ -28,7 +28,8 @@ Legend:
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
-- [ ] End-to-end test password login, signup with confirmation on/off, confirmation links, Google OAuth, logout, expired links, and password reset using synthetic accounts.
+- [~] Source audit found Google OAuth does not carry the selected email-signup account type through the current Lovable wrapper; documented a safe post-OAuth onboarding requirement.
+- [ ] Implement and end-to-end test safe post-OAuth account-type onboarding, password login, signup with confirmation on/off, confirmation links, logout, expired links, and password reset using synthetic accounts.
 - [ ] Validate redirect allowlists and canonical callback URLs in a separate Supabase 2.0 project.
 
 ### Step 2.2 — Security and permissions (CURRENT STEP)
