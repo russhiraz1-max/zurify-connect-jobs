@@ -159,3 +159,5 @@ Do not close security findings until the complete migration chain applies cleanl
 
 | W-17 | Approve one withdrawal while wallet aggregate pending reserve differs from the sum of pending requests | Approval fails atomically before payout ledger rows, wallet reserve changes or request status changes |
 | W-18 | Approve a request whose gross amount differs from net payout plus fee | Approval fails for reconciliation; no payout or referral commission is recorded |
+
+| W-19 | Referral commission basis points are negative or exceed 10,000 during payout approval | Approval fails atomically; no withdrawal payout or referral commission is recorded |
