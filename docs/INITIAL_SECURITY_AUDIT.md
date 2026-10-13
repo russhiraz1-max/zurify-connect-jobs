@@ -301,3 +301,10 @@ Extended the strict role allowlist to `apply_to_task`, `submit_task`, and `reque
 The shared admin shell originally filtered sidebar links by staff permissions but rendered child content for any staff account that manually navigated to a hidden URL. Added a route-level guard that resolves the matching navigation item's `superOnly`/permission metadata and withholds child rendering while redirecting unauthorized staff to the admin overview. This is defense in depth only; database RLS and RPC checks must still protect the data.
 
 **Status:** frontend source change. Build verification is pending for the newest commit, and direct-route behavior plus backend denial cases still need browser/RLS tests.
+
+
+### Withdrawal rejection lock order
+
+The exact-reserve rejection function can set a user's withdrawal hold, which updates the profile row. Withdrawal requests lock the profile before the wallet. To avoid reversing those locks during a concurrent request/rejection, the rejection function now locks the target profile before locking the wallet (after it has locked the specific pending request). This makes the profile → wallet order consistent for both paths.
+
+**Status:** source-only. A disposable database test must run concurrent request and rejection transactions, including rejection with `_suspend_withdrawals = true`, and verify no deadlock, partial update, or reserve mismatch. PostgreSQL may abort one side of a genuine deadlock, but the intended fix is to avoid the lock cycle rather than rely on retry behavior.
