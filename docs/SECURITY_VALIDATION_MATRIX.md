@@ -156,3 +156,6 @@ Do not close security findings until the complete migration chain applies cleanl
 | W-15 | Large valid cent amount is used with a valid fee rate | Numeric intermediate arithmetic avoids 32-bit multiplication overflow; gross equals net plus fee |
 
 | W-16 | Minimum withdrawal amount is NULL or non-positive in settings | Request fails with invalid-settings error before moving funds |
+
+| W-17 | Approve one withdrawal while wallet aggregate pending reserve differs from the sum of pending requests | Approval fails atomically before payout ledger rows, wallet reserve changes or request status changes |
+| W-18 | Approve a request whose gross amount differs from net payout plus fee | Approval fails for reconciliation; no payout or referral commission is recorded |
