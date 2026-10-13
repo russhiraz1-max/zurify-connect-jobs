@@ -69,6 +69,6 @@ Do not close security findings until the complete migration chain applies cleanl
 - Employer cannot use direct table writes to publish, feature, reprioritize, edit, or delete a task.
 - Employer A cannot read Employer B's draft through the Data API.
 - Suspended employer cannot create a draft.
-- Invalid/oversized title, description, instructions, reward, estimated time, capacity, and nonexistent category are rejected server-side.
+- Invalid/oversized title, description, instructions, reward, estimated time, capacity, nonexistent category, and inactive category are rejected server-side.
 - Staff/admin task review and existing publish controls continue to work.
 - Signup with forged metadata such as `account_type='super_admin'` or `'staff'` must receive only the safe default `job_seeker` role plus baseline `user`; metadata `'employer'` may add only the `employer` role.
