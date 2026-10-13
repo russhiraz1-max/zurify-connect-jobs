@@ -28,7 +28,7 @@ Legend:
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
-- [~] Add a post-OAuth account-type selection screen, safe allowlist-only `complete_account_type` RPC, and root redirect for OAuth users whose trigger-created account has no selected role. Frontend build passed on commit `82059e3e6b13c305a9af6dcfa70c57f37d84de27`; the migration and OAuth flows are not yet database/end-to-end tested.
+- [~] Add the post-OAuth account-type selection screen, root redirect, and restricted `complete_account_type(text)` RPC migration (`20261013170000_complete_oauth_account_type.sql`). The RPC locks the user's profile, permits only `job_seeker`/`employer`, rejects special roles and role switching, and is source-only until isolated DB/end-to-end tests pass.
 - [ ] End-to-end test OAuth onboarding, password login, signup with confirmation on/off, confirmation links, logout, expired links, and password reset using synthetic accounts.
 - [ ] Validate redirect allowlists and canonical callback URLs in a separate Supabase 2.0 project.
 
