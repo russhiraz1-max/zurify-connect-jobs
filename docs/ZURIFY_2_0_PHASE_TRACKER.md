@@ -79,7 +79,7 @@ Legend:
 
 ## Phase 5 — New UI and protected admin control center
 
-- [~] Begin authenticated workspace redesign with blue, sky blue, violet/purple accents, gradient surfaces and a clearer navigation hierarchy; client and freelancer navigation are now separated in source, pending latest build verification.
+- [~] Begin authenticated workspace redesign with blue, sky blue, violet/purple accents, gradient surfaces and a clearer navigation hierarchy; client and freelancer navigation are separated in source, and the freelancer dashboard now redirects client-only accounts to the client workspace. Frontend build passed in run #272; role behavior still needs end-to-end testing.
 - [ ] Redesign public landing pages and role-specific dashboards into a consistent Zurify 2.0 design system.
 - [ ] Complete responsive mobile/desktop layouts, accessibility, loading/empty/error states and typography.
 - [ ] Build a locked admin control center for theme settings, feature flags, payment-provider selection, maintenance mode, role management and audit history.
