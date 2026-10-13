@@ -66,7 +66,10 @@ BEGIN
     FROM public.application_settings
     WHERE singleton = true;
 
-  IF NOT FOUND OR s.withdrawal_unit_cents IS NULL OR s.withdrawal_unit_cents <= 0 THEN
+  IF NOT FOUND OR s.withdrawal_unit_cents IS NULL OR s.withdrawal_unit_cents <= 0
+     OR s.fee_bps_per_unit IS NULL
+     OR s.fee_bps_per_unit < 0
+     OR s.fee_bps_per_unit > 10000 THEN
     RAISE EXCEPTION 'Withdrawal settings are invalid';
   END IF;
   IF _amount_cents IS NULL OR _amount_cents <= 0 THEN
@@ -89,11 +92,16 @@ BEGIN
     RAISE EXCEPTION 'Insufficient balance';
   END IF;
 
-  fee := (
-    floor(_amount_cents::numeric / s.withdrawal_unit_cents)::integer
+  -- Keep intermediate arithmetic numeric to avoid integer overflow when
+  -- multiplying unit count by cents and fee basis points.
+  fee := floor(
+    floor(_amount_cents::numeric / s.withdrawal_unit_cents)
     * s.withdrawal_unit_cents
     * s.fee_bps_per_unit / 10000
   )::integer;
+  IF fee < 0 OR fee >= _amount_cents THEN
+    RAISE EXCEPTION 'Withdrawal fee settings produce an invalid net payout';
+  END IF;
   net := _amount_cents - fee;
 
   UPDATE public.wallets
