@@ -28,7 +28,7 @@ Legend:
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
-- [~] Add a post-OAuth account-type selection screen, safe allowlist-only `complete_account_type` RPC, and root redirect for OAuth users whose trigger-created account has no selected role. Source exists but the migration and OAuth flows are not yet database/end-to-end tested.
+- [~] Add a post-OAuth account-type selection screen, safe allowlist-only `complete_account_type` RPC, and root redirect for OAuth users whose trigger-created account has no selected role. Frontend build passed on commit `82059e3e6b13c305a9af6dcfa70c57f37d84de27`; the migration and OAuth flows are not yet database/end-to-end tested.
 - [ ] End-to-end test OAuth onboarding, password login, signup with confirmation on/off, confirmation links, logout, expired links, and password reset using synthetic accounts.
 - [ ] Validate redirect allowlists and canonical callback URLs in a separate Supabase 2.0 project.
 
@@ -76,7 +76,7 @@ Legend:
 
 ## Phase 5 — New UI and protected admin control center
 
-- [~] Begin authenticated workspace redesign with blue, sky blue, violet/purple accents, gradient surfaces and a clearer navigation hierarchy.
+- [~] Begin authenticated workspace redesign with blue, sky blue, violet/purple accents, gradient surfaces and a clearer navigation hierarchy; client and freelancer navigation are now separated in source, pending latest build verification.
 - [ ] Redesign public landing pages and role-specific dashboards into a consistent Zurify 2.0 design system.
 - [ ] Complete responsive mobile/desktop layouts, accessibility, loading/empty/error states and typography.
 - [ ] Build a locked admin control center for theme settings, feature flags, payment-provider selection, maintenance mode, role management and audit history.
