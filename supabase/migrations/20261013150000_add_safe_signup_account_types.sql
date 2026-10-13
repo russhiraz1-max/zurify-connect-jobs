@@ -4,6 +4,25 @@
 -- trusted super-admin bootstrap and staff-control workflows.
 -- Test the full migration chain on a disposable database before production use.
 
+-- Safely preserve worker access for legacy baseline-only accounts.
+-- Only accounts that already have the baseline "user" role and have no worker,
+-- client, staff, admin, super-admin or advertiser role receive job_seeker.
+-- Do not infer client intent from a legacy account with no explicit role.
+INSERT INTO public.user_roles (user_id, role)
+SELECT ur.user_id, 'job_seeker'::public.app_role
+FROM public.user_roles ur
+GROUP BY ur.user_id
+HAVING bool_or(ur.role = 'user'::public.app_role)
+   AND NOT bool_or(ur.role IN (
+     'job_seeker'::public.app_role,
+     'employer'::public.app_role,
+     'staff'::public.app_role,
+     'admin'::public.app_role,
+     'super_admin'::public.app_role,
+     'advertiser'::public.app_role
+   ))
+ON CONFLICT (user_id, role) DO NOTHING;
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
