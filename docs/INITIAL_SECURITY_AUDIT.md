@@ -44,3 +44,37 @@ Scope: source repository review and previously observed schema/advisor findings.
 - CI was then strengthened to regenerate the lockfile inside its isolated runner, run `npm ci`, and build. That latest workflow run is still awaiting a result.
 - The regenerated lockfile has not yet been committed to the repository; clean install from the committed lockfile remains unresolved.
 - No end-to-end auth, payment, RLS or isolated database migration test has been confirmed at the time of this document.
+
+
+## Source-level verification performed on the feature branch (2026-10-13)
+
+The following issues were confirmed by reading the checked-in migration definitions. They are source-level findings only; the current deployed database has not been changed or re-tested by this source review.
+
+### Finding A — users can update their own application review fields (high priority)
+Migration `20260719080449_775e73bf-0ade-47ce-90f2-9c6d464f6d87.sql` grants table-level `UPDATE` on `public.task_applications` to `authenticated`. Its `"Staff or user update applications"` policy allows a row owner to update their own row, with no column-level restriction. The table includes `status`, `reviewer_id`, `review_notes`, `rejection_reason` and `reviewed_at`. The migration also defines privileged RPCs for staff to approve/reject applications, so the direct owner-update route can undermine that workflow if later migrations do not revoke it.
+
+**Required remediation:** in the 2.0 schema, remove direct owner updates to protected columns. Prefer owner-only insert/cancel through guarded RPCs and staff-only review RPCs; if direct updates are required, use column-level grants and constraints/triggers that reject changes to protected review fields. Test as worker, client, staff and super-admin.
+
+### Finding B — withdrawal request does not enforce KYC before reservation (high priority)
+Migration `20260722094228_2835a738-c299-4644-bb19-3ed9a317c1b9.sql` defines `request_withdrawal` with checks for authentication, suspension/withdrawal hold, minimum amount, amount unit and available balance. It reserves funds and creates a pending request, but the function body does not check for an approved `kyc_verifications` row before reserving. The KYC table/function is introduced in migration `20260801080321_29257f3a-b974-4771-a9c4-27ceb794a1b8.sql`, later in migration order.
+
+**Required remediation:** enforce the agreed KYC eligibility inside the atomic withdrawal-request database operation, before moving any funds. Rejections must not reserve money. Cover pending, rejected, missing and approved KYC states in isolated tests.
+
+### Finding C — withdrawal ledger records appear to double-count the fee (high priority)
+In the same withdrawal migration, `request_withdrawal` sets `net_cents = amount_cents - fee_cents` and reserves `amount_cents` from available balance. `approve_withdrawal` then writes a wallet transaction of `-amount_cents` with type `withdrawal` and an additional `-fee_cents` transaction of type `fee`, while the reserved amount was already removed from available balance at request time. Under a gross-amount interpretation, those ledger entries sum to more than the reserved gross amount by the fee. The intended meaning of gross amount and ledger transaction semantics must be confirmed before a fix is chosen.
+
+**Required remediation:** define one unambiguous invariant for requested gross amount, fee, payout net, reserved amount and ledger entries; then test request → approval and request → rejection with synthetic wallets. Do not edit historic ledger rows or silently change the fee policy.
+
+### Finding D — task capacity checks are not atomic in the inspected function bodies (high priority)
+The inspected `apply_to_task` function counts active applications and then inserts; the inspected `submit_task` function counts per-user and total submissions and then inserts. Those count-and-insert sequences do not lock the task row or atomically reserve capacity in the inspected definitions, so simultaneous requests may both pass the count checks. A partial unique index protects one active application per user/task but does not enforce a task-wide capacity limit.
+
+**Required remediation:** use task-row locking, an atomic capacity counter/reservation, or another transaction-safe constraint appropriate to the final schema. Add parallel-worker tests at the configured capacity boundary.
+
+### Finding E — self-update protections for profiles still need exact current-state proof
+The inspected migrations add `suspended` and `withdrawal_hold` fields and privileged admin RPCs for changing them. The source review has not yet enumerated every later policy/grant that applies to `profiles`, so this finding remains **unconfirmed in the final migration state** until all subsequent migrations and table grants are reconciled.
+
+### Scope and safe next actions
+- Do not patch historical migrations and do not apply schema changes to the existing production Supabase project.
+- Inspect all later migrations and frontend callers before designing a forward-only 2.0 hardening migration.
+- Run the migration chain against a fresh isolated 2.0 database with synthetic data before calling a database fix verified.
+- Review every `SECURITY DEFINER` function's full body, grants, search path, caller and role gate; function-name matches or advisor counts alone are not proof of exploitability.
