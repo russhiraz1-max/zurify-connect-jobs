@@ -144,3 +144,9 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - Auth redirect/signup-confirmation changes and initial secret hygiene are in progress; not yet fully validated.
 - Initial CI found `package.json` and `package-lock.json` out of sync. This is tracked as work, not considered fixed merely because the workflow was adjusted.
 - No production merge, deployment, database migration or production data transfer is authorized.
+
+## Account type selection — source implementation started
+- Signup now offers **Find work** (`job_seeker`) or **Hire talent** (`employer`).
+- Signup metadata carries only that non-privileged account intent.
+- Migration `20261013150000_add_safe_signup_account_types.sql` keeps the baseline `user` role and adds only the allowlisted `job_seeker` or `employer` role. The trigger does not accept admin/staff roles from metadata.
+- Still pending: isolated database test of trigger/enum behavior, OAuth account onboarding behavior, role-specific dashboard routing, client-side task ownership and authorization policies. Do not mark role-specific workflow complete yet.
