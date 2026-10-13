@@ -48,6 +48,7 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 - Approval is idempotent; duplicate approval cannot debit twice or pay twice.
 - Rejection/cancellation releases the entire reserved amount exactly once.
 - Every wallet balance change is backed by exactly one consistent ledger event.
+- Withdrawal request, reserve, approval, rejection/release, payout and fee history reconciles without double-counting; current source is known to omit explicit reserve/release transaction rows and requires a ledger design decision before this test can pass.
 - Test minimum, amount unit, fee rounding, suspension, withdrawal hold, KYC and insufficient-balance paths.
 - Never alter historic production ledger rows as part of tests.
 
