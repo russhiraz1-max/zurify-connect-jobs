@@ -191,3 +191,5 @@ Do not close security findings until the complete migration chain applies cleanl
 | C-06 | Client-only account with baseline `user` + `employer` creates a draft | Allowed, saved as `draft`, with no publish/fund side effect |
 
 | T-10 | Legacy account has baseline `user` plus a future/non-baseline role such as `ai_company` | Backfill leaves it unchanged; only accounts whose role rows are all exactly `user` receive `job_seeker` |
+
+| R-22 | Account has `job_seeker` plus a future/non-baseline role such as `ai_company` and calls apply, submit or withdrawal RPCs | Denied by the strict `user` + `job_seeker` allowlist |
