@@ -119,3 +119,17 @@ The source review confirmed that `admin_analytics_series(integer)` was a SECURIT
 A new migration `20261013123000_secure_analytics_and_internal_metrics.sql` replaces the function with a `public.is_staff(auth.uid())` check and bounds the requested window to 1–365 days. It also revokes direct API-role execution of `get_user_reputation(uuid)` and `challenge_progress(uuid, public.challenges)`, which the checked-in source calls internally from protected SECURITY DEFINER RPCs.
 
 **Status:** source code drafted, not executed. Verify staff and non-staff behavior in an isolated database, verify protected parent RPCs still work, and confirm all intended clients use the parent RPCs rather than calling the helpers directly. No production database was changed.
+
+
+## Additional remediation migrations drafted on the feature branch (2026-10-13)
+
+### Withdrawal KYC gate and legacy rejection RPC
+Migration `20261013130000_enforce_withdrawal_kyc_and_release_reserves.sql` now requires an approved KYC record before `request_withdrawal` reserves any funds. It also replaces the legacy two-argument `reject_withdrawal(uuid,text)` with a wrapper to the existing authorized three-argument implementation, which locks the request and releases the reserve. This prevents old callers from reaching the older rejection implementation that did not release reserved funds.
+
+### Task-capacity serialization
+Migration `20261013133000_serialize_task_capacity_checks.sql` replaces `apply_to_task` and `submit_task` to lock the parent task row while checking and inserting applications/submissions. This serializes concurrent requests for the same task so capacity counts are rechecked after waiting. It does not substitute for running concurrency tests.
+
+### Withdrawal ledger fee accounting
+Migration `20261013140000_correct_withdrawal_ledger_entries.sql` preserves the current approval function's KYC, reserve, referral and pending-status guards, but records the withdrawal transaction as `-net_cents` and the service fee separately as `-fee_cents`. Those two entries now sum to the gross reserved amount (`amount_cents`) rather than recording gross plus fee. This applies to future approvals only; it does not rewrite historic ledger rows.
+
+**All three migrations are source changes only.** They have not been applied to a database. Verify them by applying the full chain to a fresh disposable Supabase project, then test KYC-pending/rejected/approved withdrawals, legacy and current rejection RPC calls, concurrent application/submission requests, and ledger invariants. Confirm the intended definition of lifetime-withdrawn reporting before changing that counter.
