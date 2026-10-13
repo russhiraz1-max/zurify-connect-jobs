@@ -128,15 +128,29 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    let active = true;
+    const redirectAuthenticatedEntry = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!active || !data.session || typeof window === "undefined") return;
+      const path = window.location.pathname;
+      if (path === "/" || path === "/auth") {
+        await navigate({ to: "/dashboard", replace: true });
+      }
+    };
+    void redirectAuthenticatedEntry();
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event !== "SIGNED_OUT") {
+        queryClient.invalidateQueries();
+        if (event === "SIGNED_IN") void redirectAuthenticatedEntry();
+      }
     });
-    return () => sub.subscription.unsubscribe();
-  }, [router, queryClient]);
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, [router, queryClient, navigate]);
 
   return (
     <QueryClientProvider client={queryClient}>
