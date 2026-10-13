@@ -136,3 +136,6 @@ Migration `20261013140000_correct_withdrawal_ledger_entries.sql` preserves the c
 
 ## Account-type assignment safety review
 Migration `20261013150000_add_safe_signup_account_types.sql` replaces the new-user trigger to preserve profile/wallet creation and the configured super-admin bootstrap while assigning only one of two allowed non-privileged roles from user-editable metadata: `job_seeker` or `employer`. Unknown/missing values fall back to `job_seeker`. The trigger also retains the baseline `user` role. This is not sufficient by itself to implement client posting: task ownership, client policies, role-specific routes, OAuth onboarding, and the effective enum/catalog must still be tested in an isolated database.
+
+## Client task draft boundary
+Migration `20261013160000_add_employer_draft_task_creation.sql` adds an employer-owned-task SELECT policy and a server-side `create_client_task` RPC. It checks authentication, role, suspension, bounded inputs, and optional category existence, then always inserts a draft with no featured/priority privilege. It does not add a client publish/update policy. Source review only; isolated database tests must confirm the function and policy compile and that existing admin task workflows remain intact.
