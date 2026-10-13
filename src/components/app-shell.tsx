@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard, ListChecks, FileCheck2, Wallet as WalletIcon, ArrowDownToLine, Briefcase,
   Bell, LifeBuoy, User as UserIcon, Settings as SettingsIcon, Send, Shield, BadgeCheck, Gift, Crown,
@@ -30,8 +30,30 @@ const accountNav = [
 
 export function AppShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
-  const { isStaff, roles } = useRoles();
+  const navigate = useNavigate();
+  const { isStaff, roles, loading: rolesLoading } = useRoles();
   const isEmployer = roles.includes("employer");
+  const isWorkerRoute = userNav.some(item =>
+    pathname === item.to || pathname.startsWith(item.to + "/"),
+  );
+  const isWorkerEligible = roles.includes("job_seeker")
+    && roles.every(role => role === "user" || role === "job_seeker");
+  const hasSpecialRole = roles.some(role =>
+    ["super_admin", "staff", "admin", "advertiser"].includes(role),
+  );
+  const workerRouteBlocked = isWorkerRoute && (rolesLoading || !isWorkerEligible);
+
+  useEffect(() => {
+    if (rolesLoading || !isWorkerRoute || isWorkerEligible) return;
+    const destination = isEmployer
+      ? "/client-dashboard"
+      : isStaff
+        ? "/admin"
+        : hasSpecialRole
+          ? "/profile"
+          : "/choose-account-type";
+    void navigate({ to: destination as never, replace: true });
+  }, [rolesLoading, isWorkerRoute, isWorkerEligible, isEmployer, isStaff, hasSpecialRole, navigate]);
 
   const navLink = (item: { to: string; label: string; icon: typeof LayoutDashboard }, compact = false) => {
     const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
@@ -54,6 +76,16 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
       </Link>
     );
   };
+
+  if (workerRouteBlocked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-workspace-glow px-4">
+        <p className="text-sm text-muted-foreground">
+          {rolesLoading ? "Checking your workspace permissions…" : "Opening the right workspace…"}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-workspace-glow">
