@@ -157,3 +157,12 @@ The checked-in frontend role helper previously treated both `admin` and `super_a
 **Branch remediation:** the frontend now reserves the `isSuperAdmin` flag for the actual `super_admin` role; legacy `admin` still receives staff-shell navigation but no longer automatically bypasses permission checks in the UI.
 
 **Remaining work:** do not assume the role model is fully aligned. Decide the intended least-privilege capability set for legacy `admin`, reconcile SQL helpers and admin route guards, then test direct table/RPC calls as `admin`, `staff`, and `super_admin` in an isolated database.
+
+
+## Follow-up onboarding audit — Google OAuth account-type intent
+
+The email/password signup form submits `account_type` metadata, and the signup trigger safely maps only `employer` or the default `job_seeker`. The Google OAuth button, however, calls the Lovable OAuth wrapper without persisting the selected signup intent. The wrapper's options support a redirect URI and provider `extraParams`, not Supabase user metadata. Therefore a person who chooses “Hire talent” and then continues with Google may still be assigned the default worker role.
+
+**Status:** identified; not patched in this step because passing arbitrary provider parameters is not a reliable or safe way to assign application roles.
+
+**Required solution:** implement an explicit post-OAuth onboarding step or a narrowly scoped authenticated RPC that can assign only non-privileged account types, then test new OAuth signups, existing OAuth sign-ins, retries, and role switching. Never allow client-controlled metadata or OAuth query parameters to assign staff/admin roles.
