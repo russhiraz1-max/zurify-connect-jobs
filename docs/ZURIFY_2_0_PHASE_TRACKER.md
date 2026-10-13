@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest completed build:** GitHub Actions run #372 passed on source head `3d29c8b6c6a590d180a5aaa675122ffd7c6947f4` (dependency installation + frontend production build). This includes strict future-role deny-by-default checks for worker and engagement RPCs, a baseline-only legacy role backfill, client-only draft-task permissions and UI handling for conflicting client roles, plus staff direct-route guards. Vercel has separately reported a build-rate-limit/plan-upgrade failure. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
+**Latest verified frontend build:** GitHub Actions run #404 passed on code head `f3f576c2f81008d7212781bfd6484dcfc8ec698b`. It verified patched TanStack Start versions in the committed lockfile, ran `npm ci`, and completed `npm run build`. **Latest isolated migration replay:** Supabase local-stack workflow run #8 passed, applying the complete migration chain to a disposable local database. This validates migration ordering/syntax only; authorization behavior, RLS, OAuth, concurrency and money-movement tests remain outstanding. Vercel separately reports a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -110,7 +110,7 @@ Legend:
 
 A second pass found that the capacity migration required a `job_seeker` role for `apply_to_task`, but its paired `submit_task` RPC lacked the equivalent check. The withdrawal request RPC also relied on authentication/KYC/suspension checks without an explicit worker-role boundary. Source migrations now require a worker-only role for apply, submit and withdrawal, and fail closed for clients, special roles and mixed worker/client accounts. New direct-RPC cases are recorded in `docs/SECURITY_VALIDATION_MATRIX.md`.
 
-**Validation status:** source-only. Latest CI and isolated Supabase migration/RPC tests are still required. This does not authorize production migration or live payout changes.
+**Validation status:** frontend build and clean local migration replay passed. SQL authorization/RLS, OAuth, concurrency, wallet invariants and payment/RPC behavior tests remain outstanding. This does not authorize production migration or live payout changes.
 
 
 ### Engagement reward guard follow-up
