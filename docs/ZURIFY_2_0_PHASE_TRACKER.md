@@ -67,6 +67,7 @@ Legend:
 
 ## Phase 4 — Payments, wallet and trust
 
+- [~] Source audit found that withdrawal reserve/release movements are not represented as explicit rows in the current `wallet_transactions` history; define available/reserved/payout/fee semantics before treating it as authoritative.
 - [ ] Design separate client-funding, client-spending, freelancer-earnings, withdrawal-reserve, provider-transaction and fee semantics.
 - [ ] Confirm client deposit/refund/chargeback policy and withdrawal-fee policy with the founder.
 - [ ] Implement the server-side payment-provider interface with Flutterwave as the first intended provider and future Paystack support.
