@@ -67,7 +67,8 @@ function AuthPage() {
     toast.success("Welcome back!");
     const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", signInData.user.id);
     const roles = (roleRows ?? []).map((row) => row.role);
-    // Match public.is_staff(): the legacy `admin` role alone is not a trusted staff grant.\n    const isAdmin = roles.some((role) => ["super_admin", "staff"].includes(role));
+    // Match public.is_staff(): the legacy `admin` role alone is not a trusted staff grant.
+    const isAdmin = roles.some((role) => ["super_admin", "staff"].includes(role));
     const isClient = roles.includes("employer");
     const destination = redirectTo === "/dashboard"
       ? isAdmin ? "/admin" : isClient ? "/client-dashboard" : "/dashboard"
