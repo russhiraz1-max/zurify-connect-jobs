@@ -73,6 +73,16 @@ BEGIN
   SELECT suspended INTO p FROM public.profiles WHERE id=auth.uid() FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Profile not found'; END IF;
   IF p.suspended THEN RAISE EXCEPTION 'Account is suspended'; END IF;
+  -- Apply the same account-type boundary to submission as application creation.
+  -- The earlier version guarded apply_to_task but omitted this second RPC.
+  IF NOT public.has_role(auth.uid(), 'job_seeker'::public.app_role)
+     OR public.has_role(auth.uid(), 'employer'::public.app_role)
+     OR public.has_role(auth.uid(), 'staff'::public.app_role)
+     OR public.has_role(auth.uid(), 'super_admin'::public.app_role)
+     OR public.has_role(auth.uid(), 'admin'::public.app_role)
+     OR public.has_role(auth.uid(), 'advertiser'::public.app_role) THEN
+    RAISE EXCEPTION 'Freelancer account required' USING ERRCODE = '42501';
+  END IF;
   SELECT * INTO t FROM public.tasks WHERE id=_task_id AND status='published' FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Task not available'; END IF;
   IF t.starts_at IS NOT NULL AND now()<t.starts_at THEN RAISE EXCEPTION 'Task not started yet'; END IF;
