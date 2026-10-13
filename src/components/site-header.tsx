@@ -46,7 +46,7 @@ const publicNav = [
 
 export function SiteHeader() {
   const { user } = useSession();
-  const { isStaff } = useRoles();
+  const { isStaff, roles } = useRoles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -102,6 +102,15 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
+                    {roles.includes("employer") && (
+                      <Link to="/client-dashboard" onClick={() => setMenuOpen(false)}
+                        className={cn(
+                          "mt-2 flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                          pathname === "/client-dashboard" ? "bg-gradient-to-r from-primary/15 via-violet-500/10 to-sky-500/10 font-semibold text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                        )}>
+                        <Briefcase className="h-4 w-4" /> Client workspace
+                      </Link>
+                    )}
                     {isStaff && (
                       <Link to="/admin" onClick={() => setMenuOpen(false)}
                         className="mt-2 flex min-h-11 items-center gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm font-medium text-primary">
@@ -148,6 +157,7 @@ export function SiteHeader() {
           {user && navItem("/dashboard", "Dashboard")}
           {user && navItem("/tasks", "Tasks")}
           {user && navItem("/wallet", "Wallet")}
+          {user && roles.includes("employer") && navItem("/client-dashboard", "Client workspace")}
         </nav>
 
         <div className="flex items-center gap-2">
