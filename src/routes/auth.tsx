@@ -46,6 +46,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [referralCode, setReferralCode] = useState((search.ref ?? "").toUpperCase());
+  const [accountType, setAccountType] = useState<"job_seeker" | "employer">("job_seeker");
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +85,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: { full_name: fullName },
+        data: { full_name: fullName, account_type: accountType },
       },
     });
     if (error) { setLoading(false); return toast.error(error.message); }
@@ -219,6 +220,39 @@ function AuthPage() {
                   <Label htmlFor="name">Full name</Label>
                   <Input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="mt-1.5" />
                 </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">What do you want to do on Zurify?</legend>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "job_seeker" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="job_seeker"
+                        checked={accountType === "job_seeker"}
+                        onChange={() => setAccountType("job_seeker")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">Find work</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Freelancer or task worker</span>
+                      </span>
+                    </label>
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "employer" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="employer"
+                        checked={accountType === "employer"}
+                        onChange={() => setAccountType("employer")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">Hire talent</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Post work for a team</span>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
                 <div>
                   <Label htmlFor="email2">Email</Label>
                   <Input id="email2" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5" />
