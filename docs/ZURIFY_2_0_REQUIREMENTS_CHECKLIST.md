@@ -82,7 +82,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Write clearly named, repeatable migrations for the isolated 2.0 database; do not blindly replay old migrations against live data.
 - [~] Audit RLS on every exposed table and bucket; source review confirmed an application-owner UPDATE policy/grant risk; complete full migration/grant reconciliation and access-path tests.
 - [~] Audit SECURITY DEFINER functions for fixed search_path, role checks, least-privilege grants and safe parameters; function-by-function review remains in progress.
-- [~] Protect profile fields such as suspension/withdrawal holds from self-editing; initial migration grants profile UPDATE to authenticated users and owner-update policy appears to remain after privileged fields were added. Verify final catalog and harden in isolated 2.0 schema.
+- [~] Protect profile fields such as suspension/withdrawal holds from self-editing; new column-level privilege migration is drafted. Validate against a fresh isolated database and test direct REST updates before closing.
 - [~] Protect application/submission status, reviewer identity, review notes, wallet fields and role fields from unauthorized client updates; application table-level UPDATE + owner policy is confirmed in migration source and requires 2.0 remediation.
 - [ ] Restrict private KYC documents and submission proof storage to the subject and explicitly authorized reviewers.
 - [ ] Remove unsafe legacy function overloads only after checking all dependencies and callers.
@@ -133,6 +133,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Write an explicit launch/rollback and data-migration decision before any cutover.
 
 ## Current checkpoint
+- New migration `20261013120000_zurify_2_0_column_level_privileges.sql` narrows direct profile and application writes to allowlisted columns. Source change committed on the feature branch; not yet executed, and not a production migration.
 - Step 2 migration-source review expanded across all 20 checked-in SQL migrations. Additional profile-update and caller-supplied user-metrics risks are recorded in the initial audit and remediation plan. Effective deployed catalog and isolated database tests remain outstanding.
 - Step 2 security review: source-level findings documented in `docs/INITIAL_SECURITY_AUDIT.md`; application-update policy, KYC withdrawal gate and withdrawal ledger semantics require remediation/design before isolated database verification. No production database was changed.
 - Feature branch: `feat/zurify-2.0-foundation`
