@@ -178,3 +178,6 @@ Do not close security findings until the complete migration chain applies cleanl
 | R-18 | Suspended freelancer calls an engagement claim or badge-sync RPC | Denied; no claim row or wallet credit is committed |
 | R-19 | Authenticated user attempts to insert an engagement claim/badge row for another user | Denied by the trigger before any row is written |
 | R-20 | Trusted service-role maintenance operation inserts an award row | Allowed only through the trusted server credential path; never expose the service-role key to a browser |
+
+| R-20 | An account with `job_seeker` plus any role other than baseline `user` (including a newly introduced role such as `ai_company`) calls an engagement claim or badge-sync RPC | Denied by the strict role allowlist; no claim row or wallet credit is committed |
+| R-21 | Trusted service-role/migration operation inserts a reward claim row | Works only through the documented trusted server/database path; verify JWT role behavior explicitly and ensure the service credential is never exposed to the browser |
