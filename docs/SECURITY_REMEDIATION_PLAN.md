@@ -76,3 +76,11 @@ A new migration `20261013120000_zurify_2_0_column_level_privileges.sql` revokes 
 
 ## Test plan
 See `docs/SECURITY_VALIDATION_MATRIX.md` for the proposed isolated Supabase test matrix. These cases are not marked passed until the complete migration chain has been applied to a disposable project and the tests have been run.
+
+
+## Further fixes drafted (not yet database-tested)
+
+- **Withdrawal KYC:** `20261013130000_enforce_withdrawal_kyc_and_release_reserves.sql` gates reservation on approved KYC, not only final approval. It also routes the older two-argument rejection RPC through the reserve-releasing authorized implementation.
+- **Capacity races:** `20261013133000_serialize_task_capacity_checks.sql` adds row locks on the parent task in application and submission RPCs so concurrent calls serialize around the capacity count.
+- **Ledger fee accounting:** `20261013140000_correct_withdrawal_ledger_entries.sql` records the actual net payout as the withdrawal transaction and records the fee separately, so net plus fee equals the gross request. Existing historical rows are not modified.
+- Run the full migration chain and the security validation matrix against a disposable Supabase project before considering any of these findings closed.
