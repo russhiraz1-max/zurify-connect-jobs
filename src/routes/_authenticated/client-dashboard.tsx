@@ -27,10 +27,14 @@ type ClientTask = {
   created_at: string;
 };
 
+type ClientCategory = { id: string; name: string };
+
 function ClientDashboardPage() {
   const { user, loading: sessionLoading } = useSession();
   const { roles, loading: rolesLoading } = useRoles();
   const [tasks, setTasks] = useState<ClientTask[]>([]);
+  const [categories, setCategories] = useState<ClientCategory[]>([]);
+  const [categoryId, setCategoryId] = useState("");
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
@@ -64,6 +68,24 @@ function ClientDashboardPage() {
   }
 
   useEffect(() => {
+    let cancelled = false;
+    void supabase
+      .from("task_categories")
+      .select("id,name")
+      .eq("active", true)
+      .order("sort_order")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          toast.error("Couldn't load task categories: " + error.message);
+          return;
+        }
+        setCategories((data ?? []) as ClientCategory[]);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     if (!sessionLoading && user && !rolesLoading) void loadTasks();
   }, [user, sessionLoading, rolesLoading]);
 
@@ -91,7 +113,7 @@ function ClientDashboardPage() {
       _description: description,
       _instructions: instructions,
       _reward_cents: rewardCents,
-      _category_id: null,
+      _category_id: categoryId || null,
       _est_minutes: estimatedMinutes,
       _max_total: maxTotal,
     } as never);
@@ -104,6 +126,7 @@ function ClientDashboardPage() {
     setTitle("");
     setDescription("");
     setInstructions("");
+    setCategoryId("");
     await loadTasks();
   }
 
@@ -183,6 +206,21 @@ function ClientDashboardPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="client-task-description">Description</Label>
                 <Textarea id="client-task-description" required minLength={20} maxLength={3000} rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder="Explain the task and the expected result." />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="client-task-category">Category</Label>
+                <select
+                  id="client-task-category"
+                  value={categoryId}
+                  onChange={e => setCategoryId(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Choose a category (optional)</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>{category.name}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">Only active categories are available. Your task remains a draft until it is reviewed and published.</p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="client-task-instructions">Worker instructions</Label>
