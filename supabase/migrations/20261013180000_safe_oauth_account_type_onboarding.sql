@@ -44,10 +44,14 @@ BEGIN
   requested_type := NEW.raw_user_meta_data->>'account_type';
   provider_name := NEW.raw_app_meta_data->>'provider';
 
-  -- Only the email/password flow presents the role choice before the trigger.
-  -- OAuth and unknown-provider accounts always use the authenticated chooser,
-  -- even if their user-editable metadata contains an account_type value.
-  IF provider_name = 'email' THEN
+  -- The trusted super-admin bootstrap must not also acquire an ordinary
+  -- client/worker role from user-editable signup metadata.
+  IF assigned = 'super_admin' THEN
+    account_role := NULL;
+  ELSIF provider_name = 'email' THEN
+    -- Only the email/password flow presents the role choice before the trigger.
+    -- OAuth and unknown-provider accounts always use the authenticated chooser,
+    -- even if their user-editable metadata contains an account_type value.
     IF requested_type = 'employer' THEN
       account_role := 'employer';
     ELSIF requested_type = 'job_seeker' THEN
