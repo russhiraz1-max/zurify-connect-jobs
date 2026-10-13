@@ -37,6 +37,14 @@ export const authedNav = [
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
+const clientAuthedNav = [
+  { to: "/client-dashboard", label: "Client workspace", icon: Briefcase },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
 const publicNav = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/faq", label: "FAQ" },
@@ -90,7 +98,7 @@ export function SiteHeader() {
               <nav className="space-y-0.5 p-3">
                 {user ? (
                   <>
-                    {authedNav.map((item) => {
+                    {(roles.includes("employer") ? clientAuthedNav : authedNav).map((item) => {
                       const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
                       return (
                         <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
@@ -102,15 +110,6 @@ export function SiteHeader() {
                         </Link>
                       );
                     })}
-                    {roles.includes("employer") && (
-                      <Link to="/client-dashboard" onClick={() => setMenuOpen(false)}
-                        className={cn(
-                          "mt-2 flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                          pathname === "/client-dashboard" ? "bg-gradient-to-r from-primary/15 via-violet-500/10 to-sky-500/10 font-semibold text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-                        )}>
-                        <Briefcase className="h-4 w-4" /> Client workspace
-                      </Link>
-                    )}
                     {isStaff && (
                       <Link to="/admin" onClick={() => setMenuOpen(false)}
                         className="mt-2 flex min-h-11 items-center gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm font-medium text-primary">
@@ -154,10 +153,14 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {!user && publicNav.slice(0, 3).map((i) => navItem(i.to, i.label))}
-          {user && navItem("/dashboard", "Dashboard")}
-          {user && navItem("/tasks", "Tasks")}
-          {user && navItem("/wallet", "Wallet")}
-          {user && roles.includes("employer") && navItem("/client-dashboard", "Client workspace")}
+          {user && (roles.includes("employer")
+            ? navItem("/client-dashboard", "Client workspace")
+            : <>
+                {navItem("/dashboard", "Dashboard")}
+                {navItem("/tasks", "Tasks")}
+                {navItem("/wallet", "Wallet")}
+              </>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
