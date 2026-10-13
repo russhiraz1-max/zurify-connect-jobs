@@ -18,6 +18,7 @@ AS $$
 DECLARE
   r RECORD;
   w RECORD;
+  p RECORD;
   pending_requests_cents bigint;
 BEGIN
   IF NOT (
@@ -35,6 +36,19 @@ BEGIN
 
   IF NOT FOUND OR r.status <> 'pending' THEN
     RAISE EXCEPTION 'Withdrawal not pending';
+  END IF;
+
+  -- Match request_withdrawal's profile -> wallet lock order. The optional
+  -- withdrawal-hold update below touches profiles, so locking the profile
+  -- before the wallet prevents a profile/wallet lock inversion under load.
+  SELECT *
+    INTO p
+    FROM public.profiles
+    WHERE id = r.user_id
+    FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
   END IF;
 
   SELECT *
