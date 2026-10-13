@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest completed build:** GitHub Actions run #320 passed on source head `964421fea0aa4d8cb3edc4ed233fc0a30116682b` (dependency installation + frontend production build). The current source head adds a stricter future-role deny-by-default check for engagement rewards; its new CI run is pending. Vercel reported a build-rate-limit/plan-upgrade failure separately. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
+**Latest completed build:** GitHub Actions run #340 passed on source head `5a7e5c189df59bbcb20c9ab1cd41a9879f524de8` (dependency installation + frontend production build). This includes the strict future-role deny-by-default engagement guard, legacy user-only account role backfill, and client-only draft-task RPC checks. Vercel has separately reported a build-rate-limit/plan-upgrade failure. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
