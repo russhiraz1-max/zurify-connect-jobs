@@ -18,6 +18,7 @@ AS $$
 DECLARE
   r RECORD;
   w RECORD;
+  pending_requests_cents bigint;
 BEGIN
   IF NOT (
     public.is_super_admin(auth.uid())
@@ -46,8 +47,17 @@ BEGIN
     RAISE EXCEPTION 'Wallet not found';
   END IF;
 
-  -- A rejection must release the exact reserve or fail atomically for review.
-  IF w.pending_withdrawal_cents < r.amount_cents THEN
+  -- The wallet stores one aggregate pending reserve, not a per-request
+  -- reserve. Reconcile that aggregate against all pending requests before
+  -- releasing one request; checking only >= amount could mask another mismatch.
+  SELECT COALESCE(sum(amount_cents), 0)
+    INTO pending_requests_cents
+    FROM public.withdrawal_requests
+    WHERE user_id = r.user_id
+      AND status = 'pending';
+
+  IF COALESCE(w.pending_withdrawal_cents, 0) <> pending_requests_cents
+     OR pending_requests_cents < r.amount_cents THEN
     RAISE EXCEPTION 'Reserve mismatch; withdrawal requires reconciliation';
   END IF;
 
