@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Briefcase, Plus, RefreshCw } from "lucide-react";
+import { Briefcase, Plus, RefreshCw, WalletCards, Layers3, CircleCheckBig } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -128,11 +128,46 @@ function ClientDashboardPage() {
     );
   }
 
+  const draftCount = tasks.filter(task => task.status === "draft").length;
+  const liveCount = tasks.filter(task => task.status === "published").length;
+
   return (
-    <AppShell title="Client workspace" subtitle="Prepare work for review before it goes live">
+    <AppShell title="Client workspace" subtitle="Create work, organize projects and track delivery. Funding and publishing will be enabled only after secure payment and review flows are ready.">
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card">
+          <CardContent className="flex items-center gap-3 p-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"><Layers3 className="h-5 w-5" /></div>
+            <div><p className="text-xs font-medium text-muted-foreground">Your projects</p><p className="font-display text-2xl font-bold">{tasks.length}</p></div>
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-card to-card">
+          <CardContent className="flex items-center gap-3 p-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-300"><Briefcase className="h-5 w-5" /></div>
+            <div><p className="text-xs font-medium text-muted-foreground">Drafts to finish</p><p className="font-display text-2xl font-bold">{draftCount}</p></div>
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-card">
+          <CardContent className="flex items-center gap-3 p-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"><CircleCheckBig className="h-5 w-5" /></div>
+            <div><p className="text-xs font-medium text-muted-foreground">Published projects</p><p className="font-display text-2xl font-bold">{liveCount}</p></div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="mb-6 overflow-hidden border-sky-500/20 bg-gradient-to-r from-sky-500/10 via-card to-violet-500/10">
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-300"><WalletCards className="h-5 w-5" /></div>
+            <div>
+              <p className="font-semibold">Funding & billing</p>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">Client deposits, project budgets, spend history and invoices are part of the payment milestone. Deposits are not enabled here yet, so no funds will be charged or reserved from this screen.</p>
+            </div>
+          </div>
+          <Badge variant="outline" className="w-fit shrink-0 border-violet-500/30 bg-violet-500/5 text-violet-700 dark:text-violet-300">Payment setup in progress</Badge>
+        </CardContent>
+      </Card>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
-        <Card>
-          <CardHeader>
+        <Card className="overflow-hidden border-primary/15 shadow-sm">
+          <CardHeader className="border-b border-border/60 bg-gradient-to-r from-primary/5 via-violet-500/5 to-sky-500/5">
             <div className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-primary" />
               <CardTitle>Create a task draft</CardTitle>
@@ -200,7 +235,7 @@ function ClientDashboardPage() {
                       </div>
                       <Badge variant={task.status === "published" ? "default" : "secondary"}>{task.status}</Badge>
                     </div>
-                    <p className="mt-3 text-sm text-muted-foreground">Worker reward: $${(task.reward_cents / 100).toFixed(2)}</p>
+                    <p className="mt-3 text-sm text-muted-foreground">Worker reward: ${(task.reward_cents / 100).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
