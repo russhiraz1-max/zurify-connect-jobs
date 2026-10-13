@@ -60,3 +60,8 @@ Source evidence: inspected `apply_to_task` and `submit_task` definitions count r
 - **S4 role matrix:** legacy `admin` is handled inconsistently across helpers and some administrative listing logic. Define the role matrix for 2.0 and enforce it in every SQL function, RLS policy and route.
 - **False-positive control:** an UPDATE grant on settings is paired with an RLS policy requiring super-admin, so the grant alone is not treated as a bypass. Boolean-only role helper execution grants are not by themselves proof of data exposure.
 - **Coverage note:** source review covered the 20 SQL files in the checked-in migrations directory; the effective live database catalog and storage flows still require isolated-environment tests.
+
+
+## Implemented in branch; validation pending
+
+A new migration `20261013120000_zurify_2_0_column_level_privileges.sql` revokes broad authenticated-client profile INSERT/UPDATE and application UPDATE grants, then grants only profile-form fields and non-privileged application content columns. This is a source change only: the full migration chain has not yet been executed against a disposable database. Verify current client flows and direct REST attempts before considering the finding closed. Do not apply to production.
