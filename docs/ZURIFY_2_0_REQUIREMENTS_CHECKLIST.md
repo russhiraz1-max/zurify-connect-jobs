@@ -70,9 +70,9 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Keep test/sandbox and live credentials/environments strictly separate.
 - [ ] Define deposit/refund/chargeback/failure handling before enabling related money flows.
 - [ ] Audit withdrawal request, reservation, approval, rejection, cancellation and retry flows so every branch releases or consumes reserved funds exactly once.
-- [ ] Require approved identity verification before funds are reserved for a withdrawal, if this is the intended policy; test all failure paths.
+- [~] Require approved identity verification before funds are reserved for a withdrawal, if this is the intended policy; inspected request_withdrawal definition does not check KYC before reserving. Verify intended policy and test all failure paths.
 - [ ] Confirm the new withdrawal-fee policy before implementation; historical records must not be silently rewritten.
-- [ ] Preserve duplicate-approval guards and add reconciliation/invariant tests for ledger, available balance, reserved funds, fees and payout net amount.
+- [~] Preserve duplicate-approval guards and add reconciliation/invariant tests for ledger, available balance, reserved funds, fees and payout net amount; inspected withdrawal approval records gross withdrawal and a separate fee transaction, requiring invariant review.
 - [ ] Add payout status tracking, provider references, safe retries and administrator audit records.
 - [ ] Do not enable real transactions until provider configuration, webhook security, sandbox tests and reconciliation are verified.
 
@@ -80,15 +80,15 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Review all migrations and current schema before writing new schema changes.
 - [ ] Resolve the existing `supabase/config.toml` versus client/project-reference mismatch by documenting the new 2.0 project explicitly.
 - [ ] Write clearly named, repeatable migrations for the isolated 2.0 database; do not blindly replay old migrations against live data.
-- [ ] Audit RLS on every exposed table and bucket; test actual access paths, not only whether RLS is enabled.
-- [ ] Audit SECURITY DEFINER functions for fixed search_path, role checks, least-privilege grants and safe parameters.
+- [~] Audit RLS on every exposed table and bucket; source review confirmed an application-owner UPDATE policy/grant risk; complete full migration/grant reconciliation and access-path tests.
+- [~] Audit SECURITY DEFINER functions for fixed search_path, role checks, least-privilege grants and safe parameters; function-by-function review remains in progress.
 - [ ] Protect profile fields such as suspension/withdrawal holds from self-editing.
-- [ ] Protect application/submission status, reviewer identity, review notes, wallet fields and role fields from unauthorized client updates.
+- [~] Protect application/submission status, reviewer identity, review notes, wallet fields and role fields from unauthorized client updates; application table-level UPDATE + owner policy is confirmed in migration source and requires 2.0 remediation.
 - [ ] Restrict private KYC documents and submission proof storage to the subject and explicitly authorized reviewers.
 - [ ] Remove unsafe legacy function overloads only after checking all dependencies and callers.
 - [ ] Add indexes selectively after checking query plans and workload; address unindexed foreign keys and redundant policies without broad untested rewrites.
 - [ ] Enable breached-password protection in the new auth configuration.
-- [ ] Add database-level tests for role isolation, wallet invariants, concurrency and duplicate processing.
+- [ ] Add database-level tests for role isolation, wallet invariants, concurrency and duplicate processing; source review confirmed count-then-insert capacity checks that need concurrency-safe design.
 
 ## 7. Email, notifications and operational setup
 - [ ] Configure Resend for verified transactional email in the 2.0 environment; no API key is needed in source control.
@@ -133,6 +133,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Write an explicit launch/rollback and data-migration decision before any cutover.
 
 ## Current checkpoint
+- Step 2 security review: source-level findings documented in `docs/INITIAL_SECURITY_AUDIT.md`; application-update policy, KYC withdrawal gate and withdrawal ledger semantics require remediation/design before isolated database verification. No production database was changed.
 - Feature branch: `feat/zurify-2.0-foundation`
 - Draft PR: `https://github.com/russhiraz1-max/zurify-connect-jobs/pull/1`
 - Auth redirect/signup-confirmation changes and initial secret hygiene are in progress; not yet fully validated.
