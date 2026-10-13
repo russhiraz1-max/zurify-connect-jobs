@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified build at this update:** GitHub Actions run #318 passed for source head `23e60631b2aa27bdb2db101dbc19c57e5cc9f0a1`. Dependency installation and frontend production compilation passed after withdrawal reserve/fee checks and engagement reward role-boundary source changes. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
+**Latest completed build:** GitHub Actions run #320 passed on source head `964421fea0aa4d8cb3edc4ed233fc0a30116682b` (dependency installation + frontend production build). The current source head adds a stricter future-role deny-by-default check for engagement rewards; its new CI run is pending. Vercel reported a build-rate-limit/plan-upgrade failure separately. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -111,3 +111,8 @@ Legend:
 A second pass found that the capacity migration required a `job_seeker` role for `apply_to_task`, but its paired `submit_task` RPC lacked the equivalent check. The withdrawal request RPC also relied on authentication/KYC/suspension checks without an explicit worker-role boundary. Source migrations now require a worker-only role for apply, submit and withdrawal, and fail closed for clients, special roles and mixed worker/client accounts. New direct-RPC cases are recorded in `docs/SECURITY_VALIDATION_MATRIX.md`.
 
 **Validation status:** source-only. Latest CI and isolated Supabase migration/RPC tests are still required. This does not authorize production migration or live payout changes.
+
+
+### Engagement reward guard follow-up
+
+The claim-row trigger now uses a strict role allowlist: the caller must have `job_seeker` and must not have any role other than baseline `user` or `job_seeker`. This is safer than enumerating known client/admin roles because future roles (including the planned AI-company role) fail closed by default. Validation cases R-20/R-21 were added to the security matrix. The migration remains source-only and requires isolated database tests, including confirmation that trusted service-role operations behave as intended.
