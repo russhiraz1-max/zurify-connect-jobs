@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified build at this update:** GitHub Actions run #229 passed for PR head `e14bfe26e159c90de4b6d7a86c796482f6f45387`. The build validates dependency installation and frontend production compilation only; SQL migrations and OAuth behavior remain untested against Supabase.
+**Latest verified build at this update:** GitHub Actions run #239 passed for PR head `5f993d645f1bebbc6ee07b36ed091964d64b39ab`. Dependency installation and frontend production compilation passed; SQL migrations and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -40,7 +40,7 @@ Legend:
 - [~] Draft atomic task-capacity checks by locking the parent task row.
 - [~] Draft a withdrawal ledger correction; fee policy and ledger invariants still need isolated database tests and business confirmation.
 - [~] Route legacy withdrawal rejection through reserve release and require the exact reserve to exist before release.
-- [~] Correct the frontend mismatch that previously treated legacy `admin` as `super_admin`; database role semantics still need reconciliation.
+- [~] Align the client-side admin shell and sign-in routing with database `is_staff()` semantics (`staff`/`super_admin` only); the legacy `admin` role alone now fails closed in the frontend. Audit other RPCs and role policies for remaining legacy-role inconsistencies.
 - [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
 - [ ] Run all migrations in order against a disposable 2.0 database.
 - [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
