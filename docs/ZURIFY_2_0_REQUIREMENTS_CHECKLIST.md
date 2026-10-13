@@ -196,7 +196,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 
 
 ### Authentication/onboarding edge cases to close before Phase 2 exits
-- [ ] Google OAuth signup must preserve the user's selected account type through a safe post-OAuth onboarding flow; current email/password intent does not automatically carry through the Lovable OAuth wrapper.
+- [~] Add a post-OAuth account-type picker for newly created OAuth users without an application role, plus an RPC that only accepts `job_seeker` or `employer`. Migration and flow are still untested.
 - [ ] Existing OAuth sign-ins must not silently change a user's account type.
-- [ ] Any account-type update RPC must allow only explicitly approved non-privileged roles and reject staff/admin/super-admin role values server-side.
+- [ ] Verify the account-type RPC cannot assign staff/admin/super-admin/advertiser roles and rejects changes after a role is already set.
 - [ ] Test OAuth retry, callback refresh, missing metadata, existing-account login and role-switch behavior with synthetic users.
