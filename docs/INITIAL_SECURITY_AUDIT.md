@@ -243,3 +243,10 @@ A re-review of `20261013133000_serialize_task_capacity_checks.sql` showed that `
 These checks require `job_seeker` and reject employer, staff, super-admin, legacy admin and advertiser roles. Mixed worker/client accounts also fail closed until reconciled. The ordinary-user backfill is in `20261013150000_add_safe_signup_account_types.sql`.
 
 **Status:** source-only; latest CI must pass, and the full ordered migration chain plus direct-RPC tests still need to run in a disposable Supabase project. No production database was changed.
+
+
+### Withdrawal reserve reconciliation strengthened
+
+The exact-release rejection migration now compares `wallets.pending_withdrawal_cents` with the sum of all pending `withdrawal_requests.amount_cents` for that user before releasing a single request. The earlier aggregate check only ensured the wallet held at least the current request amount, which could still hide a mismatch if several requests were pending. A mismatch now aborts the rejection transaction for manual reconciliation rather than guessing.
+
+**Status:** source-only. The invariant assumes every pending withdrawal is represented in `withdrawal_requests` and the wallet aggregate tracks the same gross amounts. Validate against a disposable database with synthetic pending requests, concurrent request/reject operations, and legacy inconsistent rows before any production use.
