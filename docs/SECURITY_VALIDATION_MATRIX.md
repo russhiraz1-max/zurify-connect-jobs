@@ -141,5 +141,7 @@ Do not close security findings until the complete migration chain applies cleanl
 | R-16 | OAuth account before completing account-type onboarding | Cannot apply, submit or request a withdrawal |
 
 
+| ID | Test | Expected result |
+|---|---|---|
 | W-11 | Reject one withdrawal while the wallet's aggregate pending reserve differs from the sum of all pending withdrawal requests | Rejection fails atomically with a reconciliation error; neither wallet balances nor request status change |
 | W-12 | Two concurrent rejection attempts target different pending withdrawals for the same wallet | Wallet row lock serializes reserve checks; each successful rejection releases only its own request, and duplicate/retried rejection cannot release twice |
