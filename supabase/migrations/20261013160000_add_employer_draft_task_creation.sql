@@ -34,8 +34,8 @@ BEGIN
   END IF;
 
   IF NOT public.has_role(auth.uid(), 'employer'::public.app_role)
-     AND NOT public.is_staff(auth.uid()) THEN
-    RAISE EXCEPTION 'Client account required' USING ERRCODE = '42501';
+     OR public.has_role(auth.uid(), 'job_seeker'::public.app_role) THEN
+    RAISE EXCEPTION 'Client-only account required' USING ERRCODE = '42501';
   END IF;
 
   IF public.is_suspended(auth.uid()) THEN
