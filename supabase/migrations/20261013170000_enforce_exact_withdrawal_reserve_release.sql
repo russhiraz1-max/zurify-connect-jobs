@@ -5,7 +5,12 @@
 -- Keep the three-argument overload explicit. A DEFAULT here overlaps the
 -- legacy two-argument RPC and can make PostgREST overload resolution ambiguous.
 -- The two-argument wrapper delegates to this function with FALSE.
-CREATE OR REPLACE FUNCTION public.reject_withdrawal(
+-- PostgreSQL cannot remove an existing argument DEFAULT via CREATE OR REPLACE,
+-- so drop/recreate this overload explicitly. The legacy two-argument wrapper
+-- is retained and regrants are restored below.
+DROP FUNCTION public.reject_withdrawal(uuid, text, boolean);
+
+CREATE FUNCTION public.reject_withdrawal(
   _id uuid,
   _reason text,
   _suspend_withdrawals boolean
