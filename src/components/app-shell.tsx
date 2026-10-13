@@ -31,6 +31,7 @@ const accountNav = [
 export function AppShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
   const { isStaff, roles } = useRoles();
+  const isEmployer = roles.includes("employer");
 
   const navLink = (item: { to: string; label: string; icon: typeof LayoutDashboard }, compact = false) => {
     const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
@@ -62,20 +63,15 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
           <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card/85 p-3 shadow-sm backdrop-blur-xl">
             <div className="mb-3 rounded-xl bg-gradient-to-br from-primary/10 via-violet-500/10 to-sky-500/15 p-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Zurify workspace</p>
-              <p className="mt-1 font-display text-sm font-semibold">Find work. Get paid.</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Your work, earnings and progress in one place.</p>
+              <p className="mt-1 font-display text-sm font-semibold">{isEmployer ? "Create work. Track delivery." : "Find work. Get paid."}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{isEmployer ? "Manage your drafts and hiring workflow in one place." : "Your work, earnings and progress in one place."}</p>
             </div>
-            <p className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">Workspace</p>
+            <p className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">{isEmployer ? "Hiring workspace" : "Workspace"}</p>
             <nav className="space-y-1">
-              {userNav.map(item => navLink(item))}
+              {isEmployer
+                ? navLink({ to: "/client-dashboard", label: "Client overview", icon: Briefcase })
+                : userNav.map(item => navLink(item))}
             </nav>
-            {roles.includes("employer") && (
-              <>
-                <div className="my-3 border-t border-border/70" />
-                <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">Hiring</p>
-                {navLink({ to: "/client-dashboard", label: "Client workspace", icon: Briefcase })}
-              </>
-            )}
             <div className="my-3 border-t border-border/70" />
             <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">Account</p>
             <nav className="space-y-1">
@@ -98,8 +94,8 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
               </>
             )}
             <div className="mt-4 rounded-xl border border-sky-500/15 bg-sky-500/5 px-3 py-2.5">
-              <p className="text-xs font-semibold">Built for your next step</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">Discover opportunities, track progress and keep your account secure.</p>
+              <p className="text-xs font-semibold">{isEmployer ? "Your hiring workspace" : "Built for your next step"}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{isEmployer ? "Funding and publishing controls will appear when their secure workflows are ready." : "Discover opportunities, track progress and keep your account secure."}</p>
             </div>
           </div>
         </aside>
