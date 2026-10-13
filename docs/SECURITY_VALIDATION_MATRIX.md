@@ -83,7 +83,7 @@ Do not close security findings until the complete migration chain applies cleanl
 |---|---|---|
 | O-01 | New email/password signup with `account_type=employer` | Trigger assigns baseline `user` and `employer`; no privileged role is granted |
 | O-02 | New email/password signup with missing/unknown account metadata | Trigger defaults to `job_seeker` plus baseline `user` |
-| O-03 | New OAuth signup without account-type metadata | Trigger creates profile/wallet and baseline role but no worker/client role; root redirects to account-type onboarding |
+| O-03 | New OAuth signup, including when user metadata contains an `account_type` value | Trigger creates profile/wallet and baseline role but no worker/client role; root redirects to account-type onboarding |
 | O-04 | Authenticated user selects `employer` in onboarding | RPC assigns only `employer`; client workspace opens |
 | O-05 | Authenticated user selects `job_seeker` in onboarding | RPC assigns only `job_seeker`; freelancer dashboard opens |
 | O-06 | User submits `admin`, `staff`, `super_admin`, `advertiser`, or any unknown role to onboarding RPC | Denied server-side; no role is added |
