@@ -51,3 +51,12 @@ Source evidence: inspected `apply_to_task` and `submit_task` definitions count r
 - A forward-only 2.0 migration plan reviewed against a fresh isolated schema.
 - Tests for privilege boundaries, capacity races, withdrawal KYC gate and ledger reconciliation pass.
 - No production data or live settings modified.
+
+
+## Additional source-review items (2026-10-13)
+
+- **S1 profile fields:** the first migration grants authenticated UPDATE on profiles and an owner-update policy; later fields include `suspended` and `withdrawal_hold`. Confirm final effective policies and replace broad owner writes with an explicit safe-column allowlist.
+- **S4 privacy:** `get_user_reputation(uuid)` and `challenge_progress(uuid, challenges)` are SECURITY DEFINER and granted to authenticated callers; the inspected bodies accept caller-supplied user IDs. Decide which metrics are intentionally public and enforce self/staff access for private fields.
+- **S4 role matrix:** legacy `admin` is handled inconsistently across helpers and some administrative listing logic. Define the role matrix for 2.0 and enforce it in every SQL function, RLS policy and route.
+- **False-positive control:** an UPDATE grant on settings is paired with an RLS policy requiring super-admin, so the grant alone is not treated as a bypass. Boolean-only role helper execution grants are not by themselves proof of data exposure.
+- **Coverage note:** source review covered the 20 SQL files in the checked-in migrations directory; the effective live database catalog and storage flows still require isolated-environment tests.
