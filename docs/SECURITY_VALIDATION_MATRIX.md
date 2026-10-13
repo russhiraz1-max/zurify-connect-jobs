@@ -62,3 +62,13 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 ## Exit criteria
 
 Do not close security findings until the complete migration chain applies cleanly to a fresh isolated project and every relevant test above passes. Record database version, migration head, synthetic test identities/roles (no credentials), test results, and any known exceptions. No production migration or launch is authorized by this checklist.
+
+## Employer/client draft task tests (required)
+- Freelancer/user without `employer` role cannot call `create_client_task`, even if they invoke the RPC directly.
+- Employer can create a valid draft; inserted row has `created_by=auth.uid()`, `status='draft'`, `featured=false`, and `priority=0`.
+- Employer cannot use direct table writes to publish, feature, reprioritize, edit, or delete a task.
+- Employer A cannot read Employer B's draft through the Data API.
+- Suspended employer cannot create a draft.
+- Invalid/oversized title, description, instructions, reward, estimated time, capacity, and nonexistent category are rejected server-side.
+- Staff/admin task review and existing publish controls continue to work.
+- Signup with forged metadata such as `account_type='super_admin'` or `'staff'` must receive only the safe default `job_seeker` role plus baseline `user`; metadata `'employer'` may add only the `employer` role.
