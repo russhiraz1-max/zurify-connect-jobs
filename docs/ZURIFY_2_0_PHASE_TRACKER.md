@@ -41,6 +41,7 @@ Legend:
 - [~] Draft a withdrawal ledger correction; fee policy and ledger invariants still need isolated database tests and business confirmation.
 - [~] Route legacy withdrawal rejection through reserve release and require the exact reserve to exist before release.
 - [~] Correct the frontend mismatch that previously treated legacy `admin` as `super_admin`; database role semantics still need reconciliation.
+- [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
 - [ ] Run all migrations in order against a disposable 2.0 database.
 - [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
