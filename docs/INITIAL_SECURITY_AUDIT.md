@@ -173,3 +173,14 @@ The email/password signup form submits `account_type` metadata, and the signup t
 The capacity-serialization migration now locks the caller's profile row before checking suspension in both `apply_to_task` and `submit_task`. It also rejects the operation if the profile row is missing. This closes a source-level gap where a missing profile could leave a NULL suspension value and let the operation continue, and serializes task actions against concurrent profile suspension updates.
 
 **Validation status:** source-only. The migration has not been applied to a database. Test profile deletion/missing-profile behavior, concurrent suspension and task actions, transaction rollback, and application/submission capacity under concurrent requests on a disposable database.
+
+
+## Follow-up wallet audit — withdrawal reserve events are missing from transaction history
+
+The inspected `request_withdrawal` function immediately decreases `wallets.available_cents` and increases `pending_withdrawal_cents`, but does not insert a corresponding `wallet_transactions` row. The rejection path restores the reserve to available balance without inserting a release row. The approval path inserts negative payout/fee rows only after the request was already reserved. The wallet page reads `wallet_transactions` as its recent transaction history and displays each row's `balance_after_cents`.
+
+This means the displayed transaction history does not represent every balance transition: the reserve and release are invisible, while approval history appears later and its balance-after field reflects the already-reserved available balance. The existing transaction table may be functioning as a partial earnings/payout history rather than a complete authoritative ledger.
+
+**Status:** identified; not silently patched because adding reserve/release rows without defining available-vs-reserved semantics could double-count withdrawals.
+
+**Required design:** decide whether to upgrade the current transaction table or introduce a balanced, append-only ledger with distinct available, reserved, payout and fee movements. Specify idempotency keys and a reconciliation equation for each withdrawal lifecycle. Test request, approval, rejection, retries, concurrent requests and historical records in an isolated database. Do not rewrite historical production transactions without a reviewed migration plan.
