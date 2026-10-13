@@ -34,3 +34,6 @@
 - Test signup, email confirmation, login redirects, password reset, role-specific access, and payment flows with synthetic test accounts.
 - Deliver changes in reviewable commits and pull requests. Report tests honestly; do not claim checks passed unless they were run.
 - Keep production untouched until explicit approval.
+
+## Signup role foundation (source-only, not yet DB-tested)
+The signup form now lets a person choose **Find work** or **Hire talent**. A new trigger migration stores this as a non-privileged `job_seeker` or `employer` role while retaining the baseline `user` role and the existing trusted super-admin bootstrap. User-editable auth metadata is never accepted for staff/admin privileges. This is only the account-type foundation; separate client/AI-company workflows and role-specific task ownership/RLS remain subsequent milestones.
