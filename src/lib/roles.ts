@@ -37,8 +37,8 @@ export function useRoles() {
     return () => { cancelled = true; };
   }, [user, sessionLoading]);
 
-  const isSuperAdmin = roles.includes("super_admin") || roles.includes("admin");
-  const isStaff = isSuperAdmin || roles.includes("staff");
+  const isSuperAdmin = roles.includes("super_admin");
+  const isStaff = isSuperAdmin || roles.includes("staff") || roles.includes("admin");
   const has = (perm: StaffPermission) => isSuperAdmin || permissions.includes(perm);
 
   return { roles, permissions, isSuperAdmin, isStaff, has, loading: loading || sessionLoading };
