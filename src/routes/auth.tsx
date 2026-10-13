@@ -36,7 +36,7 @@ function AuthPage() {
   const redirectTo = requestedRedirect.startsWith("/")
     && !requestedRedirect.startsWith("//")
     && !requestedRedirect.includes("\\")
-    && !/[\\u0000-\\u001F\\u007F]/.test(requestedRedirect)
+    && !/[\u0000-\u001F\u007F]/.test(requestedRedirect)
     ? requestedRedirect
     : "/dashboard";
 
