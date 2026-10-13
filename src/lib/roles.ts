@@ -38,7 +38,9 @@ export function useRoles() {
   }, [user, sessionLoading]);
 
   const isSuperAdmin = roles.includes("super_admin");
-  // Match the database helper public.is_staff(), which recognizes only staff and super_admin.\n  // The legacy `admin` role is not a trusted staff grant and must fail closed.\n  const isStaff = isSuperAdmin || roles.includes("staff");
+  // Match the database helper public.is_staff(), which recognizes only staff and super_admin.
+  // The legacy `admin` role is not a trusted staff grant and must fail closed.
+  const isStaff = isSuperAdmin || roles.includes("staff");
   const has = (perm: StaffPermission) => isSuperAdmin || permissions.includes(perm);
 
   return { roles, permissions, isSuperAdmin, isStaff, has, loading: loading || sessionLoading };
