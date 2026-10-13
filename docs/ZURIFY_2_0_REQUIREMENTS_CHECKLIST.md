@@ -157,3 +157,39 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - Added an RLS SELECT policy so employer-role accounts can read only their own tasks. The existing admin/staff publishing workflow is not widened by this migration.
 - Added client workspace navigation and post-auth routing for employer-role accounts.
 - Not complete until the full database chain is tested, client RLS is verified, and task publishing/payment authorization are implemented separately.
+
+
+## 8. Role-specific dashboard details — durable scope
+
+### Freelancer experience
+- [ ] Personalized overview with available balance, pending earnings, lifetime earnings/withdrawals, application/submission counts and notifications.
+- [ ] Browse/filter eligible tasks, see clear reward, expected time, eligibility and instructions before applying.
+- [ ] Track application status, active work, submission evidence, review feedback, revision requests and completed/archived work.
+- [ ] See wallet ledger history, pending/reserved funds, payout fees and net amount before requesting a withdrawal.
+- [ ] Identity verification status, withdrawal eligibility explanations, referral/reward progress, Zurify Pro, support, profile and account settings.
+- [ ] Automated task-quality or legitimacy holds must show a clear reason and appeal/review route; no unexplained permanent lockouts.
+
+### Client experience
+- [~] Dedicated client workspace shell, draft-task form, own-project list and draft/published counts are in the feature branch. Database migration remains source-only until tested in an isolated database.
+- [ ] Client wallet/funding balance must be distinct and correctly defined; do not assume freelancer earnings balance is a client spending balance.
+- [ ] Deposit funds using the configured gateway, with pending/confirmed/failed states, server-side verification, receipts, idempotency and reconciliation.
+- [ ] Create, edit, preview and submit task/project drafts for review; only authorized server-side moderation can publish or reject them.
+- [ ] Track each project's budget, reserved amount, spent amount, remaining amount, worker slots, status and deadlines.
+- [ ] Manage applications/proposals, select workers where relevant, communicate safely, review submissions, request revisions, approve delivery and see rejection reasons.
+- [ ] View client ledger, deposits, project charges, refunds/credits, invoices/receipts, payout obligations and downloadable billing history.
+- [ ] Never charge or reserve funds on draft creation. Reserve/charge only through an atomic server-side workflow after the client confirms the reviewed project and sufficient verified funds exist.
+- [ ] Enforce client ownership on every project, applicant, submission, message, budget and billing query; test direct API/RPC calls as a different client.
+- [ ] The dashboard currently states that funding is not enabled; do not remove this warning until the full payment path has passed sandbox and reconciliation tests.
+
+### AI-company workspace
+- [ ] Dedicated organization/project workflow rather than treating an AI company as a normal freelancer or a simple client.
+- [ ] Create data collection, language/dialect, transcription, pronunciation, labeling and evaluation projects with explicit instructions, locale metadata and contributor consent.
+- [ ] Batch work, assign/review samples, use quality benchmarks and duplicate/suspicious-pattern checks, manage rework and escalations.
+- [ ] Show quality metrics, contributor coverage, project progress and permission-controlled dataset export.
+- [ ] Organization seats, project permissions, data retention and customer isolation must be tested before real customer datasets are accepted.
+
+### Money movement and trust
+- [ ] Client funding, client spending, freelancer earnings, withdrawal reserves, provider transactions and fees must have clear separate ledger semantics.
+- [ ] Use integer cents and immutable ledger entries; support idempotent webhook processing and reconciliation.
+- [ ] Confirm fee policy and gateway rollout plan with the founder before enabling real transactions.
+- [ ] Add withdrawal quality/legitimacy checks with an explainable reason, manual review and an appeal path for false positives.
