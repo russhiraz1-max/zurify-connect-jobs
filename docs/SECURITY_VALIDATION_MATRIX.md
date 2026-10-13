@@ -161,6 +161,7 @@ Do not close security findings until the complete migration chain applies cleanl
 | W-18 | Approve a request whose gross amount differs from net payout plus fee | Approval fails for reconciliation; no payout or referral commission is recorded |
 
 | W-19 | Referral commission basis points are negative or exceed 10,000 during payout approval | Approval fails atomically; no withdrawal payout or referral commission is recorded |
+| W-20 | Concurrent withdrawal request and rejection with `_suspend_withdrawals = true` for the same user | Profile and wallet locks follow the same profile → wallet order; transactions complete or fail atomically without a lock-order deadlock or partial reserve release |
 
 
 ## Privileged account bootstrap test
