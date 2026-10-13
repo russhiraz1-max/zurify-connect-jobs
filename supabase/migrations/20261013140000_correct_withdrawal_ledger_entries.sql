@@ -58,6 +58,9 @@ BEGIN
     SELECT * INTO rc FROM public.referral_codes WHERE id=ru.code_id;
     eff_bps := COALESCE(rc.commission_bps, ss.referral_commission_bps);
     eff_min := COALESCE(rc.min_withdrawal_cents, ss.referral_min_withdrawal_cents);
+    IF eff_bps IS NOT NULL AND (eff_bps < 0 OR eff_bps > 10000) THEN
+      RAISE EXCEPTION 'Referral commission settings are invalid';
+    END IF;
     IF ss.referral_enabled AND eff_bps > 0 AND r.amount_cents >= eff_min THEN
       commission := floor(r.amount_cents::numeric * eff_bps / 10000)::integer;
       IF commission > 0 THEN
