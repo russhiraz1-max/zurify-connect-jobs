@@ -147,12 +147,8 @@ SELECT ok(
   'OAuth metadata alone cannot silently assign a worker/client role'
 );
 
-SELECT set_config(
-  'request.jwt.claim.sub',
-  '9e21a05e-5f12-4df6-94a7-4d6fbeb30001',
-  true
-);
-SELECT set_config('request.jwt.claim.role', 'authenticated', true);
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30001';
+SET LOCAL request.jwt.claim.role = 'authenticated';
 
 SELECT is(
   public.complete_account_type('employer'),
