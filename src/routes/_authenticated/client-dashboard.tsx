@@ -40,7 +40,7 @@ function ClientDashboardPage() {
   const [minutes, setMinutes] = useState("10");
   const [capacity, setCapacity] = useState("10");
 
-  const canManage = roles.includes("employer") || roles.includes("staff") || roles.includes("super_admin") || roles.includes("admin");
+  const canManage = roles.includes("employer") || roles.includes("staff") || roles.includes("super_admin");
 
   async function loadTasks() {
     if (!user) {
