@@ -271,3 +271,12 @@ The withdrawal approval RPC previously checked only that the wallet aggregate wa
 Source review found that engagement claim functions such as daily streak, lucky reward, mystery box, challenge claim and badge sync are SECURITY DEFINER functions and did not consistently enforce the freelancer account type. The internal credit helper already revokes direct execute from authenticated clients, but client-only accounts could still attempt the parent claim RPCs. Added a database trigger guard on streak, lucky, mystery, challenge and badge claim rows. For authenticated API requests it requires the caller to own the row, have a freelancer-only role, and not be suspended; anon writes are rejected. Trusted server/migration contexts remain available for controlled maintenance.
 
 **Status:** source-only. Test every claim RPC and direct table write with freelancer, client, mixed-role, staff, super-admin, advertiser, suspended and service-role identities. This does not replace a full review of every SECURITY DEFINER function.
+
+
+## Legacy user-only accounts and worker-role continuity
+
+The worker-only guards added to `apply_to_task`, `submit_task`, `request_withdrawal`, and engagement rewards intentionally deny accounts without a `job_seeker` role. A source review then found that the safe signup migration replaced the new-user trigger but did not backfill existing baseline-only `user` accounts, so older accounts could lose worker access after the role boundary tightened.
+
+Added an idempotent, narrowly scoped backfill to `20261013150000_add_safe_signup_account_types.sql`: it adds `job_seeker` only when an account already has the baseline `user` role and has none of `job_seeker`, `employer`, `staff`, `admin`, `super_admin`, or `advertiser`. It does not infer client intent or overwrite existing roles.
+
+**Status:** source-only; not run against any database. Test worker-only accounts, existing client/staff/super-admin/advertiser accounts, roleless accounts, reruns, and conflict handling on a disposable database before any rollout.
