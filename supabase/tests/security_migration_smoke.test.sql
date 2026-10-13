@@ -162,14 +162,14 @@ SELECT ok(
 );
 
 SELECT throws_ok(
-  $ SELECT public.complete_account_type('job_seeker') $,
+  'SELECT public.complete_account_type(''job_seeker'')',
   '42501',
   'Account type has already been selected',
   'onboarding rejects switching from client to freelancer'
 );
 
 SELECT throws_ok(
-  $ SELECT public.complete_account_type('super_admin') $,
+  'SELECT public.complete_account_type(''super_admin'')',
   '22023',
   'Choose a supported account type',
   'onboarding rejects privileged or unsupported role values'
