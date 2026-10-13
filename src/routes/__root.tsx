@@ -133,17 +133,24 @@ function RootComponent() {
 
   useEffect(() => {
     let active = true;
-    const redirectIfOnEntryPage = (hasSession: boolean) => {
-      if (!active || !hasSession || typeof window === "undefined") return;
+    const redirectIfOnEntryPage = (userId: string | undefined) => {
+      if (!active || !userId || typeof window === "undefined") return;
       const path = window.location.pathname;
-      if (path === "/" || path === "/auth") {
-        void navigate({ to: "/dashboard", replace: true });
-      }
+      if (path !== "/" && path !== "/auth") return;
+
+      // Defer the table lookup until the auth-state callback has returned. This
+      // avoids calling Supabase auth methods inside its auth lock callback.
+      void Promise.resolve().then(async () => {
+        const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+        if (!active) return;
+        const isClient = roleRows?.some((row) => row.role === "employer");
+        void navigate({ to: isClient ? "/client-dashboard" : "/dashboard", replace: true });
+      });
     };
 
     // Check the persisted session once on mount.
     void supabase.auth.getSession().then(({ data }) => {
-      redirectIfOnEntryPage(Boolean(data.session));
+      redirectIfOnEntryPage(data.session?.user.id);
     });
 
     // Use the session passed by Supabase. Do not call Supabase auth methods
@@ -153,7 +160,7 @@ function RootComponent() {
       router.invalidate();
       if (event !== "SIGNED_OUT") {
         queryClient.invalidateQueries();
-        if (event === "SIGNED_IN") redirectIfOnEntryPage(Boolean(session));
+        if (event === "SIGNED_IN") redirectIfOnEntryPage(session?.user.id);
       }
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
