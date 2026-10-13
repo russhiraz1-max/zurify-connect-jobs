@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import {
-  LayoutDashboard, ListChecks, FileCheck2, Wallet as WalletIcon, ArrowDownToLine,
+  LayoutDashboard, ListChecks, FileCheck2, Wallet as WalletIcon, ArrowDownToLine, BriefcaseBusiness,
   Bell, LifeBuoy, User as UserIcon, Settings as SettingsIcon, Send, Shield, BadgeCheck, Gift, Crown,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -28,7 +28,7 @@ const userNav = [
 
 export function AppShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
-  const { isStaff } = useRoles();
+  const { isStaff, roles } = useRoles();
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -47,6 +47,15 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
                 </Link>
               );
             })}
+            {roles.includes("employer") && (
+              <Link to="/client-dashboard"
+                className={cn(
+                  "mt-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                  pathname === "/client-dashboard" ? "bg-accent font-medium text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                )}>
+                <BriefcaseBusiness className="h-4 w-4" /> Client workspace
+              </Link>
+            )}
             {isStaff && (
               <Link to="/admin"
                 className={cn(
