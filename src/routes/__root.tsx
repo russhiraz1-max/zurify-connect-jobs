@@ -143,8 +143,18 @@ function RootComponent() {
       void Promise.resolve().then(async () => {
         const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
         if (!active) return;
-        const isClient = roleRows?.some((row) => row.role === "employer");
-        void navigate({ to: isClient ? "/client-dashboard" : "/dashboard", replace: true });
+        const roles = (roleRows ?? []).map((row) => row.role);
+        const isClient = roles.includes("employer");
+        const hasAccountType = roles.includes("employer") || roles.includes("job_seeker");
+        const hasPrivilegedOrSpecialRole = roles.some((role) =>
+          ["super_admin", "staff", "admin", "advertiser"].includes(role),
+        );
+        const destination = !hasAccountType && !hasPrivilegedOrSpecialRole
+          ? "/choose-account-type"
+          : isClient
+            ? "/client-dashboard"
+            : "/dashboard";
+        void navigate({ to: destination as never, replace: true });
       });
     };
 
