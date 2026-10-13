@@ -127,3 +127,15 @@ Do not close security findings until the complete migration chain applies cleanl
 | A-02 | Authenticated freelancer/client/advertiser opens an admin route | Admin shell renders no protected child content and redirects to their ordinary dashboard |
 | A-03 | Staff user opens the admin overview and a tool without its permission | Overview follows the intended staff policy; unauthorized tool data/RPCs are denied by the backend |
 | A-04 | Super-admin opens admin console | Full console is visible and sensitive backend operations still verify super-admin/staff permissions |
+
+
+## Explicit worker-role boundary tests (added after source review)
+
+| ID | Test | Expected result |
+|---|---|---|
+| R-11 | Client account calls `submit_task` directly through RPC | Denied server-side with freelancer-account-required error; no submission is inserted |
+| R-12 | Client account calls `apply_to_task` directly through RPC | Denied server-side; no application is inserted |
+| R-13 | Client account with a wallet/KYC row calls `request_withdrawal` directly | Denied server-side before any wallet reserve changes |
+| R-14 | Account has both `job_seeker` and `employer` roles | Worker apply/submit/withdraw operations fail closed pending role reconciliation |
+| R-15 | Existing user-only account after the role-backfill migration | Receives `job_seeker` only if it has no worker/client/special role; verify it can use legitimate worker flows |
+| R-16 | OAuth account before completing account-type onboarding | Cannot apply, submit or request a withdrawal |
