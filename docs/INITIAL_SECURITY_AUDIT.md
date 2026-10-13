@@ -184,3 +184,19 @@ This means the displayed transaction history does not represent every balance tr
 **Status:** identified; not silently patched because adding reserve/release rows without defining available-vs-reserved semantics could double-count withdrawals.
 
 **Required design:** decide whether to upgrade the current transaction table or introduce a balanced, append-only ledger with distinct available, reserved, payout and fee movements. Specify idempotency keys and a reconciliation equation for each withdrawal lifecycle. Test request, approval, rejection, retries, concurrent requests and historical records in an isolated database. Do not rewrite historical production transactions without a reviewed migration plan.
+
+
+## OAuth account-type RPC gap — source implementation added
+
+The account selection route calls `public.complete_account_type(text)`. The frontend route and root redirect existed, but the matching migration was absent from the reviewed migration set. Added `20261013170000_complete_oauth_account_type.sql` on the feature branch.
+
+The function:
+- accepts only `job_seeker` or `employer`;
+- requires an authenticated caller and an existing profile;
+- locks that profile row to serialize concurrent first-time choices;
+- denies accounts carrying privileged/special roles;
+- rejects switching between the two account types after one has been assigned;
+- permits a repeat call for the same account type; and
+- revokes execution from PUBLIC/anon and grants it to authenticated.
+
+**Status:** source implementation only. The successful frontend build cannot prove the migration runs or the function is secure against the actual deployed schema. Required tests: apply the complete migration chain to a disposable Supabase database, test all accepted/rejected role values, existing-account retries, concurrent conflicting selections, missing profile, OAuth callback/reload and role queries under RLS.
