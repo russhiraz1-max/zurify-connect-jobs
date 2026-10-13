@@ -161,3 +161,10 @@ Do not close security findings until the complete migration chain applies cleanl
 | W-18 | Approve a request whose gross amount differs from net payout plus fee | Approval fails for reconciliation; no payout or referral commission is recorded |
 
 | W-19 | Referral commission basis points are negative or exceed 10,000 during payout approval | Approval fails atomically; no withdrawal payout or referral commission is recorded |
+
+
+## Privileged account bootstrap test
+
+| ID | Test | Expected result |
+|---|---|---|
+| O-11 | Email matches configured super-admin bootstrap address and signup metadata says `employer` or `job_seeker` | Trigger assigns the trusted super-admin role only; no ordinary client/freelancer role is added |
