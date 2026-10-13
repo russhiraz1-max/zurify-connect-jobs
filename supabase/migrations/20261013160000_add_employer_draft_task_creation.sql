@@ -62,7 +62,7 @@ BEGIN
   END IF;
 
   IF _category_id IS NOT NULL AND NOT EXISTS (
-    SELECT 1 FROM public.task_categories c WHERE c.id = _category_id AND c.active
+    SELECT 1 FROM public.task_categories c WHERE c.id = _category_id
   ) THEN
     RAISE EXCEPTION 'Choose an active task category';
   END IF;
