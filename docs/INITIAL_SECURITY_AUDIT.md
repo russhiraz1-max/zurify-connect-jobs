@@ -206,6 +206,6 @@ The function:
 
 A follow-up review found a mismatch: the account-role trigger previously defaulted every new account with missing/unknown `account_type` metadata to `job_seeker`. That could prevent a Google OAuth account without an explicit choice from reaching `/choose-account-type`, because the root redirect sees an existing application role.
 
-Updated `20261013150000_add_safe_signup_account_types.sql` so explicit allowlisted metadata assigns the selected role; email-provider signup defaults to `job_seeker` when metadata is absent/invalid; and non-email OAuth providers with no explicit selection receive only the baseline `user` role until the restricted onboarding RPC assigns a choice.
+Updated `20261013150000_add_safe_signup_account_types.sql` so explicit allowlisted metadata assigns the selected role; email-provider signup defaults to `job_seeker` when metadata is absent/invalid; and providers whose `raw_app_meta_data.provider` is not explicitly `email` receive only the baseline `user` role until the restricted onboarding RPC assigns a choice. Missing provider metadata therefore fails closed to the chooser instead of assuming email/password.
 
 **Status:** source-level correction, not DB-tested. Verify actual `raw_app_meta_data.provider` values for email and Google in a disposable Supabase project, plus OAuth callback/reload and email confirmation flows. If provider metadata differs in the target Supabase setup, update the condition before rollout.
