@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified build at this update:** GitHub Actions run #221 passed for code commit `4d2128af382fc41e0c1de98559b0282e83823b85`. The build validates dependency installation and frontend production compilation only; SQL migrations and OAuth behavior remain untested against Supabase.
+**Latest verified build at this update:** GitHub Actions run #229 passed for PR head `e14bfe26e159c90de4b6d7a86c796482f6f45387`. The build validates dependency installation and frontend production compilation only; SQL migrations and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -51,6 +51,7 @@ Legend:
 ### Step 2.3 — Safe client-workspace foundation
 
 - [~] Add client workspace navigation for desktop and mobile.
+- [~] Add a client draft workspace with active-category selection and own-task listing; publishing, client funding, billing, applicant management, and AI-company workflows remain unimplemented.
 - [~] Add a draft-only task creation form and own-task list.
 - [~] Add client project/draft/published summaries and explicit messaging that funding is not enabled.
 - [ ] Test role checks, RPC input validation, ownership RLS, and draft creation in an isolated database.
