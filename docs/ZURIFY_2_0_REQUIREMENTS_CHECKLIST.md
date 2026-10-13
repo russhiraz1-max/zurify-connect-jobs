@@ -193,3 +193,10 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Use integer cents and immutable ledger entries; support idempotent webhook processing and reconciliation.
 - [ ] Confirm fee policy and gateway rollout plan with the founder before enabling real transactions.
 - [ ] Add withdrawal quality/legitimacy checks with an explainable reason, manual review and an appeal path for false positives.
+
+
+### Authentication/onboarding edge cases to close before Phase 2 exits
+- [ ] Google OAuth signup must preserve the user's selected account type through a safe post-OAuth onboarding flow; current email/password intent does not automatically carry through the Lovable OAuth wrapper.
+- [ ] Existing OAuth sign-ins must not silently change a user's account type.
+- [ ] Any account-type update RPC must allow only explicitly approved non-privileged roles and reject staff/admin/super-admin role values server-side.
+- [ ] Test OAuth retry, callback refresh, missing metadata, existing-account login and role-switch behavior with synthetic users.
