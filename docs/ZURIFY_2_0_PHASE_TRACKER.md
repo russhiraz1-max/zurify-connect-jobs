@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified frontend build:** GitHub Actions run #404 passed on code head `f3f576c2f81008d7212781bfd6484dcfc8ec698b`. It verified patched TanStack Start versions in the committed lockfile, ran `npm ci`, and completed `npm run build`. **Latest isolated migration replay:** Supabase local-stack workflow run #8 passed, applying the complete migration chain to a disposable local database. This validates migration ordering/syntax only; authorization behavior, RLS, OAuth, concurrency and money-movement tests remain outstanding. Vercel separately reports a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
+**Latest verified frontend build:** GitHub Actions run #416 passed on code head `fc8776ad9f119f8140aa8e14a97167702fbe05eb`. It verified patched TanStack Start versions in the committed lockfile, ran `npm ci`, and completed `npm run build`. The `package.json` and lockfile root dependency declarations now match. **Latest isolated migration replay and security smoke tests:** Supabase local-stack workflow run #20 passed; it applied the complete migration chain to a disposable local Postgres database and passed the 16 structural/privilege pgTAP smoke assertions. This validates migration replay and those specific catalog checks only; behavioral authorization, RLS, OAuth, concurrency and money-movement tests remain outstanding. Vercel separately reports a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -46,7 +46,7 @@ Legend:
 - [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
 - [~] Add a trigger guard for engagement claim rows (streak, lucky, mystery, challenge, badge) so authenticated claim writes require a non-suspended freelancer-only account; validate all trigger/RPC combinations in isolated Supabase before considering closed.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
-- [ ] Resolve `package.json` / `package-lock.json` drift with a real regenerated and committed lockfile.
+- [x] Resolve root `package.json` / `package-lock.json` dependency declaration drift; the latest CI run used `npm ci` against the committed lockfile. Continue checking transitive dependency security and reproducibility.
 - [ ] Complete lint, automated tests, and a historical secret-exposure review.
 
 ### Step 2.3 — Safe client-workspace foundation
