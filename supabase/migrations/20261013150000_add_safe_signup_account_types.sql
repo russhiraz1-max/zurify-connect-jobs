@@ -73,3 +73,26 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+
+-- Preserve worker access for existing ordinary accounts when task RPCs begin
+-- enforcing the explicit job_seeker role. Only backfill user-only accounts;
+-- do not assign worker access to clients, staff, advertisers or privileged roles.
+INSERT INTO public.user_roles (user_id, role)
+SELECT DISTINCT existing_roles.user_id, 'job_seeker'::public.app_role
+FROM public.user_roles AS existing_roles
+WHERE existing_roles.role = 'user'::public.app_role
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.user_roles AS current_roles
+    WHERE current_roles.user_id = existing_roles.user_id
+      AND current_roles.role IN (
+        'job_seeker'::public.app_role,
+        'employer'::public.app_role,
+        'staff'::public.app_role,
+        'super_admin'::public.app_role,
+        'admin'::public.app_role,
+        'advertiser'::public.app_role
+      )
+  )
+ON CONFLICT (user_id, role) DO NOTHING;
