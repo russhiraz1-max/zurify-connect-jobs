@@ -35,9 +35,3 @@ jobs:
       - run: npm install --package-lock-only --no-audit --no-fund
       - run: npm ci --no-audit --no-fund
       - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: synchronized-package-lock
-          path: package-lock.json
-          if-no-files-found: error
-          retention-days: 1
