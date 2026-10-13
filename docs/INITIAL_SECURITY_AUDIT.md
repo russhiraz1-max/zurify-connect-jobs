@@ -257,3 +257,10 @@ The exact-release rejection migration now compares `wallets.pending_withdrawal_c
 The withdrawal request RPC now rejects invalid fee settings (NULL, negative, or greater than 10,000 basis points), computes intermediate fee arithmetic as numeric rather than overflowing 32-bit integer multiplication, and rejects configurations that produce a zero/negative net payout. This does not choose the business fee rate; it only bounds invalid configurations.
 
 **Status:** source-only. Test fee rates and large cent values in a disposable database, and confirm that the intended configured fee policy matches the founder-approved policy before enabling live withdrawals.
+
+
+### Approval path now checks the same reserve invariant
+
+The withdrawal approval RPC previously checked only that the wallet aggregate was at least the current request amount. The source migration now checks that the aggregate pending reserve equals the sum of all pending withdrawal requests before approving a payout, and that gross amount equals positive net payout plus a non-negative fee. Referral commission multiplication now uses numeric arithmetic to avoid integer overflow. This complements the rejection-path reconciliation check.
+
+**Status:** source-only. Validate approval/rejection races, old inconsistent requests, referral calculations and full transaction rollback in a disposable Supabase database. This is not a complete authoritative ledger: reserve/release movements still are not fully represented in the current wallet history.
