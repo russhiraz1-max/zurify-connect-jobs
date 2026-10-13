@@ -44,10 +44,12 @@ function ClientDashboardPage() {
   const [minutes, setMinutes] = useState("10");
   const [capacity, setCapacity] = useState("10");
 
-  const canManage = roles.includes("employer") || roles.includes("staff") || roles.includes("super_admin");
+  const hasRoleConflict = roles.includes("employer")
+    && roles.some(role => role !== "user" && role !== "employer");
+  const canManage = roles.includes("employer") && !hasRoleConflict;
 
   async function loadTasks() {
-    if (!user) {
+    if (!user || !canManage) {
       setTasks([]);
       setLoadingTasks(false);
       return;
@@ -86,8 +88,8 @@ function ClientDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!sessionLoading && user && !rolesLoading) void loadTasks();
-  }, [user, sessionLoading, rolesLoading]);
+    if (!sessionLoading && !rolesLoading) void loadTasks();
+  }, [user, sessionLoading, rolesLoading, canManage]);
 
   async function createDraft(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -139,12 +141,24 @@ function ClientDashboardPage() {
       <AppShell title="Client workspace" subtitle="A separate workspace for people hiring on Zurify">
         <Card>
           <CardHeader>
-            <CardTitle>Client access required</CardTitle>
-            <CardDescription>This area is for accounts registered to hire talent.</CardDescription>
+            <CardTitle>{hasRoleConflict ? "Account roles need review" : "Client access required"}</CardTitle>
+            <CardDescription>
+              {hasRoleConflict
+                ? "This account has conflicting role assignments, so client tools are paused for safety."
+                : "This area is for accounts registered to hire talent."}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">If you meant to create a client account, sign up with “Hire talent”. Existing accounts will need a verified role change before they can use client tools.</p>
-            <Button asChild><Link to="/dashboard">Return to your dashboard</Link></Button>
+            <p className="text-sm text-muted-foreground">
+              {hasRoleConflict
+                ? "Contact Zurify support to review your account roles. No client task data is loaded while this conflict remains."
+                : "If you meant to create a client account, sign up with “Hire talent”. Existing accounts need a verified role change before they can use client tools."}
+            </p>
+            <Button asChild>
+              <Link to={hasRoleConflict ? "/support" : roles.includes("staff") || roles.includes("super_admin") ? "/admin" : "/dashboard"}>
+                {hasRoleConflict ? "Contact support" : roles.includes("staff") || roles.includes("super_admin") ? "Open admin console" : "Return to your dashboard"}
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </AppShell>
