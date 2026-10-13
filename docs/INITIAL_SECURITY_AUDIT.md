@@ -294,3 +294,10 @@ The draft-task RPC originally allowed staff through `is_staff()`, although the c
 Extended the strict role allowlist to `apply_to_task`, `submit_task`, and `request_withdrawal`: callers must have `job_seeker` and every role row must be either baseline `user` or `job_seeker`. This closes the future-role gap where a mixed `job_seeker` + `ai_company` account could otherwise pass a blacklist that only named today's roles.
 
 **Status:** source-only. Test every RPC with freelancer-only, client-only, mixed worker/client, privileged, roleless and future-role accounts on an isolated database.
+
+
+## Staff direct-route authorization
+
+The shared admin shell originally filtered sidebar links by staff permissions but rendered child content for any staff account that manually navigated to a hidden URL. Added a route-level guard that resolves the matching navigation item's `superOnly`/permission metadata and withholds child rendering while redirecting unauthorized staff to the admin overview. This is defense in depth only; database RLS and RPC checks must still protect the data.
+
+**Status:** frontend source change. Build verification is pending for the newest commit, and direct-route behavior plus backend denial cases still need browser/RLS tests.
