@@ -12,6 +12,7 @@ AS $$
 DECLARE
   requested_role public.app_role;
   existing_role public.app_role;
+  existing_role_count integer;
 BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
@@ -43,14 +44,15 @@ BEGIN
     RAISE EXCEPTION 'This account cannot use ordinary account onboarding' USING ERRCODE = '42501';
   END IF;
 
-  SELECT role
-    INTO existing_role
+  SELECT count(*), min(role::text)::public.app_role
+    INTO existing_role_count, existing_role
     FROM public.user_roles
     WHERE user_id = auth.uid()
-      AND role IN ('job_seeker', 'employer')
-    LIMIT 1;
+      AND role IN ('job_seeker', 'employer');
 
-  IF FOUND THEN
+  IF existing_role_count > 1 THEN
+    RAISE EXCEPTION 'Account has conflicting account types; contact support' USING ERRCODE = '42501';
+  ELSIF existing_role_count = 1 THEN
     IF existing_role <> requested_role THEN
       RAISE EXCEPTION 'Account type is already set and cannot be changed here' USING ERRCODE = '42501';
     END IF;
