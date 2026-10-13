@@ -280,3 +280,10 @@ The worker-only guards added to `apply_to_task`, `submit_task`, `request_withdra
 Added an idempotent, narrowly scoped backfill to `20261013150000_add_safe_signup_account_types.sql`: it adds `job_seeker` only when an account already has the baseline `user` role and has none of `job_seeker`, `employer`, `staff`, `admin`, `super_admin`, or `advertiser`. It does not infer client intent or overwrite existing roles.
 
 **Status:** source-only; not run against any database. Test worker-only accounts, existing client/staff/super-admin/advertiser accounts, roleless accounts, reruns, and conflict handling on a disposable database before any rollout.
+
+
+## Client draft-creation role boundary
+
+The draft-task RPC originally allowed staff through `is_staff()`, although the client workspace's own-task query is scoped to employer-owned tasks and the UI is meant for clients. Tightened the RPC to require an employer role and fail closed if the caller has any role other than baseline `user` plus `employer`. This also denies mixed client/worker and privileged-role accounts.
+
+**Status:** source-only. Validate client task creation and staff/administrator/mixed-role denial against a disposable database; the RPC must always create a draft and must never reserve funds or publish a task.
