@@ -41,6 +41,17 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 | R-07 | Member A uses protected get_my_engagement() RPC | Own engagement summary still works |
 | R-08 | Member A claims an eligible challenge | Claim flow still works and only calculates Member A's progress |
 
+## Freelancer/client task role isolation
+
+| Test | Action | Expected result |
+|---|---|---|
+| T-01 | Legacy user-only account passes the safe role backfill | Gets job_seeker only if it has no existing worker/client/special role |
+| T-02 | Client calls apply_to_task directly for a published task | Denied by the RPC |
+| T-03 | Client calls submit_task directly for a published task | Denied by the RPC |
+| T-04 | Staff, super-admin, legacy admin, advertiser, or dual worker/client role calls apply_to_task or submit_task | Denied by the RPC |
+| T-05 | New OAuth account without completed account-type onboarding calls worker RPCs | Denied because job_seeker role is absent |
+| T-06 | Ordinary job_seeker account applies/submits while active and within task limits | Allowed, with existing capacity and suspension checks preserved |
+
 ## Withdrawals and ledger invariants — design/test required before implementation is approved
 
 - KYC-pending/rejected users cannot reserve or receive payout funds.
