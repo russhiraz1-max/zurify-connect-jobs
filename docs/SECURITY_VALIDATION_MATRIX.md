@@ -104,3 +104,13 @@ Do not close security findings until the complete migration chain applies cleanl
 | R-04 | Advertiser without a worker/client role returns through OAuth | No account-type chooser; route to the default dashboard until the advertiser-specific workflow is implemented |
 | R-05 | User explicitly requests a safe internal non-default redirect | Preserve that internal destination |
 | R-06 | Redirect parameter is protocol-relative, contains backslashes or control characters | Reject it and use the safe default |
+
+
+## Admin route and console access
+
+| Test | Action | Expected result |
+|---|---|---|
+| A-01 | Anonymous visitor opens an authenticated admin route | Authentication gate redirects to sign-in; no admin child content renders |
+| A-02 | Authenticated freelancer/client/advertiser opens an admin route | Admin shell renders no protected child content and redirects to their ordinary dashboard |
+| A-03 | Staff user opens the admin overview and a tool without its permission | Overview follows the intended staff policy; unauthorized tool data/RPCs are denied by the backend |
+| A-04 | Super-admin opens admin console | Full console is visible and sensitive backend operations still verify super-admin/staff permissions |
