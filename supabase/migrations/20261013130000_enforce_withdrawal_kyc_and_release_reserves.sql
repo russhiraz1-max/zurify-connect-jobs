@@ -66,7 +66,9 @@ BEGIN
     FROM public.application_settings
     WHERE singleton = true;
 
-  IF NOT FOUND OR s.withdrawal_unit_cents IS NULL OR s.withdrawal_unit_cents <= 0
+  IF NOT FOUND
+     OR s.min_withdrawal_cents IS NULL OR s.min_withdrawal_cents <= 0
+     OR s.withdrawal_unit_cents IS NULL OR s.withdrawal_unit_cents <= 0
      OR s.fee_bps_per_unit IS NULL
      OR s.fee_bps_per_unit < 0
      OR s.fee_bps_per_unit > 10000 THEN
