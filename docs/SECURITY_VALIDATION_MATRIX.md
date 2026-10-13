@@ -195,6 +195,7 @@ Do not close security findings until the complete migration chain applies cleanl
 | T-10 | Legacy account has baseline `user` plus a future/non-baseline role such as `ai_company` | Backfill leaves it unchanged; only accounts whose role rows are all exactly `user` receive `job_seeker` |
 
 | R-22 | Account has `job_seeker` plus a future/non-baseline role such as `ai_company` and calls apply, submit or withdrawal RPCs | Denied by the strict `user` + `job_seeker` allowlist |
+| R-23 | Client-only, unassigned, or special-role account directly opens `/tasks`, `/applications`, `/wallet`, `/withdrawals`, or `/verification` | Freelancer content is not rendered; client accounts route to client workspace, unassigned accounts to account-type onboarding, and staff to the admin console |
 
 | A-01 | Staff member manually navigates to a super-admin-only route such as `/admin/settings` or `/admin/users` | Admin shell redirects to `/admin` and does not render nested route content |
 | A-02 | Staff member opens a permission-scoped route without its required permission | Admin shell redirects to `/admin`; server-side RPC/RLS still independently denies unauthorized data access |
