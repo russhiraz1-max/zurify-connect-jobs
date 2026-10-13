@@ -29,9 +29,32 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      # The committed lockfile currently drifts from package.json. Regenerate it
-      # in this isolated runner, then verify a clean install and production build.
-      # A synchronized lockfile still needs to be committed separately.
-      - run: npm install --package-lock-only --no-audit --no-fund
+      - name: Verify patched TanStack Start versions in committed lockfile
+        run: |
+          node <<'NODE'
+          const lock = require("./package-lock.json");
+          const atLeast = (actual, required) => {
+            const a = actual.split(".").map(Number);
+            const b = required.split(".").map(Number);
+            for (let i = 0; i < 3; i++) {
+              if ((a[i] || 0) > (b[i] || 0)) return true;
+              if ((a[i] || 0) < (b[i] || 0)) return false;
+            }
+            return true;
+          };
+          const start = lock.packages["node_modules/@tanstack/react-start"]?.version;
+          if (!start || !atLeast(start, "1.168.60")) {
+            console.error("Blocked: @tanstack/react-start must be >=1.168.60; found", start || "missing");
+            process.exit(1);
+          }
+          const cores = Object.entries(lock.packages)
+            .filter(([path]) => path.endsWith("node_modules/@tanstack/start-server-core"))
+            .map(([path, pkg]) => ({ path, version: pkg.version }));
+          if (!cores.length || cores.some(({ version }) => !atLeast(version, "1.169.39"))) {
+            console.error("Blocked: every @tanstack/start-server-core must be >=1.169.39", cores);
+            process.exit(1);
+          }
+          console.log("Patched TanStack Start dependency versions verified:", { start, cores });
+          NODE
       - run: npm ci --no-audit --no-fund
       - run: npm run build
