@@ -103,3 +103,10 @@ Legend:
 - Never migrate or rewrite historical wallet, ledger, KYC, task, submission or withdrawal data without a separately reviewed and approved plan.
 - Never commit secrets or expose them in `VITE_*` variables.
 - Report the exact commit and check result; distinguish source review, compilation, and real database/end-to-end validation.
+
+
+## Latest source-review follow-up — role isolation
+
+A second pass found that the capacity migration required a `job_seeker` role for `apply_to_task`, but its paired `submit_task` RPC lacked the equivalent check. The withdrawal request RPC also relied on authentication/KYC/suspension checks without an explicit worker-role boundary. Source migrations now require a worker-only role for apply, submit and withdrawal, and fail closed for clients, special roles and mixed worker/client accounts. New direct-RPC cases are recorded in `docs/SECURITY_VALIDATION_MATRIX.md`.
+
+**Validation status:** source-only. Latest CI and isolated Supabase migration/RPC tests are still required. This does not authorize production migration or live payout changes.
