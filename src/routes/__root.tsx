@@ -145,15 +145,18 @@ function RootComponent() {
         if (!active) return;
         const roles = (roleRows ?? []).map((row) => row.role);
         const isClient = roles.includes("employer");
+        const isAdmin = roles.some((role) => ["super_admin", "staff", "admin"].includes(role));
         const hasAccountType = roles.includes("employer") || roles.includes("job_seeker");
         const hasPrivilegedOrSpecialRole = roles.some((role) =>
           ["super_admin", "staff", "admin", "advertiser"].includes(role),
         );
         const destination = !hasAccountType && !hasPrivilegedOrSpecialRole
           ? "/choose-account-type"
-          : isClient
-            ? "/client-dashboard"
-            : "/dashboard";
+          : isAdmin
+            ? "/admin"
+            : isClient
+              ? "/client-dashboard"
+              : "/dashboard";
         void navigate({ to: destination as never, replace: true });
       });
     };
