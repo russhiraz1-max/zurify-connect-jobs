@@ -250,3 +250,10 @@ These checks require `job_seeker` and reject employer, staff, super-admin, legac
 The exact-release rejection migration now compares `wallets.pending_withdrawal_cents` with the sum of all pending `withdrawal_requests.amount_cents` for that user before releasing a single request. The earlier aggregate check only ensured the wallet held at least the current request amount, which could still hide a mismatch if several requests were pending. A mismatch now aborts the rejection transaction for manual reconciliation rather than guessing.
 
 **Status:** source-only. The invariant assumes every pending withdrawal is represented in `withdrawal_requests` and the wallet aggregate tracks the same gross amounts. Validate against a disposable database with synthetic pending requests, concurrent request/reject operations, and legacy inconsistent rows before any production use.
+
+
+### Withdrawal fee configuration and arithmetic guard
+
+The withdrawal request RPC now rejects invalid fee settings (NULL, negative, or greater than 10,000 basis points), computes intermediate fee arithmetic as numeric rather than overflowing 32-bit integer multiplication, and rejects configurations that produce a zero/negative net payout. This does not choose the business fee rate; it only bounds invalid configurations.
+
+**Status:** source-only. Test fee rates and large cent values in a disposable database, and confirm that the intended configured fee policy matches the founder-approved policy before enabling live withdrawals.
