@@ -29,7 +29,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      # The checked-in npm lockfile currently drifts from package.json; npm install
-      # resolves the declared manifest for this verification run. Lockfile cleanup remains tracked work.
-      - run: npm install --no-audit --no-fund
+      # The committed lockfile currently drifts from package.json. Regenerate it
+      # in this isolated runner, then verify a clean install and production build.
+      # A synchronized lockfile still needs to be committed separately.
+      - run: npm install --package-lock-only --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run build
