@@ -234,3 +234,12 @@ The capacity-serialization migration also contains the authoritative `apply_to_t
 Updated both RPCs to require `job_seeker` and reject employer, staff, super-admin, legacy admin and advertiser roles. To avoid locking out existing ordinary accounts represented only by the legacy `user` role, `20261013150000_add_safe_signup_account_types.sql` now backfills `job_seeker` only for user-only accounts that do not already have a worker/client/special role.
 
 **Status:** source-level change only. Test the full ordered migration chain in an isolated database. Verify legacy ordinary users retain work access; employer/staff/advertiser/super-admin/admin accounts cannot apply or submit even through direct RPC calls; un-onboarded OAuth accounts cannot act as workers; and the role backfill does not add worker access to accounts with other roles.
+
+
+## Follow-up: close worker RPC role-check gap in source
+
+A re-review of `20261013133000_serialize_task_capacity_checks.sql` showed that `apply_to_task` already required a freelancer role, but `submit_task` did not apply the same boundary. Added the same fail-closed role check to `submit_task`. Also added the worker-role boundary to `request_withdrawal`, so a client or un-onboarded account cannot use a direct RPC call to submit work or reserve a payout simply because it has an authenticated session, a wallet row or KYC data.
+
+These checks require `job_seeker` and reject employer, staff, super-admin, legacy admin and advertiser roles. Mixed worker/client accounts also fail closed until reconciled. The ordinary-user backfill is in `20261013150000_add_safe_signup_account_types.sql`.
+
+**Status:** source-only; latest CI must pass, and the full ordered migration chain plus direct-RPC tests still need to run in a disposable Supabase project. No production database was changed.
