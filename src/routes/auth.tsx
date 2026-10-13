@@ -66,8 +66,12 @@ function AuthPage() {
     }
     toast.success("Welcome back!");
     const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", signInData.user.id);
-    const isClient = roleRows?.some((row) => row.role === "employer");
-    const destination = redirectTo === "/dashboard" && isClient ? "/client-dashboard" : redirectTo;
+    const roles = (roleRows ?? []).map((row) => row.role);
+    const isAdmin = roles.some((role) => ["super_admin", "staff", "admin"].includes(role));
+    const isClient = roles.includes("employer");
+    const destination = redirectTo === "/dashboard"
+      ? isAdmin ? "/admin" : isClient ? "/client-dashboard" : "/dashboard"
+      : redirectTo;
     navigate({ to: destination as never, replace: true });
   }
 
