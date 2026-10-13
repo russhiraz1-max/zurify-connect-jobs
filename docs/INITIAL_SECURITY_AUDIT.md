@@ -277,7 +277,7 @@ Source review found that engagement claim functions such as daily streak, lucky 
 
 The worker-only guards added to `apply_to_task`, `submit_task`, `request_withdrawal`, and engagement rewards intentionally deny accounts without a `job_seeker` role. A source review then found that the safe signup migration replaced the new-user trigger but did not backfill existing baseline-only `user` accounts, so older accounts could lose worker access after the role boundary tightened.
 
-Added an idempotent, narrowly scoped backfill to `20261013150000_add_safe_signup_account_types.sql`: it adds `job_seeker` only when an account already has the baseline `user` role and has none of `job_seeker`, `employer`, `staff`, `admin`, `super_admin`, or `advertiser`. It does not infer client intent or overwrite existing roles.
+Added an idempotent, narrowly scoped backfill to `20261013150000_add_safe_signup_account_types.sql`: it adds `job_seeker` only when every existing role row for the account is exactly the baseline `user` role (`bool_and(role = 'user')`). Accounts with no roles, any client/worker/special role, or any future role are left unchanged. It does not infer client intent or overwrite existing roles.
 
 **Status:** source-only; not run against any database. Test worker-only accounts, existing client/staff/super-admin/advertiser accounts, roleless accounts, reruns, and conflict handling on a disposable database before any rollout.
 
