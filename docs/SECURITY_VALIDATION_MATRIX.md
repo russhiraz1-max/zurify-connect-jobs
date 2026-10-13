@@ -91,3 +91,15 @@ Do not close security findings until the complete migration chain applies cleanl
 | O-08 | Existing OAuth user with an existing application role signs in | No account-type prompt and no silent role change |
 | O-09 | Two concurrent onboarding submissions choose different roles | At most one role is assigned; the other request fails without leaving both roles assigned |
 | O-10 | Authenticated user without a profile calls the onboarding RPC | Denied; no role is added |
+
+
+## Role-aware post-auth routing
+
+| Test | Action | Expected result |
+|---|---|---|
+| R-01 | Ordinary freelancer signs in or returns through OAuth callback | `/dashboard` |
+| R-02 | Client signs in or returns through OAuth callback | `/client-dashboard` |
+| R-03 | Staff, legacy admin, or super-admin returns through `/` or `/auth` | `/admin`, subject to the admin route's own authorization checks |
+| R-04 | Advertiser without a worker/client role returns through OAuth | No account-type chooser; route to the default dashboard until the advertiser-specific workflow is implemented |
+| R-05 | User explicitly requests a safe internal non-default redirect | Preserve that internal destination |
+| R-06 | Redirect parameter is protocol-relative, contains backslashes or control characters | Reject it and use the safe default |
