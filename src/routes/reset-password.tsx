@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Briefcase, Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,17 +27,23 @@ function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+  const recoveryEventSeen = useRef(false);
 
   useEffect(() => {
     let active = true;
     // Supabase delivers a recovery session from the emailed link. It may land
     // either already exchanged, or via the PASSWORD_RECOVERY event.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" && active) setPhase("ready");
+      if (event === "PASSWORD_RECOVERY" && active) {
+        recoveryEventSeen.current = true;
+        setPhase("ready");
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      setPhase(data.session ? "ready" : "invalid");
+      // The recovery event and initial session lookup can resolve in either
+      // order. Do not let a stale empty-session result overwrite a valid event.
+      setPhase(data.session || recoveryEventSeen.current ? "ready" : "invalid");
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, []);
