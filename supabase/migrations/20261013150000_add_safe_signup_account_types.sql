@@ -56,7 +56,10 @@ BEGIN
   -- flow currently presents the account-type choice before trigger execution.
   -- OAuth providers always go through the authenticated post-OAuth chooser,
   -- even if provider/user metadata happens to contain an account_type value.
-  IF NEW.raw_app_meta_data->>'provider' = 'email' THEN
+  IF assigned = 'super_admin' THEN
+    -- The trusted bootstrap account receives no ordinary worker/client role.
+    account_role := NULL;
+  ELSIF NEW.raw_app_meta_data->>'provider' = 'email' THEN
     IF NEW.raw_user_meta_data->>'account_type' = 'employer' THEN
       account_role := 'employer';
     ELSIF NEW.raw_user_meta_data->>'account_type' = 'job_seeker' THEN
