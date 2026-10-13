@@ -40,5 +40,7 @@ Scope: source repository review and previously observed schema/advisor findings.
 
 ## Current CI state
 - First `npm ci` attempt failed before the app build because package manifest and lockfile were inconsistent.
-- CI was changed to use `npm install` for the next verification attempt; this is a temporary diagnostic workaround, not a completed lockfile repair.
-- No successful production build or end-to-end test has been confirmed at the time of this document.
+- A subsequent CI run completed the production build successfully after using `npm install`; this confirms the code compiled in that runner, not that auth/payment flows work end-to-end.
+- CI was then strengthened to regenerate the lockfile inside its isolated runner, run `npm ci`, and build. That latest workflow run is still awaiting a result.
+- The regenerated lockfile has not yet been committed to the repository; clean install from the committed lockfile remains unresolved.
+- No end-to-end auth, payment, RLS or isolated database migration test has been confirmed at the time of this document.
