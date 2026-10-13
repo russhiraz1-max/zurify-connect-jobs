@@ -24,7 +24,7 @@ Legend:
 
 ### Step 2.1 — Authentication and account-role foundation
 
-- [~] Restrict redirect destinations to internal routes and improve post-auth navigation.
+- [~] Restrict redirect destinations to internal routes and improve post-auth navigation, including sending staff/admin/super-admin accounts to `/admin` by default while preserving explicit safe internal redirects.
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
