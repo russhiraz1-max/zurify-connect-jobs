@@ -189,3 +189,5 @@ Do not close security findings until the complete migration chain applies cleanl
 
 | C-05 | Staff/super-admin or mixed-role account calls `create_client_task` directly | Denied; draft creation is limited to a client-only role set |
 | C-06 | Client-only account with baseline `user` + `employer` creates a draft | Allowed, saved as `draft`, with no publish/fund side effect |
+
+| T-10 | Legacy account has baseline `user` plus a future/non-baseline role such as `ai_company` | Backfill leaves it unchanged; only accounts whose role rows are all exactly `user` receive `job_seeker` |
