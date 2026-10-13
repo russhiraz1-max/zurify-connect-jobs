@@ -33,7 +33,8 @@ function ChooseAccountTypePage() {
       return;
     }
     if (hasAccountType || hasSpecialRole) {
-      void navigate({ to: roles.includes("employer") ? "/client-dashboard" : "/dashboard", replace: true });
+      const isAdmin = roles.some(role => ["super_admin", "staff", "admin"].includes(role));
+      void navigate({ to: isAdmin ? "/admin" : roles.includes("employer") ? "/client-dashboard" : "/dashboard", replace: true });
     }
   }, [user, sessionLoading, rolesLoading, hasAccountType, hasSpecialRole, roles, navigate]);
 
