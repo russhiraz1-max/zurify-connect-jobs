@@ -30,6 +30,8 @@ jobs:
         run: supabase start
       - name: Apply the complete migration chain to local Postgres
         run: supabase db reset --local --no-seed
+      - name: Run database security smoke tests
+        run: supabase test db
       - name: Stop disposable Supabase stack
         if: always()
         run: supabase stop --no-backup
