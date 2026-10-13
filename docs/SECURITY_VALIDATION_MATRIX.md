@@ -145,3 +145,12 @@ Do not close security findings until the complete migration chain applies cleanl
 |---|---|---|
 | W-11 | Reject one withdrawal while the wallet's aggregate pending reserve differs from the sum of all pending withdrawal requests | Rejection fails atomically with a reconciliation error; neither wallet balances nor request status change |
 | W-12 | Two concurrent rejection attempts target different pending withdrawals for the same wallet | Wallet row lock serializes reserve checks; each successful rejection releases only its own request, and duplicate/retried rejection cannot release twice |
+
+
+## Withdrawal fee arithmetic tests (added after source review)
+
+| ID | Test | Expected result |
+|---|---|---|
+| W-13 | Fee basis points are NULL, negative, or above 10,000 | Withdrawal request fails before changing wallet balances |
+| W-14 | Fee configuration would make net payout zero or negative | Withdrawal request fails; no reserve or request is created |
+| W-15 | Large valid cent amount is used with a valid fee rate | Numeric intermediate arithmetic avoids 32-bit multiplication overflow; gross equals net plus fee |
