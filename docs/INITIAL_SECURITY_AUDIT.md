@@ -287,3 +287,10 @@ Added an idempotent, narrowly scoped backfill to `20261013150000_add_safe_signup
 The draft-task RPC originally allowed staff through `is_staff()`, although the client workspace's own-task query is scoped to employer-owned tasks and the UI is meant for clients. Tightened the RPC to require an employer role and fail closed if the caller has any role other than baseline `user` plus `employer`. This also denies mixed client/worker and privileged-role accounts.
 
 **Status:** source-only. Validate client task creation and staff/administrator/mixed-role denial against a disposable database; the RPC must always create a draft and must never reserve funds or publish a task.
+
+
+### Future-role fail-closed check for worker RPCs
+
+Extended the strict role allowlist to `apply_to_task`, `submit_task`, and `request_withdrawal`: callers must have `job_seeker` and every role row must be either baseline `user` or `job_seeker`. This closes the future-role gap where a mixed `job_seeker` + `ai_company` account could otherwise pass a blacklist that only named today's roles.
+
+**Status:** source-only. Test every RPC with freelancer-only, client-only, mixed worker/client, privileged, roleless and future-role accounts on an isolated database.
