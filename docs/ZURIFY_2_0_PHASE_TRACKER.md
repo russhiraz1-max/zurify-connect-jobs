@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified build at this update:** GitHub Actions run #256 passed for PR head `957da0d9cab483f0850d64c883e4ba245faeb0da`. Dependency installation and frontend production compilation passed; SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
+**Latest verified build at this update:** GitHub Actions run #272 passed for source head `fc271a5613c61ee2a03e50d01d51f66602fb6b19`. Dependency installation and frontend production compilation passed after worker RPC role checks and the client-dashboard route guard. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
