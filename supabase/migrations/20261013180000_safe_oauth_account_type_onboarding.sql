@@ -44,15 +44,20 @@ BEGIN
   requested_type := NEW.raw_user_meta_data->>'account_type';
   provider_name := NEW.raw_app_meta_data->>'provider';
 
-  IF requested_type = 'employer' THEN
-    account_role := 'employer';
-  ELSIF requested_type = 'job_seeker' THEN
-    account_role := 'job_seeker';
-  ELSIF provider_name = 'email' THEN
-    -- Preserve the existing default for email/password signup.
-    account_role := 'job_seeker';
+  -- Only the email/password flow presents the role choice before the trigger.
+  -- OAuth and unknown-provider accounts always use the authenticated chooser,
+  -- even if their user-editable metadata contains an account_type value.
+  IF provider_name = 'email' THEN
+    IF requested_type = 'employer' THEN
+      account_role := 'employer';
+    ELSIF requested_type = 'job_seeker' THEN
+      account_role := 'job_seeker';
+    ELSE
+      -- Preserve a safe default for email/password signup.
+      account_role := 'job_seeker';
+    END IF;
   ELSE
-    -- OAuth signup without explicit role metadata must complete onboarding.
+    -- Missing/unknown provider metadata fails closed to post-auth onboarding.
     account_role := NULL;
   END IF;
 
@@ -79,6 +84,7 @@ AS $$
 DECLARE
   target_role public.app_role;
   existing_role public.app_role;
+  existing_role_count integer;
 BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
@@ -106,17 +112,19 @@ BEGIN
     RAISE EXCEPTION 'Account-type onboarding is not available for this role' USING ERRCODE = '42501';
   END IF;
 
-  SELECT role INTO existing_role
+  SELECT count(*), min(role::text)::public.app_role
+    INTO existing_role_count, existing_role
   FROM public.user_roles
   WHERE user_id = auth.uid()
-    AND role IN ('job_seeker', 'employer')
-  LIMIT 1;
+    AND role IN ('job_seeker', 'employer');
 
-  IF FOUND THEN
+  IF existing_role_count > 1 THEN
+    RAISE EXCEPTION 'Account has conflicting account types; contact support' USING ERRCODE = '42501';
+  ELSIF existing_role_count = 1 THEN
     IF existing_role = target_role THEN
       RETURN existing_role::text;
     END IF;
-    RAISE EXCEPTION 'Account type has already been selected' USING ERRCODE = '23505';
+    RAISE EXCEPTION 'Account type has already been selected' USING ERRCODE = '42501';
   END IF;
 
   INSERT INTO public.user_roles (user_id, role)
