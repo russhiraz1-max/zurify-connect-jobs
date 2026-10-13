@@ -72,3 +72,7 @@ A new migration `20261013120000_zurify_2_0_column_level_privileges.sql` revokes 
 - **Analytics authorization:** the inspected `admin_analytics_series(integer)` SECURITY DEFINER function had no role check while authenticated users were granted execute. New migration `20261013123000_secure_analytics_and_internal_metrics.sql` requires `is_staff(auth.uid())` and bounds the date window to 1–365 days.
 - **Internal metric helper exposure:** same migration revokes direct execute on `get_user_reputation(uuid)` and `challenge_progress(uuid, public.challenges)` from PUBLIC/anon/authenticated. These should remain callable through the existing protected SECURITY DEFINER parent RPCs only.
 - Test in isolated DB before closing; do not apply to production.
+
+
+## Test plan
+See `docs/SECURITY_VALIDATION_MATRIX.md` for the proposed isolated Supabase test matrix. These cases are not marked passed until the complete migration chain has been applied to a disposable project and the tests have been run.
