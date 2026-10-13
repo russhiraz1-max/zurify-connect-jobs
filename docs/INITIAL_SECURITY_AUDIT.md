@@ -209,3 +209,10 @@ A follow-up review found a mismatch: the account-role trigger previously default
 Updated `20261013150000_add_safe_signup_account_types.sql` so only the email/password provider consumes the allowlisted `account_type` metadata and defaults to `job_seeker` when that metadata is absent/invalid. OAuth and unknown/missing-provider accounts receive only the baseline `user` role and must use the authenticated chooser, even if user metadata contains an `account_type` value.
 
 **Status:** source-level correction, not DB-tested. Verify actual `raw_app_meta_data.provider` values for email and Google in a disposable Supabase project, plus OAuth callback/reload and email confirmation flows. If provider metadata differs in the target Supabase setup, update the condition before rollout.
+
+
+## Admin shell access guard
+
+The shared `AdminShell` previously rendered its navigation and child content without waiting for or enforcing a staff-role check. Added a client-side guard that waits for `useRoles()` to resolve, renders no admin children for non-staff accounts, and redirects them to the normal dashboard. This is defense in depth only: table RLS, route/server authorization and protected RPC checks must remain authoritative, and each sensitive RPC must independently verify its caller.
+
+**Status:** frontend source change; requires a successful build and role-based route tests. Verify that ordinary users and advertisers cannot see admin content, staff can see only permission-allowed tools, and super-admin retains the full console. Do not treat this UI guard as a substitute for database authorization.
