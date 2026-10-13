@@ -58,6 +58,8 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 - Duplicate active applications remain prevented.
 - Repeated/replayed approval cannot issue duplicate earnings.
 - Suspension blocks apply/submit operations at the database layer, not just the UI.
+- A user whose profile row is missing cannot call apply/submit; no application/submission is inserted.
+- Concurrent suspension and apply/submit operations serialize on the profile row; if suspension wins the lock first, the task action is denied.
 
 ## Exit criteria
 
