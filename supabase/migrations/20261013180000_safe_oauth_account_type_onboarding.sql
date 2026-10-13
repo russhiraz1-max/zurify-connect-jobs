@@ -116,6 +116,18 @@ BEGIN
     RAISE EXCEPTION 'Account-type onboarding is not available for this role' USING ERRCODE = '42501';
   END IF;
 
+  -- Fail closed if any future/special role is present. The onboarding RPC may
+  -- only complete a baseline user account; it must not attach a worker/client
+  -- role to AI-company, advertiser, staff, or other future account classes.
+  IF EXISTS (
+    SELECT 1
+    FROM public.user_roles
+    WHERE user_id = auth.uid()
+      AND role NOT IN ('user', 'job_seeker', 'employer')
+  ) THEN
+    RAISE EXCEPTION 'Account has an unsupported role; contact support' USING ERRCODE = '42501';
+  END IF;
+
   SELECT count(*), min(role::text)::public.app_role
     INTO existing_role_count, existing_role
   FROM public.user_roles
