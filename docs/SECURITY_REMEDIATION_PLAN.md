@@ -65,3 +65,10 @@ Source evidence: inspected `apply_to_task` and `submit_task` definitions count r
 ## Implemented in branch; validation pending
 
 A new migration `20261013120000_zurify_2_0_column_level_privileges.sql` revokes broad authenticated-client profile INSERT/UPDATE and application UPDATE grants, then grants only profile-form fields and non-privileged application content columns. This is a source change only: the full migration chain has not yet been executed against a disposable database. Verify current client flows and direct REST attempts before considering the finding closed. Do not apply to production.
+
+
+## New high-priority fix drafted (validation pending)
+
+- **Analytics authorization:** the inspected `admin_analytics_series(integer)` SECURITY DEFINER function had no role check while authenticated users were granted execute. New migration `20261013123000_secure_analytics_and_internal_metrics.sql` requires `is_staff(auth.uid())` and bounds the date window to 1–365 days.
+- **Internal metric helper exposure:** same migration revokes direct execute on `get_user_reputation(uuid)` and `challenge_progress(uuid, public.challenges)` from PUBLIC/anon/authenticated. These should remain callable through the existing protected SECURITY DEFINER parent RPCs only.
+- Test in isolated DB before closing; do not apply to production.
