@@ -264,3 +264,10 @@ The withdrawal request RPC now rejects invalid fee settings (NULL, negative, or 
 The withdrawal approval RPC previously checked only that the wallet aggregate was at least the current request amount. The source migration now checks that the aggregate pending reserve equals the sum of all pending withdrawal requests before approving a payout, and that gross amount equals positive net payout plus a non-negative fee. Referral commission multiplication now uses numeric arithmetic to avoid integer overflow. This complements the rejection-path reconciliation check.
 
 **Status:** source-only. Validate approval/rejection races, old inconsistent requests, referral calculations and full transaction rollback in a disposable Supabase database. This is not a complete authoritative ledger: reserve/release movements still are not fully represented in the current wallet history.
+
+
+### Engagement reward role isolation
+
+Source review found that engagement claim functions such as daily streak, lucky reward, mystery box, challenge claim and badge sync are SECURITY DEFINER functions and did not consistently enforce the freelancer account type. The internal credit helper already revokes direct execute from authenticated clients, but client-only accounts could still attempt the parent claim RPCs. Added a database trigger guard on streak, lucky, mystery, challenge and badge claim rows. For authenticated API requests it requires the caller to own the row, have a freelancer-only role, and not be suspended; anon writes are rejected. Trusted server/migration contexts remain available for controlled maintenance.
+
+**Status:** source-only. Test every claim RPC and direct table write with freelancer, client, mixed-role, staff, super-admin, advertiser, suspended and service-role identities. This does not replace a full review of every SECURITY DEFINER function.
