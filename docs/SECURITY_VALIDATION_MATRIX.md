@@ -139,3 +139,7 @@ Do not close security findings until the complete migration chain applies cleanl
 | R-14 | Account has both `job_seeker` and `employer` roles | Worker apply/submit/withdraw operations fail closed pending role reconciliation |
 | R-15 | Existing user-only account after the role-backfill migration | Receives `job_seeker` only if it has no worker/client/special role; verify it can use legitimate worker flows |
 | R-16 | OAuth account before completing account-type onboarding | Cannot apply, submit or request a withdrawal |
+
+
+| W-11 | Reject one withdrawal while the wallet's aggregate pending reserve differs from the sum of all pending withdrawal requests | Rejection fails atomically with a reconciliation error; neither wallet balances nor request status change |
+| W-12 | Two concurrent rejection attempts target different pending withdrawals for the same wallet | Wallet row lock serializes reserve checks; each successful rejection releases only its own request, and duplicate/retried rejection cannot release twice |
