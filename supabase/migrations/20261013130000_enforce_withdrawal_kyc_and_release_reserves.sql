@@ -43,11 +43,15 @@ BEGIN
   -- Withdrawals are a freelancer capability, not a general authenticated-user
   -- capability. Fail closed for client, staff, advertiser and mixed-role accounts.
   IF NOT public.has_role(auth.uid(), 'job_seeker'::public.app_role)
-     OR public.has_role(auth.uid(), 'employer'::public.app_role)
-     OR public.has_role(auth.uid(), 'staff'::public.app_role)
-     OR public.has_role(auth.uid(), 'super_admin'::public.app_role)
-     OR public.has_role(auth.uid(), 'admin'::public.app_role)
-     OR public.has_role(auth.uid(), 'advertiser'::public.app_role) THEN
+     OR EXISTS (
+       SELECT 1
+       FROM public.user_roles ur
+       WHERE ur.user_id = auth.uid()
+         AND ur.role NOT IN (
+           'user'::public.app_role,
+           'job_seeker'::public.app_role
+         )
+     ) THEN
     RAISE EXCEPTION 'Freelancer account required' USING ERRCODE = '42501';
   END IF;
 
