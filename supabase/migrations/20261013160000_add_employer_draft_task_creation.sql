@@ -34,7 +34,15 @@ BEGIN
   END IF;
 
   IF NOT public.has_role(auth.uid(), 'employer'::public.app_role)
-     OR public.has_role(auth.uid(), 'job_seeker'::public.app_role) THEN
+     OR EXISTS (
+       SELECT 1
+       FROM public.user_roles ur
+       WHERE ur.user_id = auth.uid()
+         AND ur.role NOT IN (
+           'user'::public.app_role,
+           'employer'::public.app_role
+         )
+     ) THEN
     RAISE EXCEPTION 'Client-only account required' USING ERRCODE = '42501';
   END IF;
 
