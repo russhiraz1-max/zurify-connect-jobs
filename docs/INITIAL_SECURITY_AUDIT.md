@@ -188,7 +188,7 @@ This means the displayed transaction history does not represent every balance tr
 
 ## OAuth account-type RPC gap — source implementation added
 
-The account selection route calls `public.complete_account_type(text)`. The frontend route and root redirect existed, but the matching migration was absent from the reviewed migration set. Added `20261013180000_complete_oauth_account_type.sql` on the feature branch.
+The account selection route calls `public.complete_account_type(text)`. The frontend route and root redirect existed, but the matching migration was absent from the reviewed migration set. Added `20261013180000_safe_oauth_account_type_onboarding.sql` on the feature branch.
 
 The function:
 - accepts only `job_seeker` or `employer`;
