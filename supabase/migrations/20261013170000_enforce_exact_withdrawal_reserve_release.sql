@@ -2,10 +2,13 @@
 -- released. This avoids silently masking a reserve mismatch with GREATEST/LEAST.
 -- Source-only until exercised against a disposable 2.0 database.
 
+-- Keep the three-argument overload explicit. A DEFAULT here overlaps the
+-- legacy two-argument RPC and can make PostgREST overload resolution ambiguous.
+-- The two-argument wrapper delegates to this function with FALSE.
 CREATE OR REPLACE FUNCTION public.reject_withdrawal(
   _id uuid,
   _reason text,
-  _suspend_withdrawals boolean DEFAULT false
+  _suspend_withdrawals boolean
 )
 RETURNS void
 LANGUAGE plpgsql
