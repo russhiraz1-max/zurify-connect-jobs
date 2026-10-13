@@ -31,7 +31,11 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const initialTab = search.mode === "signup" || search.ref ? "signup" : "signin";
   const navigate = useNavigate();
-  const redirectTo = search.redirect ?? "/dashboard";
+  // Only allow internal app paths; never accept protocol-relative or external redirects.
+  const requestedRedirect = search.redirect ?? "/dashboard";
+  const redirectTo = requestedRedirect.startsWith("/") && !requestedRedirect.startsWith("//")
+    ? requestedRedirect
+    : "/dashboard";
 
   const [tab, setTab] = useState<"signin" | "signup">(initialTab);
   const [loading, setLoading] = useState(false);
@@ -57,7 +61,7 @@ function AuthPage() {
       return;
     }
     toast.success("Welcome back!");
-    navigate({ to: redirectTo });
+    navigate({ to: redirectTo as never, replace: true });
   }
 
   async function handleForgotPassword() {
@@ -79,7 +83,7 @@ function AuthPage() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}/`,
         data: { full_name: fullName },
       },
     });
@@ -91,14 +95,18 @@ function AuthPage() {
       else toast.success("Referral code applied!");
     }
     setLoading(false);
+    if (!data.session) {
+      toast.success("Account created. Check your email to confirm your address, then you will be redirected to your dashboard.");
+      return;
+    }
     toast.success("Account created!");
-    navigate({ to: redirectTo });
+    navigate({ to: redirectTo as never, replace: true });
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/`,
     });
     if (result.error) {
       setGoogleLoading(false);
