@@ -13,7 +13,7 @@ AS $$
 DECLARE
   s RECORD;
   assigned public.app_role := 'user';
-  account_role public.app_role := 'job_seeker';
+  account_role public.app_role;
 BEGIN
   SELECT * INTO s
   FROM public.application_settings
@@ -45,17 +45,26 @@ BEGIN
   -- non-privileged roles and can never grant admin, staff, or advertiser.
   IF NEW.raw_user_meta_data->>'account_type' = 'employer' THEN
     account_role := 'employer';
-  ELSE
+  ELSIF NEW.raw_user_meta_data->>'account_type' = 'job_seeker' THEN
     account_role := 'job_seeker';
+  ELSIF COALESCE(NEW.raw_app_meta_data->>'provider', 'email') = 'email' THEN
+    -- Email/password signup keeps a safe worker default if metadata is absent
+    -- or malformed. OAuth providers without an explicit choice are left
+    -- without either application role so the post-OAuth chooser can run.
+    account_role := 'job_seeker';
+  ELSE
+    account_role := NULL;
   END IF;
 
   INSERT INTO public.user_roles (user_id, role)
   VALUES (NEW.id, assigned)
   ON CONFLICT (user_id, role) DO NOTHING;
 
-  INSERT INTO public.user_roles (user_id, role)
-  VALUES (NEW.id, account_role)
-  ON CONFLICT (user_id, role) DO NOTHING;
+  IF account_role IS NOT NULL THEN
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES (NEW.id, account_role)
+    ON CONFLICT (user_id, role) DO NOTHING;
+  END IF;
 
   RETURN NEW;
 END;
