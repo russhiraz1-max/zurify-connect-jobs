@@ -168,3 +168,13 @@ Do not close security findings until the complete migration chain applies cleanl
 | ID | Test | Expected result |
 |---|---|---|
 | O-11 | Email matches configured super-admin bootstrap address and signup metadata says `employer` or `job_seeker` | Trigger assigns the trusted super-admin role only; no ordinary client/freelancer role is added |
+
+
+## Engagement reward role-boundary tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| R-17 | Client account directly calls daily streak, lucky reward, mystery box, challenge claim or badge-sync RPC | Claim/award trigger denies the write; no claim row or wallet credit is committed |
+| R-18 | Suspended freelancer calls an engagement claim or badge-sync RPC | Denied; no claim row or wallet credit is committed |
+| R-19 | Authenticated user attempts to insert an engagement claim/badge row for another user | Denied by the trigger before any row is written |
+| R-20 | Trusted service-role maintenance operation inserts an award row | Allowed only through the trusted server credential path; never expose the service-role key to a browser |
