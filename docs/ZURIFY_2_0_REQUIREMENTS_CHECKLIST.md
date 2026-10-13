@@ -149,7 +149,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - Signup now offers **Find work** (`job_seeker`) or **Hire talent** (`employer`).
 - Signup metadata carries only that non-privileged account intent.
 - Migration `20261013150000_add_safe_signup_account_types.sql` keeps the baseline `user` role and adds only the allowlisted `job_seeker` or `employer` role. The trigger does not accept admin/staff roles from metadata.
-- Still pending: isolated database test of trigger/enum behavior, OAuth account onboarding behavior, role-specific dashboard routing, client-side task ownership and authorization policies. Do not mark role-specific workflow complete yet.
+- Implemented in source but still unverified: role-specific dashboard routing, employer-owned draft-task creation and the matching RLS policy. Still pending: isolated database tests, OAuth account onboarding, client publishing/moderation, and payment authorization. Do not mark the role-specific workflow complete yet.
 
 ## Client draft-workspace implementation started
 - Added `/client-dashboard` with a client-only entry point, draft form, and list of the signed-in account's tasks.
