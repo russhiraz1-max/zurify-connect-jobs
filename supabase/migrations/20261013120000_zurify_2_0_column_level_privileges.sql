@@ -8,10 +8,10 @@ REVOKE INSERT, UPDATE ON TABLE public.profiles FROM authenticated;
 GRANT UPDATE (full_name, headline, bio, location, website)
   ON TABLE public.profiles TO authenticated;
 
--- Application review state must only be changed by the audited review/cancel
--- RPCs. The browser currently edits application details through the RPC flow;
--- preserve direct edits only for non-privileged application content.
-REVOKE UPDATE ON TABLE public.task_applications FROM authenticated;
+-- Applications are created through the SECURITY DEFINER apply_to_task RPC,
+-- not direct browser INSERTs. Review state must only be changed by the audited
+-- review/cancel RPCs. Keep only non-privileged content fields writable directly.
+REVOKE INSERT, UPDATE ON TABLE public.task_applications FROM authenticated;
 GRANT UPDATE (note, cover_letter, experience, cv_path)
   ON TABLE public.task_applications TO authenticated;
 
