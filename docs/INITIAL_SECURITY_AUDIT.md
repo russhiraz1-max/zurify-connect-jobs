@@ -78,3 +78,25 @@ The inspected migrations add `suspended` and `withdrawal_hold` fields and privil
 - Inspect all later migrations and frontend callers before designing a forward-only 2.0 hardening migration.
 - Run the migration chain against a fresh isolated 2.0 database with synthetic data before calling a database fix verified.
 - Review every `SECURITY DEFINER` function's full body, grants, search path, caller and role gate; function-name matches or advisor counts alone are not proof of exploitability.
+
+
+## Additional migration-chain findings (review expanded to all 20 checked-in migrations)
+
+### Finding F — profile owner-update policy remains a high-risk permission to resolve
+The initial migration `20260717124948_41ff06d2-b465-4761-b91f-151978d71498.sql` grants `SELECT, INSERT, UPDATE` on `public.profiles` to `authenticated` and creates `"Users update own profile"` with `USING (auth.uid() = id)`. A later migration adds `suspended` and `withdrawal_hold` fields. A later migration changes profile SELECT visibility, but the checked-in migration chain reviewed so far does not show a corresponding column-restricted UPDATE grant or owner-update policy replacement. Direct owner updates to privileged profile fields are a serious risk until the final effective grants/policies are verified on a fresh database.
+
+**Remediation:** restrict owner updates to an explicit allowlist of safe profile columns; make suspension and withdrawal holds writable only through audited privileged RPCs. Test direct REST/PostgREST updates as a normal authenticated user.
+
+### Finding G — SECURITY DEFINER user metrics functions accept caller-supplied user IDs
+Migration `20260805005823_261146a7-0269-4692-b574-1ce0f5a75adb.sql` defines `get_user_reputation(_user_id uuid)` and `challenge_progress(_user_id uuid, _c public.challenges)` as SECURITY DEFINER functions and grants execution to authenticated users. Their bodies query submissions, KYC state, profile suspension/holds, wallet transactions, and referral activity for the supplied ID. The definitions inspected do not first require `_user_id = auth.uid()` or a staff permission. Confirm whether the returned metrics are intended to be public; otherwise enforce self-only access or a deliberately public, privacy-reviewed projection.
+
+### Finding H — legacy role semantics need a single documented policy
+The role helper migration defines `is_super_admin` using only `super_admin`, while `is_staff` recognizes `staff` and `super_admin`. Some later administrative listing logic treats legacy `admin` as super-admin-like, but that does not make `is_super_admin` return true for that role. This is an inconsistency, not proof that every route is exploitable. Establish the intended 2.0 role matrix and use it consistently in UI, SQL policies, RPCs and tests.
+
+### Findings not automatically classified as vulnerabilities
+- `application_settings` has a table-level UPDATE grant, but the inspected RLS policy explicitly requires `is_super_admin(auth.uid())` in both USING and WITH CHECK; do not report the grant alone as an authorization bypass.
+- `has_role`, `is_staff` and `is_super_admin` are executable by anon/authenticated in the inspected role-helper migration and return booleans. Execution grants alone do not prove a data leak; review their use and disclosure implications in context.
+- The KYC storage policy explicitly names owner/reviewer access in the inspected migration, but end-to-end storage path tests remain outstanding.
+
+### Scope of this review
+The checked-in migration directory contained 20 SQL migrations. Source-level review was expanded across the migration chain for profile grants/policies, application permissions, withdrawal logic, task capacity checks, role helpers and selected user-metrics functions. This is not equivalent to inspecting the effective catalog of a deployed database, and no SQL was executed against production or an isolated Supabase project.
