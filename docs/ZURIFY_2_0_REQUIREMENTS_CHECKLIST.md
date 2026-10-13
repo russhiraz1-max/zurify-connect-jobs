@@ -133,6 +133,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Write an explicit launch/rollback and data-migration decision before any cutover.
 
 ## Current checkpoint
+- Added `docs/SECURITY_VALIDATION_MATRIX.md` with isolated-database tests for profile/application column privileges, analytics RPC authorization, internal metrics helpers, withdrawals/ledger invariants, and task concurrency. Test cases are planned and not yet executed.
 - Added `20261013123000_secure_analytics_and_internal_metrics.sql`: analytics-series role check + bounded date window; direct execution revoked for internal reputation/challenge helpers. Source-only change, pending isolated-database execution and tests.
 - New migration `20261013120000_zurify_2_0_column_level_privileges.sql` narrows direct profile and application writes to allowlisted columns. Source change committed on the feature branch; not yet executed, and not a production migration.
 - Step 2 migration-source review expanded across all 20 checked-in SQL migrations. Additional profile-update and caller-supplied user-metrics risks are recorded in the initial audit and remediation plan. Effective deployed catalog and isolated database tests remain outstanding.
