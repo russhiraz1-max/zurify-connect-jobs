@@ -133,21 +133,27 @@ function RootComponent() {
 
   useEffect(() => {
     let active = true;
-    const redirectAuthenticatedEntry = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!active || !data.session || typeof window === "undefined") return;
+    const redirectIfOnEntryPage = (hasSession: boolean) => {
+      if (!active || !hasSession || typeof window === "undefined") return;
       const path = window.location.pathname;
       if (path === "/" || path === "/auth") {
-        await navigate({ to: "/dashboard", replace: true });
+        void navigate({ to: "/dashboard", replace: true });
       }
     };
-    void redirectAuthenticatedEntry();
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+
+    // Check the persisted session once on mount.
+    void supabase.auth.getSession().then(({ data }) => {
+      redirectIfOnEntryPage(Boolean(data.session));
+    });
+
+    // Use the session passed by Supabase. Do not call Supabase auth methods
+    // from inside this callback; doing so can deadlock its auth lock.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") {
         queryClient.invalidateQueries();
-        if (event === "SIGNED_IN") void redirectAuthenticatedEntry();
+        if (event === "SIGNED_IN") redirectIfOnEntryPage(Boolean(session));
       }
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
