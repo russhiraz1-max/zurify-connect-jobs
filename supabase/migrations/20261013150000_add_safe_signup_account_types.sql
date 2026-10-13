@@ -47,7 +47,7 @@ BEGIN
     account_role := 'employer';
   ELSIF NEW.raw_user_meta_data->>'account_type' = 'job_seeker' THEN
     account_role := 'job_seeker';
-  ELSIF COALESCE(NEW.raw_app_meta_data->>'provider', 'email') = 'email' THEN
+  ELSIF NEW.raw_app_meta_data->>'provider' = 'email' THEN
     -- Email/password signup keeps a safe worker default if metadata is absent
     -- or malformed. OAuth providers without an explicit choice are left
     -- without either application role so the post-OAuth chooser can run.
