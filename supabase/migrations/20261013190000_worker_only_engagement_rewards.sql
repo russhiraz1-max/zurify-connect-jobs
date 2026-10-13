@@ -23,6 +23,10 @@ BEGIN
     RAISE EXCEPTION 'Cannot claim rewards for another account' USING ERRCODE = '42501';
   END IF;
 
+  IF public.is_suspended(auth.uid()) THEN
+    RAISE EXCEPTION 'Account is suspended' USING ERRCODE = '42501';
+  END IF;
+
   IF NOT public.has_role(auth.uid(), 'job_seeker'::public.app_role)
      OR public.has_role(auth.uid(), 'employer'::public.app_role)
      OR public.has_role(auth.uid(), 'staff'::public.app_role)
