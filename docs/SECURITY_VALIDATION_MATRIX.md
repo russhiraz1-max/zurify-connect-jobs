@@ -181,3 +181,8 @@ Do not close security findings until the complete migration chain applies cleanl
 
 | R-20 | An account with `job_seeker` plus any role other than baseline `user` (including a newly introduced role such as `ai_company`) calls an engagement claim or badge-sync RPC | Denied by the strict role allowlist; no claim row or wallet credit is committed |
 | R-21 | Trusted service-role/migration operation inserts a reward claim row | Works only through the documented trusted server/database path; verify JWT role behavior explicitly and ensure the service credential is never exposed to the browser |
+
+| T-06 | Legacy account has only baseline `user` role before migration | Gets `job_seeker` role and retains legitimate worker access |
+| T-07 | Legacy account already has `employer`, `staff`, `admin`, `super_admin`, or `advertiser` role | Backfill adds no `job_seeker` role |
+| T-08 | Account has no roles at all | Backfill leaves it unchanged; no role is inferred |
+| T-09 | Backfill migration is re-run in a disposable test transaction | No duplicate role rows and no existing account role changes |
