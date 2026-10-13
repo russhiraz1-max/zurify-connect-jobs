@@ -41,18 +41,22 @@ BEGIN
     assigned := 'super_admin';
   END IF;
 
-  -- Metadata is user-editable. It may choose only between these two
-  -- non-privileged roles and can never grant admin, staff, or advertiser.
-  IF NEW.raw_user_meta_data->>'account_type' = 'employer' THEN
-    account_role := 'employer';
-  ELSIF NEW.raw_user_meta_data->>'account_type' = 'job_seeker' THEN
-    account_role := 'job_seeker';
-  ELSIF NEW.raw_app_meta_data->>'provider' = 'email' THEN
-    -- Email/password signup keeps a safe worker default if metadata is absent
-    -- or malformed. OAuth providers without an explicit choice are left
-    -- without either application role so the post-OAuth chooser can run.
-    account_role := 'job_seeker';
+  -- Account type metadata is user-editable. Only the email/password signup
+  -- flow currently presents the account-type choice before trigger execution.
+  -- OAuth providers always go through the authenticated post-OAuth chooser,
+  -- even if provider/user metadata happens to contain an account_type value.
+  IF NEW.raw_app_meta_data->>'provider' = 'email' THEN
+    IF NEW.raw_user_meta_data->>'account_type' = 'employer' THEN
+      account_role := 'employer';
+    ELSIF NEW.raw_user_meta_data->>'account_type' = 'job_seeker' THEN
+      account_role := 'job_seeker';
+    ELSE
+      -- Email/password signup defaults safely to a worker account if metadata
+      -- is missing or malformed.
+      account_role := 'job_seeker';
+    END IF;
   ELSE
+    -- Unknown/missing provider metadata fails closed to the chooser.
     account_role := NULL;
   END IF;
 
