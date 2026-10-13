@@ -8,7 +8,7 @@ RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE t RECORD; existing RECORD; app_count integer; new_id uuid; p RECORD;
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
-  SELECT suspended INTO p FROM public.profiles WHERE id=auth.uid();
+  SELECT suspended INTO p FROM public.profiles WHERE id=auth.uid() FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Profile not found'; END IF;
   IF p.suspended THEN RAISE EXCEPTION 'Account is suspended'; END IF;
   SELECT * INTO t FROM public.tasks WHERE id=_task_id AND status='published' FOR UPDATE;
@@ -56,13 +56,12 @@ END; $$;
 
 CREATE OR REPLACE FUNCTION public.submit_task(_task_id uuid, _proof_text text DEFAULT NULL, _proof_url text DEFAULT NULL, _attachments jsonb DEFAULT NULL)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE t RECORD; my_count integer; total_count integer; sub_id uuid; approved_app integer;
+DECLARE t RECORD; my_count integer; total_count integer; sub_id uuid; approved_app integer; p RECORD;
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
-  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id=auth.uid()) THEN
-    RAISE EXCEPTION 'Profile not found';
-  END IF;
-  IF public.is_suspended(auth.uid()) THEN RAISE EXCEPTION 'Account is suspended'; END IF;
+  SELECT suspended INTO p FROM public.profiles WHERE id=auth.uid() FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Profile not found'; END IF;
+  IF p.suspended THEN RAISE EXCEPTION 'Account is suspended'; END IF;
   SELECT * INTO t FROM public.tasks WHERE id=_task_id AND status='published' FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Task not available'; END IF;
   IF t.starts_at IS NOT NULL AND now()<t.starts_at THEN RAISE EXCEPTION 'Task not started yet'; END IF;
