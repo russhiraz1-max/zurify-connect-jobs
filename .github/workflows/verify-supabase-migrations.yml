@@ -3,15 +3,21 @@ name: Verify Supabase migrations (isolated local database)
 on:
   pull_request:
     branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/verify-supabase-migrations.yml"
   push:
     branches: [feat/zurify-2.0-foundation]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/verify-supabase-migrations.yml"
 
 permissions:
   contents: read
 
 concurrency:
   group: migrations-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   migration-reset:
