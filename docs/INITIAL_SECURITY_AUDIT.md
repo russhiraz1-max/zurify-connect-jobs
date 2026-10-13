@@ -166,3 +166,10 @@ The email/password signup form submits `account_type` metadata, and the signup t
 **Status:** identified; not patched in this step because passing arbitrary provider parameters is not a reliable or safe way to assign application roles.
 
 **Required solution:** implement an explicit post-OAuth onboarding step or a narrowly scoped authenticated RPC that can assign only non-privileged account types, then test new OAuth signups, existing OAuth sign-ins, retries, and role switching. Never allow client-controlled metadata or OAuth query parameters to assign staff/admin roles.
+
+
+## Follow-up task-action audit — profile existence and suspension race
+
+The capacity-serialization migration now locks the caller's profile row before checking suspension in both `apply_to_task` and `submit_task`. It also rejects the operation if the profile row is missing. This closes a source-level gap where a missing profile could leave a NULL suspension value and let the operation continue, and serializes task actions against concurrent profile suspension updates.
+
+**Validation status:** source-only. The migration has not been applied to a database. Test profile deletion/missing-profile behavior, concurrent suspension and task actions, transaction rollback, and application/submission capacity under concurrent requests on a disposable database.
