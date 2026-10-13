@@ -37,3 +37,6 @@
 
 ## Signup role foundation (source-only, not yet DB-tested)
 The signup form now lets a person choose **Find work** or **Hire talent**. A new trigger migration stores this as a non-privileged `job_seeker` or `employer` role while retaining the baseline `user` role and the existing trusted super-admin bootstrap. User-editable auth metadata is never accepted for staff/admin privileges. This is only the account-type foundation; separate client/AI-company workflows and role-specific task ownership/RLS remain subsequent milestones.
+
+## Client workspace milestone — draft-only
+The first client-side workflow now includes an employer-role workspace, a draft creation form, and a list of tasks owned by the current account. Database-side `create_client_task` validation restricts creation to the employer role (or staff where the function explicitly allows it), rejects suspended accounts, applies input bounds, and forces every created task to `draft`. It does not let a client publish a task or authorize payment. Test the full migration chain and RLS in an isolated database before calling this milestone complete.
