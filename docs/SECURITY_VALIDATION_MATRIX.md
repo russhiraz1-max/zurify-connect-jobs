@@ -186,3 +186,6 @@ Do not close security findings until the complete migration chain applies cleanl
 | T-07 | Legacy account already has `employer`, `staff`, `admin`, `super_admin`, or `advertiser` role | Backfill adds no `job_seeker` role |
 | T-08 | Account has no roles at all | Backfill leaves it unchanged; no role is inferred |
 | T-09 | Backfill migration is re-run in a disposable test transaction | No duplicate role rows and no existing account role changes |
+
+| C-05 | Staff/super-admin or mixed-role account calls `create_client_task` directly | Denied; draft creation is limited to a client-only role set |
+| C-06 | Client-only account with baseline `user` + `employer` creates a draft | Allowed, saved as `draft`, with no publish/fund side effect |
