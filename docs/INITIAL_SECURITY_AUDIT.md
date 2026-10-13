@@ -216,3 +216,12 @@ Updated `20261013150000_add_safe_signup_account_types.sql` so only the email/pas
 The shared `AdminShell` previously rendered its navigation and child content without waiting for or enforcing a staff-role check. Added a client-side guard that waits for `useRoles()` to resolve, renders no admin children for non-staff accounts, and redirects them to the normal dashboard. This is defense in depth only: table RLS, route/server authorization and protected RPC checks must remain authoritative, and each sensitive RPC must independently verify its caller.
 
 **Status:** frontend source change; requires a successful build and role-based route tests. Verify that ordinary users and advertisers cannot see admin content, staff can see only permission-allowed tools, and super-admin retains the full console. Do not treat this UI guard as a substitute for database authorization.
+
+
+## Withdrawal rejection RPC overload ambiguity
+
+Source review found both `reject_withdrawal(uuid,text)` and `reject_withdrawal(uuid,text,boolean DEFAULT false)`. The admin UI calls the three-argument overload; older clients may call the two-argument overload. Keeping a default on the third argument overlaps those signatures and can make PostgREST RPC resolution ambiguous.
+
+Updated `20261013170000_enforce_exact_withdrawal_reserve_release.sql` to require the third argument explicitly on the three-argument function. The two-argument wrapper delegates with `false`, while the current admin UI passes the boolean explicitly.
+
+**Status:** source-level fix only. On a disposable Supabase database, apply migrations in order and verify PostgREST can resolve both argument shapes, then test that each path authorizes staff, changes a pending request once, releases exactly the matching reserve, and rejects retries or reserve mismatches atomically.
