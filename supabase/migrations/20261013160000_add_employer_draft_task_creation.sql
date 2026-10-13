@@ -10,6 +10,15 @@ CREATE POLICY "employers read own tasks"
   USING (
     created_by = auth.uid()
     AND public.has_role(auth.uid(), 'employer'::public.app_role)
+    AND NOT EXISTS (
+      SELECT 1
+      FROM public.user_roles ur
+      WHERE ur.user_id = auth.uid()
+        AND ur.role NOT IN (
+          'user'::public.app_role,
+          'employer'::public.app_role
+        )
+    )
   );
 
 CREATE OR REPLACE FUNCTION public.create_client_task(
