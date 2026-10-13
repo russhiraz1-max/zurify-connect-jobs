@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(16);
+SELECT plan(21);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -115,6 +115,68 @@ SELECT ok(
 SELECT ok(
   (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.task_applications'::regclass),
   'task_applications table has row-level security enabled'
+);
+
+
+-- Behavioral onboarding checks using synthetic auth users. This file runs only
+-- against the disposable local Supabase database; the surrounding transaction
+-- is rolled back at the end of the test.
+INSERT INTO auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30001',
+  'authenticated', 'authenticated', 'zurify-oauth-test@example.invalid', '',
+  now(),
+  '{"provider":"google","providers":["google"]}'::jsonb,
+  '{"account_type":"employer"}'::jsonb,
+  now(), now()
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = '9e21a05e-5f12-4df6-94a7-4d6fbeb30001'
+      AND role = 'user'
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = '9e21a05e-5f12-4df6-94a7-4d6fbeb30001'
+      AND role IN ('job_seeker', 'employer')
+  ),
+  'OAuth metadata alone cannot silently assign a worker/client role'
+);
+
+SELECT set_config(
+  'request.jwt.claim.sub',
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30001',
+  true
+);
+SELECT set_config('request.jwt.claim.role', 'authenticated', true);
+
+SELECT is(
+  public.complete_account_type('employer'),
+  'employer',
+  'OAuth user can complete onboarding with the selected client role'
+);
+
+SELECT ok(
+  public.has_role('9e21a05e-5f12-4df6-94a7-4d6fbeb30001', 'employer'::public.app_role),
+  'onboarding assigns the selected role'
+);
+
+SELECT throws_ok(
+  $ SELECT public.complete_account_type('job_seeker') $,
+  '42501',
+  'Account type has already been selected',
+  'onboarding rejects switching from client to freelancer'
+);
+
+SELECT throws_ok(
+  $ SELECT public.complete_account_type('super_admin') $,
+  '22023',
+  'Choose a supported account type',
+  'onboarding rejects privileged or unsupported role values'
 );
 
 SELECT * FROM finish();
