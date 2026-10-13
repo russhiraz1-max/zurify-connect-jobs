@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified build at this update:** GitHub Actions run #272 passed for source head `fc271a5613c61ee2a03e50d01d51f66602fb6b19`. Dependency installation and frontend production compilation passed after worker RPC role checks and the client-dashboard route guard. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
+**Latest verified build at this update:** GitHub Actions run #318 passed for source head `23e60631b2aa27bdb2db101dbc19c57e5cc9f0a1`. Dependency installation and frontend production compilation passed after withdrawal reserve/fee checks and engagement reward role-boundary source changes. SQL migrations, role isolation and OAuth behavior remain untested against Supabase.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -44,6 +44,7 @@ Legend:
 - [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
 - [ ] Run all migrations in order against a disposable 2.0 database.
 - [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
+- [~] Add a trigger guard for engagement claim rows (streak, lucky, mystery, challenge, badge) so authenticated claim writes require a non-suspended freelancer-only account; validate all trigger/RPC combinations in isolated Supabase before considering closed.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
 - [ ] Resolve `package.json` / `package-lock.json` drift with a real regenerated and committed lockfile.
 - [ ] Complete lint, automated tests, and a historical secret-exposure review.
