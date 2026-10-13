@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, type ReactNode } from "react";
 import {
   Shield, LayoutDashboard, ListChecks, Send, FileCheck2, ArrowDownToLine,
   Users, UserCog, Tag, Flag, Megaphone, ScrollText, Settings as SettingsIcon,
@@ -44,7 +44,24 @@ const NAV: NavItem[] = [
 
 export function AdminShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
-  const { isSuperAdmin, has } = useRoles();
+  const navigate = useNavigate();
+  const { isSuperAdmin, isStaff, has, loading } = useRoles();
+
+  useEffect(() => {
+    if (!loading && !isStaff) {
+      void navigate({ to: "/dashboard", replace: true });
+    }
+  }, [loading, isStaff, navigate]);
+
+  // Do not render admin children before staff authorization has resolved.
+  // Database RLS and RPC checks remain the actual security boundary.
+  if (loading || !isStaff) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <p className="text-sm text-muted-foreground">{loading ? "Checking admin access…" : "Redirecting to your dashboard…"}</p>
+      </div>
+    );
+  }
   const nav = NAV.filter(item => {
     if (item.exact && item.to === "/admin") return true;
     if (isSuperAdmin) return true;
