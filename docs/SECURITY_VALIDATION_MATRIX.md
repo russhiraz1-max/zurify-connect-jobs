@@ -26,6 +26,7 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 | A-04 | Member A cancels own pending application through the authorized RPC | Allowed, with expected status transition |
 | A-05 | Member A attempts to approve/reject an application through an admin RPC | Denied |
 | A-06 | Authorized reviewer uses review RPC | Allowed and audit log written |
+| A-07 | Member A attempts direct INSERT into task_applications with status='approved' or reviewer metadata | Denied; applications must be created through apply_to_task RPC |
 
 ## Analytics and internal SECURITY DEFINER helpers
 
@@ -47,6 +48,7 @@ Use only fake profile data and synthetic wallet ledger entries. Disable outbound
 - Every request's gross amount, fee and net amount satisfy a single documented equation.
 - Approval is idempotent; duplicate approval cannot debit twice or pay twice.
 - Rejection/cancellation releases the entire reserved amount exactly once.
+- PostgREST resolves the two-argument rejection RPC to the compatibility wrapper and the three-argument RPC to the explicit suspend-flag overload; neither call is ambiguous.
 - Every wallet balance change is backed by exactly one consistent ledger event.
 - Withdrawal request, reserve, approval, rejection/release, payout and fee history reconciles without double-counting; current source is known to omit explicit reserve/release transaction rows and requires a ledger design decision before this test can pass.
 - Test minimum, amount unit, fee rounding, suspension, withdrawal hold, KYC and insufficient-balance paths.
