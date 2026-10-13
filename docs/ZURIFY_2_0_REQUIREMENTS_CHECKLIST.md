@@ -196,7 +196,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 
 
 ### Authentication/onboarding edge cases to close before Phase 2 exits
-- [~] Add a post-OAuth account-type picker for newly created OAuth users without an application role, plus an RPC that only accepts `job_seeker` or `employer`. Migration and flow are still untested.
+- [~] Add a post-OAuth account-type picker and restricted `complete_account_type(text)` RPC migration. The RPC permits only `job_seeker`/`employer`, locks the user's profile row, denies privileged accounts and role switching; migration and flow remain untested.
 - [ ] Existing OAuth sign-ins must not silently change a user's account type.
 - [ ] Verify the account-type RPC cannot assign staff/admin/super-admin/advertiser roles and rejects changes after a role is already set.
 - [ ] Test OAuth retry, callback refresh, missing metadata, existing-account login and role-switch behavior with synthetic users.
