@@ -18,7 +18,7 @@ BEGIN
   END IF;
   IF r.amount_cents IS NULL OR r.net_cents IS NULL OR r.fee_cents IS NULL
      OR r.amount_cents <= 0 OR r.net_cents <= 0 OR r.fee_cents < 0
-     OR r.net_cents + r.fee_cents <> r.amount_cents THEN
+     OR r.net_cents::numeric + r.fee_cents::numeric <> r.amount_cents::numeric THEN
     RAISE EXCEPTION 'Withdrawal amount, fee and net payout do not reconcile';
   END IF;
 
