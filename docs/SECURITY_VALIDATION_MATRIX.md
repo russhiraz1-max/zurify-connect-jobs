@@ -104,6 +104,7 @@ Do not close security findings until the complete migration chain applies cleanl
 | O-08 | Existing OAuth user with an existing application role signs in | No account-type prompt and no silent role change |
 | O-09 | Two concurrent onboarding submissions choose different roles | At most one role is assigned; the other request fails without leaving both roles assigned |
 | O-10 | Authenticated user without a profile calls the onboarding RPC | Denied; no role is added |
+| O-11 | Account with a future or unsupported role (for example `ai_company`) calls the ordinary account-type onboarding RPC | Denied server-side; no worker/client role is attached |
 | O-11 | User already has both `job_seeker` and `employer` due to inconsistent legacy data and calls onboarding RPC | Denied with a conflict error; no additional role is granted |
 
 
