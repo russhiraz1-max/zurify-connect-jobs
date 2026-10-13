@@ -225,3 +225,12 @@ Source review found both `reject_withdrawal(uuid,text)` and `reject_withdrawal(u
 Updated `20261013170000_enforce_exact_withdrawal_reserve_release.sql` to require the third argument explicitly on the three-argument function. The two-argument wrapper delegates with `false`, while the current admin UI passes the boolean explicitly.
 
 **Status:** source-level fix only. On a disposable Supabase database, apply migrations in order and verify PostgREST can resolve both argument shapes, then test that each path authorizes staff, changes a pending request once, releases exactly the matching reserve, and rejects retries or reserve mismatches atomically.
+
+
+## Task execution role isolation
+
+The capacity-serialization migration also contains the authoritative `apply_to_task` and `submit_task` RPCs. Source review found that the functions checked authentication and suspension but did not require a freelancer role, allowing a client-role account to attempt worker actions by calling the RPC directly rather than using the UI.
+
+Updated both RPCs to require `job_seeker` and reject employer, staff, super-admin, legacy admin and advertiser roles. To avoid locking out existing ordinary accounts represented only by the legacy `user` role, `20261013150000_add_safe_signup_account_types.sql` now backfills `job_seeker` only for user-only accounts that do not already have a worker/client/special role.
+
+**Status:** source-level change only. Test the full ordered migration chain in an isolated database. Verify legacy ordinary users retain work access; employer/staff/advertiser/super-admin/admin accounts cannot apply or submit even through direct RPC calls; un-onboarded OAuth accounts cannot act as workers; and the role backfill does not add worker access to accounts with other roles.
