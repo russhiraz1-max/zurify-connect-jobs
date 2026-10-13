@@ -148,3 +148,12 @@ Migration `20261013160000_add_employer_draft_task_creation.sql` adds an employer
 **Branch remediation:** `20261013130000_enforce_withdrawal_kyc_and_release_reserves.sql` routes the legacy two-argument RPC to the three-argument implementation. `20261013170000_enforce_exact_withdrawal_reserve_release.sql` now adds an explicit reserve-exists check and releases the exact reserved amount atomically; a mismatch raises an error rather than silently under-releasing.
 
 **Validation status:** source-only. Neither migration has been executed against a database. Before this is marked verified, test pending/rejected/approved status transitions, duplicate rejection, insufficient/mismatched reserve, staff permission denial, optional withdrawal hold, notification/audit records, and rollback atomicity on a disposable 2.0 database. Never replay this as a production repair without a separately reviewed migration and reconciliation plan.
+
+
+## Follow-up source audit — legacy admin role semantics
+
+The checked-in frontend role helper previously treated both `admin` and `super_admin` as super-admin, granting the `admin` role all frontend permission checks. The database helper `is_super_admin(uuid)` recognizes only `super_admin`, while database `is_staff(uuid)` recognizes `staff` and `super_admin` but not `admin`. The admin route itself separately accepts `admin`, `staff`, `super_admin`, or users with permissions. These differences can produce misleading UI access and inconsistent authorization behavior.
+
+**Branch remediation:** the frontend now reserves the `isSuperAdmin` flag for the actual `super_admin` role; legacy `admin` still receives staff-shell navigation but no longer automatically bypasses permission checks in the UI.
+
+**Remaining work:** do not assume the role model is fully aligned. Decide the intended least-privilege capability set for legacy `admin`, reconcile SQL helpers and admin route guards, then test direct table/RPC calls as `admin`, `staff`, and `super_admin` in an isolated database.
