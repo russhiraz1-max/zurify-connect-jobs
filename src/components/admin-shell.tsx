@@ -46,19 +46,38 @@ export function AdminShell({ children, title, subtitle }: { children: ReactNode;
   const pathname = useRouterState({ select: s => s.location.pathname });
   const navigate = useNavigate();
   const { isSuperAdmin, isStaff, has, loading } = useRoles();
+  const isOverview = pathname === "/admin" || pathname === "/admin/";
+  const currentItem = NAV.find(item =>
+    item.exact
+      ? pathname === item.to
+      : pathname === item.to || pathname.startsWith(item.to + "/"),
+  );
+  // Navigation visibility is not authorization: enforce the same permission
+  // model before rendering each nested admin page for staff users.
+  const routeAllowed = isSuperAdmin || isOverview || Boolean(
+    currentItem && !currentItem.superOnly && (!currentItem.perm || has(currentItem.perm)),
+  );
 
   useEffect(() => {
-    if (!loading && !isStaff) {
+    if (loading) return;
+    if (!isStaff) {
       void navigate({ to: "/dashboard", replace: true });
+    } else if (!routeAllowed) {
+      void navigate({ to: "/admin", replace: true });
     }
-  }, [loading, isStaff, navigate]);
+  }, [loading, isStaff, routeAllowed, navigate]);
 
-  // Do not render admin children before staff authorization has resolved.
+  // Never render nested admin content before the matching role/permission check.
   // Database RLS and RPC checks remain the actual security boundary.
-  if (loading || !isStaff) {
+  if (loading || !isStaff || !routeAllowed) {
+    const message = loading
+      ? "Checking admin access…"
+      : !isStaff
+        ? "Redirecting to your dashboard…"
+        : "Redirecting to an authorized admin page…";
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <p className="text-sm text-muted-foreground">{loading ? "Checking admin access…" : "Redirecting to your dashboard…"}</p>
+        <p className="text-sm text-muted-foreground">{message}</p>
       </div>
     );
   }
