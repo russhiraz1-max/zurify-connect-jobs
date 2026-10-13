@@ -139,3 +139,12 @@ Migration `20261013150000_add_safe_signup_account_types.sql` replaces the new-us
 
 ## Client task draft boundary
 Migration `20261013160000_add_employer_draft_task_creation.sql` adds an employer-owned-task SELECT policy and a server-side `create_client_task` RPC. It checks authentication, role, suspension, bounded inputs, and optional category existence, then always inserts a draft with no featured/priority privilege. It does not add a client publish/update policy. Source review only; isolated database tests must confirm the function and policy compile and that existing admin task workflows remain intact.
+
+
+## Follow-up source audit — withdrawal rejection reserve integrity
+
+**Source evidence:** the historical two-argument `reject_withdrawal(uuid,text)` marks a pending request rejected and records notifications/audit data, but does not release `wallets.pending_withdrawal_cents` back to `available_cents`. A later three-argument overload attempts release using `GREATEST` and `LEAST`, which can conceal a reserve mismatch by releasing less than the requested amount instead of failing for reconciliation.
+
+**Branch remediation:** `20261013130000_enforce_withdrawal_kyc_and_release_reserves.sql` routes the legacy two-argument RPC to the three-argument implementation. `20261013170000_enforce_exact_withdrawal_reserve_release.sql` now adds an explicit reserve-exists check and releases the exact reserved amount atomically; a mismatch raises an error rather than silently under-releasing.
+
+**Validation status:** source-only. Neither migration has been executed against a database. Before this is marked verified, test pending/rejected/approved status transitions, duplicate rejection, insufficient/mismatched reserve, staff permission denial, optional withdrawal hold, notification/audit records, and rollback atomicity on a disposable 2.0 database. Never replay this as a production repair without a separately reviewed migration and reconciliation plan.
