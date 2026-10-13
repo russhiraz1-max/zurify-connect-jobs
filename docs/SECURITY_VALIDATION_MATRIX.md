@@ -154,3 +154,5 @@ Do not close security findings until the complete migration chain applies cleanl
 | W-13 | Fee basis points are NULL, negative, or above 10,000 | Withdrawal request fails before changing wallet balances |
 | W-14 | Fee configuration would make net payout zero or negative | Withdrawal request fails; no reserve or request is created |
 | W-15 | Large valid cent amount is used with a valid fee rate | Numeric intermediate arithmetic avoids 32-bit multiplication overflow; gross equals net plus fee |
+
+| W-16 | Minimum withdrawal amount is NULL or non-positive in settings | Request fails with invalid-settings error before moving funds |
