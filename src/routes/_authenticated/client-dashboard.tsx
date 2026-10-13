@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BriefcaseBusiness, Plus, RefreshCw } from "lucide-react";
+import { Briefcase, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -134,7 +134,7 @@ function ClientDashboardPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <BriefcaseBusiness className="h-5 w-5 text-primary" />
+              <Briefcase className="h-5 w-5 text-primary" />
               <CardTitle>Create a task draft</CardTitle>
             </div>
             <CardDescription>New tasks are saved as drafts. Publishing and payment authorization are intentionally not enabled yet.</CardDescription>
