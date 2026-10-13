@@ -33,7 +33,10 @@ function AuthPage() {
   const navigate = useNavigate();
   // Only allow internal app paths; never accept protocol-relative or external redirects.
   const requestedRedirect = search.redirect ?? "/dashboard";
-  const redirectTo = requestedRedirect.startsWith("/") && !requestedRedirect.startsWith("//")
+  const redirectTo = requestedRedirect.startsWith("/")
+    && !requestedRedirect.startsWith("//")
+    && !requestedRedirect.includes("\\")
+    && !/[\\u0000-\\u001F\\u007F]/.test(requestedRedirect)
     ? requestedRedirect
     : "/dashboard";
 
