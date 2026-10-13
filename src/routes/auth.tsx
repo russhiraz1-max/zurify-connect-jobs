@@ -51,7 +51,7 @@ function AuthPage() {
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setLoading(false); return toast.error(error.message); }
     const { data: statusRows } = await supabase.rpc("get_my_account_status" as never);
     const suspended = (statusRows as { suspended: boolean }[] | null)?.[0]?.suspended;
@@ -62,7 +62,10 @@ function AuthPage() {
       return;
     }
     toast.success("Welcome back!");
-    navigate({ to: redirectTo as never, replace: true });
+    const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", signInData.user.id);
+    const isClient = roleRows?.some((row) => row.role === "employer");
+    const destination = redirectTo === "/dashboard" && isClient ? "/client-dashboard" : redirectTo;
+    navigate({ to: destination as never, replace: true });
   }
 
   async function handleForgotPassword() {
@@ -101,7 +104,8 @@ function AuthPage() {
       return;
     }
     toast.success("Account created!");
-    navigate({ to: redirectTo as never, replace: true });
+    const destination = redirectTo === "/dashboard" && accountType === "employer" ? "/client-dashboard" : redirectTo;
+    navigate({ to: destination as never, replace: true });
   }
 
   async function handleGoogle() {
