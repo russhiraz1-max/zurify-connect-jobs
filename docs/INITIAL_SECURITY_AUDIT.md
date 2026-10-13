@@ -110,3 +110,12 @@ Migration `supabase/migrations/20261013120000_zurify_2_0_column_level_privileges
 - Leaves row-level security in place and expects privileged state changes to use existing SECURITY DEFINER RPCs.
 
 **Status: implemented in source, not yet executed or validated.** Before treating this as a fix, apply the full migration chain to a disposable Supabase database and test signup/profile editing, application editing/cancellation/review, and direct attempts to change `suspended`, `withdrawal_hold`, `status`, `reviewer_id`, `review_notes`, and `rejection_reason`. Confirm no client flow depends on direct inserts/updates outside the allowed columns. Do not apply to production.
+
+
+## Additional finding and remediation drafted — analytics RPC authorization
+
+The source review confirmed that `admin_analytics_series(integer)` was a SECURITY DEFINER SQL function granted to authenticated users, and unlike `admin_analytics_overview()`, the inspected function body had no staff-role check. Its result includes daily signup, completed-task, referral, fee, expense, profit, withdrawal-count and payout aggregates. This is a confirmed authorization gap in the checked-in migration source for any signed-in account able to invoke the RPC; deployed exploitability still depends on the effective deployed grants/function definition.
+
+A new migration `20261013123000_secure_analytics_and_internal_metrics.sql` replaces the function with a `public.is_staff(auth.uid())` check and bounds the requested window to 1–365 days. It also revokes direct API-role execution of `get_user_reputation(uuid)` and `challenge_progress(uuid, public.challenges)`, which the checked-in source calls internally from protected SECURITY DEFINER RPCs.
+
+**Status:** source code drafted, not executed. Verify staff and non-staff behavior in an isolated database, verify protected parent RPCs still work, and confirm all intended clients use the parent RPCs rather than calling the helpers directly. No production database was changed.
