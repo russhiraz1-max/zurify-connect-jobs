@@ -100,3 +100,13 @@ The role helper migration defines `is_super_admin` using only `super_admin`, whi
 
 ### Scope of this review
 The checked-in migration directory contained 20 SQL migrations. Source-level review was expanded across the migration chain for profile grants/policies, application permissions, withdrawal logic, task capacity checks, role helpers and selected user-metrics functions. This is not equivalent to inspecting the effective catalog of a deployed database, and no SQL was executed against production or an isolated Supabase project.
+
+
+## Remediation code drafted on the feature branch
+
+Migration `supabase/migrations/20261013120000_zurify_2_0_column_level_privileges.sql` now narrows direct authenticated-client writes:
+- Removes table-level INSERT/UPDATE on `profiles` and grants UPDATE only on `full_name, headline, bio, location, website`.
+- Removes table-level UPDATE on `task_applications` and grants UPDATE only on `note, cover_letter, experience, cv_path`.
+- Leaves row-level security in place and expects privileged state changes to use existing SECURITY DEFINER RPCs.
+
+**Status: implemented in source, not yet executed or validated.** Before treating this as a fix, apply the full migration chain to a disposable Supabase database and test signup/profile editing, application editing/cancellation/review, and direct attempts to change `suspended`, `withdrawal_hold`, `status`, `reviewer_id`, `review_notes`, and `rejection_reason`. Confirm no client flow depends on direct inserts/updates outside the allowed columns. Do not apply to production.
