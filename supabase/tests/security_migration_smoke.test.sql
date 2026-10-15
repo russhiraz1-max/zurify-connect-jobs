@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(40);
+SELECT plan(41);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -326,6 +326,12 @@ SELECT throws_ok(
   '42501',
   'AI-project review permission required',
   'staff without the AI-project permission cannot approve data projects'
+);
+
+
+SELECT ok(
+  has_function_privilege('anon', 'public.get_public_platform_configuration()', 'EXECUTE'),
+  'anonymous users can read the safe public theme and maintenance configuration'
 );
 
 SELECT * FROM finish();
