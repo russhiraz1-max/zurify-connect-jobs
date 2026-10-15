@@ -143,6 +143,37 @@
 }
 
 
+
+/* Admin-selectable runtime palettes. Blue remains the primary direction. */
+:root[data-theme-palette="blue-sky-indigo"] {
+  --primary: oklch(0.52 0.18 270);
+  --primary-hover: oklch(0.46 0.19 270);
+  --brand: oklch(0.52 0.18 270);
+  --accent: oklch(0.94 0.04 270);
+  --accent-foreground: oklch(0.28 0.12 270);
+  --ring: oklch(0.52 0.18 270);
+}
+:root.dark[data-theme-palette="blue-sky-indigo"] {
+  --primary: oklch(0.7 0.16 270);
+  --primary-hover: oklch(0.76 0.16 270);
+  --accent: oklch(0.3 0.06 270);
+  --ring: oklch(0.7 0.16 270);
+}
+:root[data-theme-palette="blue-sky-cyan"] {
+  --primary: oklch(0.52 0.17 235);
+  --primary-hover: oklch(0.46 0.18 235);
+  --brand: oklch(0.52 0.17 235);
+  --accent: oklch(0.94 0.04 225);
+  --accent-foreground: oklch(0.28 0.1 235);
+  --ring: oklch(0.52 0.17 235);
+}
+:root.dark[data-theme-palette="blue-sky-cyan"] {
+  --primary: oklch(0.7 0.15 235);
+  --primary-hover: oklch(0.76 0.15 235);
+  --accent: oklch(0.3 0.06 225);
+  --ring: oklch(0.7 0.15 235);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
