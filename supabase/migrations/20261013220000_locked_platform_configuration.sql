@@ -123,7 +123,7 @@ BEGIN
       'payment_provider', _payment_provider,
       'maintenance_mode', COALESCE(_maintenance_mode, false),
       'payment_activation_blocked', true,
-      'feature_flag_keys', (SELECT jsonb_agg(key ORDER BY key) FROM jsonb_object_keys(_feature_flags) AS key)
+      'feature_flag_keys', (SELECT jsonb_agg(key ORDER BY key) FROM jsonb_object_keys(_feature_flags) AS f(key))
     )
   );
 END;
@@ -131,5 +131,35 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION public.get_public_platform_configuration() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_public_platform_configuration() TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.get_admin_platform_configuration()
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_super_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'Super-admin permission required' USING ERRCODE = '42501';
+  END IF;
+  RETURN (
+    SELECT jsonb_build_object(
+      'theme_palette', theme_palette,
+      'payment_provider', payment_provider,
+      'payments_enabled', payments_enabled,
+      'maintenance_mode', maintenance_mode,
+      'feature_flags', feature_flags,
+      'updated_at', updated_at
+    )
+    FROM public.platform_configuration
+    WHERE singleton = true
+  );
+END;
+$;
+
+REVOKE EXECUTE ON FUNCTION public.get_admin_platform_configuration() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_admin_platform_configuration() TO authenticated;
+
 REVOKE EXECUTE ON FUNCTION public.update_platform_configuration(text,text,boolean,jsonb) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.update_platform_configuration(text,text,boolean,jsonb) TO authenticated;
