@@ -71,6 +71,7 @@ function AdminSettings() {
     const { data, error: reloadError } = await supabase.rpc("get_admin_platform_configuration" as never);
     if (reloadError) toast.error(reloadError.message);
     else if (data) setPlatformConfig(data as unknown as PlatformConfig);
+    if (!reloadError) document.documentElement.dataset.themePalette = platformConfig.theme_palette;
   }
 
   if (!s) return <AdminShell title="Settings"><Card><CardContent className="p-6">Loading…</CardContent></Card></AdminShell>;
