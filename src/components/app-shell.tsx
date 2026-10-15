@@ -21,6 +21,10 @@ const userNav = [
   { to: "/pro", label: "Zurify Pro", icon: Crown },
 ];
 
+const aiCompanyNav = [
+  { to: "/ai-workspace", label: "AI data workspace", icon: LayoutDashboard },
+];
+
 const accountNav = [
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/support", label: "Help & support", icon: LifeBuoy },
@@ -33,25 +37,28 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
   const navigate = useNavigate();
   const { isStaff, roles, loading: rolesLoading } = useRoles();
   const isEmployer = roles.includes("employer");
+  const isAiCompany = roles.includes("ai_company");
   const isWorkerRoute = userNav.some(item =>
     pathname === item.to || pathname.startsWith(item.to + "/"),
   );
   const isWorkerEligible = roles.includes("job_seeker")
     && roles.every(role => role === "user" || role === "job_seeker");
   const hasSpecialRole = roles.some(role =>
-    ["super_admin", "staff", "admin", "advertiser"].includes(role),
+    ["super_admin", "staff", "admin", "advertiser", "ai_company"].includes(role),
   );
   const workerRouteBlocked = isWorkerRoute && (rolesLoading || !isWorkerEligible);
 
   useEffect(() => {
     if (rolesLoading || !isWorkerRoute || isWorkerEligible) return;
-    const destination = isEmployer
-      ? "/client-dashboard"
-      : isStaff
-        ? "/admin"
-        : hasSpecialRole
-          ? "/profile"
-          : "/choose-account-type";
+    const destination = isAiCompany
+      ? "/ai-workspace"
+      : isEmployer
+        ? "/client-dashboard"
+        : isStaff
+          ? "/admin"
+          : hasSpecialRole
+            ? "/profile"
+            : "/choose-account-type";
     void navigate({ to: destination as never, replace: true });
   }, [rolesLoading, isWorkerRoute, isWorkerEligible, isEmployer, isStaff, hasSpecialRole, navigate]);
 
@@ -95,14 +102,16 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
           <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card/85 p-3 shadow-sm backdrop-blur-xl">
             <div className="mb-3 rounded-xl bg-gradient-to-br from-primary/10 via-violet-500/10 to-sky-500/15 p-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Zurify workspace</p>
-              <p className="mt-1 font-display text-sm font-semibold">{isEmployer ? "Create work. Track delivery." : "Find work. Get paid."}</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{isEmployer ? "Manage your drafts and hiring workflow in one place." : "Your work, earnings and progress in one place."}</p>
+              <p className="mt-1 font-display text-sm font-semibold">{isAiCompany ? "Build data. Improve AI." : isEmployer ? "Create work. Track delivery." : "Find work. Get paid."}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{isAiCompany ? "Manage language-data projects and organization verification." : isEmployer ? "Manage your drafts and hiring workflow in one place." : "Your work, earnings and progress in one place."}</p>
             </div>
-            <p className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">{isEmployer ? "Hiring workspace" : "Workspace"}</p>
+            <p className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">{isAiCompany ? "AI company" : isEmployer ? "Hiring workspace" : "Workspace"}</p>
             <nav className="space-y-1">
-              {isEmployer
-                ? navLink({ to: "/client-dashboard", label: "Client overview", icon: Briefcase })
-                : userNav.map(item => navLink(item))}
+              {isAiCompany
+                ? aiCompanyNav.map(item => navLink(item))
+                : isEmployer
+                  ? navLink({ to: "/client-dashboard", label: "Client overview", icon: Briefcase })
+                  : userNav.map(item => navLink(item))}
             </nav>
             <div className="my-3 border-t border-border/70" />
             <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/80">Account</p>
@@ -126,8 +135,8 @@ export function AppShell({ children, title, subtitle }: { children: ReactNode; t
               </>
             )}
             <div className="mt-4 rounded-xl border border-sky-500/15 bg-sky-500/5 px-3 py-2.5">
-              <p className="text-xs font-semibold">{isEmployer ? "Your hiring workspace" : "Built for your next step"}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{isEmployer ? "Funding and publishing controls will appear when their secure workflows are ready." : "Discover opportunities, track progress and keep your account secure."}</p>
+              <p className="text-xs font-semibold">{isAiCompany ? "AI company verification" : isEmployer ? "Your hiring workspace" : "Built for your next step"}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{isAiCompany ? "Projects stay in draft until the organization is verified and reviewed." : isEmployer ? "Funding and publishing controls will appear when their secure workflows are ready." : "Discover opportunities, track progress and keep your account secure."}</p>
             </div>
           </div>
         </aside>
