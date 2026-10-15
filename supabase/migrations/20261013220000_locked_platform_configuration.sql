@@ -102,14 +102,16 @@ BEGIN
         payment_provider = _payment_provider,
         payments_enabled = false,
         maintenance_mode = COALESCE(_maintenance_mode, false),
-        feature_flags = '{
-          "client_drafts": true,
-          "ai_company_workspace": true,
-          "client_funding": false,
-          "live_payments": false,
-          "dataset_exports": false,
-          "promo_codes": false
-        }'::jsonb || _feature_flags,
+        feature_flags = (
+          '{
+            "client_drafts": true,
+            "ai_company_workspace": true,
+            "client_funding": false,
+            "live_payments": false,
+            "dataset_exports": false,
+            "promo_codes": false
+          }'::jsonb || _feature_flags
+        ) || '{"client_funding": false, "live_payments": false, "dataset_exports": false, "promo_codes": false}'::jsonb,
         updated_by = auth.uid(),
         updated_at = now()
     WHERE singleton = true;
