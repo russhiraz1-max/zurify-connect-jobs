@@ -349,8 +349,14 @@ SET search_path TO 'public'
 AS $$
 DECLARE prior_status text;
 BEGIN
-  IF auth.uid() IS NULL OR NOT public.is_staff(auth.uid()) THEN
-    RAISE EXCEPTION 'Staff permission required' USING ERRCODE = '42501';
+  IF auth.uid() IS NULL OR (
+    NOT public.is_super_admin(auth.uid())
+    AND NOT EXISTS (
+      SELECT 1 FROM public.staff_permissions
+      WHERE user_id = auth.uid() AND permission = 'review_ai_companies'
+    )
+  ) THEN
+    RAISE EXCEPTION 'AI-company review permission required' USING ERRCODE = '42501';
   END IF;
   IF _decision NOT IN ('approved', 'rejected') THEN RAISE EXCEPTION 'Invalid review decision'; END IF;
   IF _notes IS NOT NULL AND length(_notes) > 2000 THEN RAISE EXCEPTION 'Review notes are too long'; END IF;
@@ -410,8 +416,14 @@ SET search_path TO 'public'
 AS $$
 DECLARE current_status text;
 BEGIN
-  IF auth.uid() IS NULL OR NOT public.is_staff(auth.uid()) THEN
-    RAISE EXCEPTION 'Staff permission required' USING ERRCODE = '42501';
+  IF auth.uid() IS NULL OR (
+    NOT public.is_super_admin(auth.uid())
+    AND NOT EXISTS (
+      SELECT 1 FROM public.staff_permissions
+      WHERE user_id = auth.uid() AND permission = 'review_ai_projects'
+    )
+  ) THEN
+    RAISE EXCEPTION 'AI-project review permission required' USING ERRCODE = '42501';
   END IF;
   IF _decision NOT IN ('approved', 'rejected') THEN RAISE EXCEPTION 'Invalid review decision'; END IF;
   IF _notes IS NOT NULL AND length(_notes) > 2000 THEN RAISE EXCEPTION 'Review notes are too long'; END IF;
