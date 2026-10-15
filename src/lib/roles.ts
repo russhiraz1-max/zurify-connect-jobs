@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
-export type AppRole = "super_admin" | "staff" | "user" | "advertiser" | "job_seeker" | "employer" | "admin";
+export type AppRole = "super_admin" | "staff" | "user" | "advertiser" | "job_seeker" | "employer" | "ai_company" | "admin";
 export type StaffPermission =
   | "review_submissions"
   | "review_reports"
