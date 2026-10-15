@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(38);
+SELECT plan(40);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -293,6 +293,39 @@ SELECT throws_ok(
   '42501',
   'Super-admin permission required',
   'AI-company account cannot change locked platform configuration'
+);
+
+
+INSERT INTO auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30003',
+  'authenticated', 'authenticated', 'zurify-staff-test@example.invalid', '',
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"account_type":"job_seeker"}'::jsonb,
+  now(), now()
+);
+INSERT INTO public.user_roles(user_id, role)
+VALUES ('9e21a05e-5f12-4df6-94a7-4d6fbeb30003', 'staff')
+ON CONFLICT (user_id, role) DO NOTHING;
+
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30003';
+SET LOCAL request.jwt.claim.role = 'authenticated';
+
+SELECT throws_ok(
+  'SELECT public.review_ai_company(''9e21a05e-5f12-4df6-94a7-4d6fbeb39999''::uuid, ''approved'', NULL)',
+  '42501',
+  'AI-company review permission required',
+  'staff without the AI-company permission cannot approve organizations'
+);
+
+SELECT throws_ok(
+  'SELECT public.review_ai_data_project(''9e21a05e-5f12-4df6-94a7-4d6fbeb39999''::uuid, ''approved'', NULL)',
+  '42501',
+  'AI-project review permission required',
+  'staff without the AI-project permission cannot approve data projects'
 );
 
 SELECT * FROM finish();
