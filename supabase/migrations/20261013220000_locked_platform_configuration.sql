@@ -128,8 +128,8 @@ BEGIN
 END;
 $$;
 
-REVOKE EXECUTE ON FUNCTION public.get_public_platform_configuration() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.get_public_platform_configuration() TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_public_platform_configuration() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_public_platform_configuration() TO anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.get_admin_platform_configuration()
 RETURNS jsonb
