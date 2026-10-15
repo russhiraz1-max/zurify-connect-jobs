@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountRealtime } from "@/components/account-realtime";
 import { ThemeProvider } from "@/lib/theme";
+import { PlatformThemeSync } from "@/components/platform-theme-sync";
 
 
 function NotFoundComponent() {
