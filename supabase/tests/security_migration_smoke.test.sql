@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(41);
+SELECT plan(51);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -237,6 +237,53 @@ SELECT ok(
 );
 
 
+SELECT public.create_ai_company_profile(
+  'Synthetic AI Research',
+  'https://example.invalid',
+  'ai-team@example.invalid'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM public.ai_company_organizations
+    WHERE owner_user_id = '9e21a05e-5f12-4df6-94a7-4d6fbeb30002'
+      AND verification_status = 'pending'
+  ),
+  'new AI-company organization remains pending until staff verification'
+);
+
+SELECT public.create_ai_data_project(
+  'Synthetic Swahili speech dataset',
+  'language_culture',
+  'This synthetic project collects consented Swahili speech records for evaluation.',
+  'Contributors record a short phrase and confirm consent before providing each sample.',
+  'Swahili',
+  'Coastal Swahili',
+  'sw-KE',
+  'Kenya',
+  25,
+  true
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM public.ai_data_projects
+    WHERE created_by = '9e21a05e-5f12-4df6-94a7-4d6fbeb30002'
+      AND status = 'draft'
+      AND consent_required = true
+      AND expected_records = 25
+  ),
+  'AI-company project creation creates a consent-required draft only'
+);
+
+SELECT throws_ok(
+  'SELECT public.submit_ai_project_for_review((SELECT id FROM public.ai_data_projects WHERE created_by = ''9e21a05e-5f12-4df6-94a7-4d6fbeb30002'' ORDER BY created_at DESC LIMIT 1))',
+  'P0001',
+  'Organization verification is required before project review',
+  'AI-company project cannot be submitted before organization verification'
+);
+
+
 SELECT ok(
   NOT has_table_privilege('authenticated', 'public.platform_configuration', 'SELECT'),
   'authenticated users cannot bypass the configuration read RPC'
@@ -332,6 +379,74 @@ SELECT throws_ok(
 SELECT ok(
   has_function_privilege('anon', 'public.get_public_platform_configuration()', 'EXECUTE'),
   'anonymous users can read the safe public theme and maintenance configuration'
+);
+
+
+INSERT INTO auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30004',
+  'authenticated', 'authenticated', 'zurify-superadmin-test@example.invalid', '',
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"account_type":"job_seeker"}'::jsonb,
+  now(), now()
+);
+INSERT INTO public.user_roles(user_id, role)
+VALUES ('9e21a05e-5f12-4df6-94a7-4d6fbeb30004', 'super_admin')
+ON CONFLICT (user_id, role) DO NOTHING;
+
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30004';
+SET LOCAL request.jwt.claim.role = 'authenticated';
+
+SELECT public.update_platform_configuration(
+  'blue-sky-indigo',
+  'flutterwave',
+  false,
+  '{"client_drafts":false,"ai_company_workspace":false,"client_funding":true,"live_payments":true,"dataset_exports":true,"promo_codes":true}'::jsonb
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'client_drafts' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'super admin can disable client draft creation'
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'ai_company_workspace' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'super admin can disable the AI-company workspace'
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'client_funding' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'client funding remains locked even if a caller requests it enabled'
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'live_payments' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'live payments remain locked even if a caller requests them enabled'
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'dataset_exports' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'dataset exports remain locked until implemented'
+);
+
+SELECT is(
+  (SELECT feature_flags ->> 'promo_codes' FROM public.platform_configuration WHERE singleton = true),
+  'false',
+  'promo codes remain locked until implemented'
+);
+
+SELECT is(
+  (SELECT payments_enabled FROM public.platform_configuration WHERE singleton = true),
+  false,
+  'provider selection cannot activate real payment processing'
 );
 
 SELECT * FROM finish();
