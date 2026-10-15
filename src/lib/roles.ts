@@ -11,7 +11,9 @@ export type StaffPermission =
   | "view_tasks"
   | "view_withdrawals"
   | "approve_withdrawals"
-  | "review_applications";
+  | "review_applications"
+  | "review_ai_companies"
+  | "review_ai_projects";
 
 export function useRoles() {
   const { user, loading: sessionLoading } = useSession();
