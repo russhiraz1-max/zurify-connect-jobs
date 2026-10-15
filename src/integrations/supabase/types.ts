@@ -1945,6 +1945,7 @@ export type Database = {
         | "staff"
         | "user"
         | "advertiser"
+        | "ai_company"
       application_status: "pending" | "approved" | "rejected" | "cancelled"
       experience_level: "entry" | "intermediate" | "expert"
       job_difficulty: "easy" | "medium" | "hard"
@@ -1990,6 +1991,8 @@ export type Database = {
         | "view_withdrawals"
         | "approve_withdrawals"
         | "review_applications"
+        | "review_ai_companies"
+        | "review_ai_projects"
       submission_status: "pending" | "approved" | "rejected" | "resubmit"
       task_status: "draft" | "published" | "paused" | "archived"
       ticket_status: "open" | "pending" | "resolved" | "closed"
@@ -2140,6 +2143,7 @@ export const Constants = {
         "staff",
         "user",
         "advertiser",
+        "ai_company",
       ],
       application_status: ["pending", "approved", "rejected", "cancelled"],
       experience_level: ["entry", "intermediate", "expert"],
@@ -2188,6 +2192,8 @@ export const Constants = {
         "view_withdrawals",
         "approve_withdrawals",
         "review_applications",
+        "review_ai_companies",
+        "review_ai_projects",
       ],
       submission_status: ["pending", "approved", "rejected", "resubmit"],
       task_status: ["draft", "published", "paused", "archived"],
