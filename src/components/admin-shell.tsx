@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from "react";
 import {
   Shield, LayoutDashboard, ListChecks, Send, FileCheck2, ArrowDownToLine,
   Users, UserCog, Tag, Flag, Megaphone, ScrollText, Settings as SettingsIcon,
-  LifeBuoy, Bell, Gift, BadgeCheck, Trophy, Sparkles, PartyPopper, Crown,
+  LifeBuoy, Bell, Gift, BadgeCheck, Trophy, Sparkles, PartyPopper, Crown, Building2, Database,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -22,6 +22,8 @@ const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/tasks", label: "Jobs", icon: ListChecks, perm: "view_tasks" },
   { to: "/admin/applications", label: "Applications", icon: Send, perm: "review_applications" },
+  { to: "/admin/ai-companies", label: "AI Companies", icon: Building2, perm: "review_ai_companies" },
+  { to: "/admin/ai-projects", label: "AI Projects", icon: Database, perm: "review_ai_projects" },
   { to: "/admin/submissions", label: "Submissions", icon: FileCheck2, perm: "review_submissions" },
   { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine, perm: "view_withdrawals" },
   { to: "/admin/verification", label: "Identity Verification", icon: BadgeCheck, perm: "approve_withdrawals" },
