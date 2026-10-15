@@ -9,7 +9,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [x] Open a draft pull request; never merge or deploy without the founder's explicit approval.
 - [ ] Keep current production database, users, wallets, wallet ledger, KYC, jobs/tasks, submissions and withdrawals untouched.
 - [ ] Create a distinct Supabase project/database for 2.0; do not assume the existing project references are correct.
-- [ ] Test only against the isolated 2.0 project or a local database with synthetic accounts.
+- [~] Automated CI migration tests run against a disposable local database with synthetic auth users; full end-to-end tests must continue to use an isolated 2.0 environment.
 - [ ] Do not copy production personal/financial/identity data unless a separately approved migration plan is written.
 - [ ] Preserve the existing product's useful behavior; improve the current codebase instead of blindly rewriting it.
 - [ ] Never claim a test passed unless the actual result is available.
@@ -22,7 +22,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Free signup with a clear role choice and role-specific onboarding questions.
 - [ ] Distinct freelancer dashboard and workflow.
 - [ ] Distinct client dashboard and workflow for posting work, managing applicants, reviewing delivery and tracking spend.
-- [~] Add a distinct AI-company account role, organization-verification workflow and AI data-project drafts with consent/language metadata; batch QA, exports and complete lifecycle remain incomplete.
+- [~] Add a distinct AI-company account role, organization-verification workflow, AI data-project drafts with consent/language metadata, and staff permission-gated review queues. Full browser E2E, batches, QA, exports and complete lifecycle remain incomplete.
 - [ ] Add promotional/promo codes with server-side validation, eligibility, expiry/usage limits and audit history.
 - [ ] Improve mobile and desktop responsiveness, accessibility, loading/empty/error states and clear navigation.
 - [ ] Update site metadata, canonical URLs and copy to remove obsolete Lovable-hosted origins where appropriate.
@@ -107,9 +107,9 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Run the development app and repeatedly test core flows as code changes land.
 
 ## 9. Required acceptance tests before completion
-- [ ] Clean dependency install from a fresh checkout.
-- [ ] Type-check and lint; record pre-existing failures separately from regressions.
-- [ ] Production build.
+- [x] Clean dependency install with `npm ci` in GitHub Actions run #513.
+- [ ] Dedicated TypeScript check and lint; the production build passes but is not a substitute for a standalone typecheck or lint.
+- [x] Production build with `npm run build` in GitHub Actions run #513.
 - [ ] Signup, email confirmation, login redirect, OAuth, logout and password recovery.
 - [ ] Role-specific onboarding and direct-access authorization tests.
 - [ ] Admin/settings authorization tests.
