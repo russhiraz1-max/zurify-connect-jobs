@@ -8,9 +8,11 @@ STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
-  SELECT COALESCE((feature_flags ->> _flag)::boolean, false)
-  FROM public.platform_configuration
-  WHERE singleton = true
+  SELECT COALESCE((
+    SELECT (feature_flags ->> _flag)::boolean
+    FROM public.platform_configuration
+    WHERE singleton = true
+  ), false)
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.is_platform_feature_enabled(text) FROM PUBLIC, anon;
