@@ -27,7 +27,6 @@ VALUES (true) ON CONFLICT (singleton) DO NOTHING;
 
 ALTER TABLE public.platform_configuration ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.platform_configuration FROM anon, authenticated;
-GRANT SELECT, UPDATE ON public.platform_configuration TO authenticated;
 
 DROP POLICY IF EXISTS "Super admins read platform configuration" ON public.platform_configuration;
 CREATE POLICY "Super admins read platform configuration"
