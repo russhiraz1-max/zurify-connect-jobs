@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BriefcaseBusiness, Loader2, UserRound } from "lucide-react";
+import { BriefcaseBusiness, Building2, Loader2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/choose-account-type")({
   component: ChooseAccountTypePage,
 });
 
-type AccountType = "job_seeker" | "employer";
+type AccountType = "job_seeker" | "employer" | "ai_company";
 
 function ChooseAccountTypePage() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ function ChooseAccountTypePage() {
   const [choice, setChoice] = useState<AccountType>("job_seeker");
   const [saving, setSaving] = useState(false);
 
-  const hasAccountType = roles.includes("job_seeker") || roles.includes("employer");
+  const hasAccountType = roles.includes("job_seeker") || roles.includes("employer") || roles.includes("ai_company");
   const hasSpecialRole = roles.some(role => ["super_admin", "staff", "admin", "advertiser"].includes(role));
 
   useEffect(() => {
@@ -34,7 +34,7 @@ function ChooseAccountTypePage() {
     }
     if (hasAccountType || hasSpecialRole) {
       const isAdmin = roles.some(role => ["super_admin", "staff", "admin"].includes(role));
-      void navigate({ to: isAdmin ? "/admin" : roles.includes("employer") ? "/client-dashboard" : "/dashboard", replace: true });
+      void navigate({ to: isAdmin ? "/admin" : roles.includes("ai_company") ? "/ai-workspace" : roles.includes("employer") ? "/client-dashboard" : "/dashboard", replace: true });
     }
   }, [user, sessionLoading, rolesLoading, hasAccountType, hasSpecialRole, roles, navigate]);
 
@@ -49,7 +49,7 @@ function ChooseAccountTypePage() {
       return;
     }
     toast.success("Your Zurify workspace is ready.");
-    await navigate({ to: choice === "employer" ? "/client-dashboard" : "/dashboard", replace: true });
+    await navigate({ to: choice === "ai_company" ? "/ai-workspace" : choice === "employer" ? "/client-dashboard" : "/dashboard", replace: true });
   }
 
   if (sessionLoading || rolesLoading || !user || hasAccountType || hasSpecialRole) {
@@ -98,6 +98,19 @@ function ChooseAccountTypePage() {
               <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">Prepare task drafts and organize work for contributors. Client funding, project publishing and billing will become available after the related secure flows are complete.</span>
             </span>
             <span className={`mt-1 h-4 w-4 shrink-0 rounded-full border-2 ${choice === "employer" ? "border-violet-500 bg-violet-500 ring-2 ring-violet-500/20 ring-offset-2 ring-offset-background" : "border-muted-foreground/40"}`} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setChoice("ai_company")}
+            aria-pressed={choice === "ai_company"}
+            className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all sm:p-5 ${choice === "ai_company" ? "border-sky-500 bg-sky-500/5 ring-2 ring-sky-500/15" : "border-border hover:bg-accent/40"}`}
+          >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-300"><Building2 className="h-5 w-5" /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">Build AI datasets</span>
+              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">For AI teams collecting language, dialect, speech, transcription and labeling data. Organization verification is required before projects can be submitted for review.</span>
+            </span>
+            <span className={`mt-1 h-4 w-4 shrink-0 rounded-full border-2 ${choice === "ai_company" ? "border-sky-500 bg-sky-500 ring-2 ring-sky-500/20 ring-offset-2 ring-offset-background" : "border-muted-foreground/40"}`} />
           </button>
           <Button className="h-11 w-full" onClick={() => void completeOnboarding()} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
