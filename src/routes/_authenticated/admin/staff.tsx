@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin/staff")({
 const ALL_PERMS = [
   "review_applications", "review_submissions", "approve_withdrawals",
   "review_reports", "reply_tickets", "view_tasks", "view_withdrawals",
+  "review_ai_companies", "review_ai_projects",
 ] as const;
 
 type Staff = {
