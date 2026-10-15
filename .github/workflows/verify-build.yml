@@ -58,3 +58,4 @@ jobs:
           NODE
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - run: npm run typecheck
