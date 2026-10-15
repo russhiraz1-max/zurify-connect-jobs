@@ -230,8 +230,33 @@ BEGIN
         website = EXCLUDED.website,
         contact_email = EXCLUDED.contact_email,
         verification_status = CASE
-          WHEN public.ai_company_organizations.verification_status = 'approved' THEN 'approved'
+          WHEN public.ai_company_organizations.verification_status = 'approved'
+            AND public.ai_company_organizations.legal_name IS NOT DISTINCT FROM EXCLUDED.legal_name
+            AND public.ai_company_organizations.website IS NOT DISTINCT FROM EXCLUDED.website
+            AND public.ai_company_organizations.contact_email IS NOT DISTINCT FROM EXCLUDED.contact_email
+            THEN 'approved'
           ELSE 'pending'
+        END,
+        verification_notes = CASE
+          WHEN public.ai_company_organizations.legal_name IS DISTINCT FROM EXCLUDED.legal_name
+            OR public.ai_company_organizations.website IS DISTINCT FROM EXCLUDED.website
+            OR public.ai_company_organizations.contact_email IS DISTINCT FROM EXCLUDED.contact_email
+            THEN NULL
+          ELSE public.ai_company_organizations.verification_notes
+        END,
+        reviewed_by = CASE
+          WHEN public.ai_company_organizations.legal_name IS DISTINCT FROM EXCLUDED.legal_name
+            OR public.ai_company_organizations.website IS DISTINCT FROM EXCLUDED.website
+            OR public.ai_company_organizations.contact_email IS DISTINCT FROM EXCLUDED.contact_email
+            THEN NULL
+          ELSE public.ai_company_organizations.reviewed_by
+        END,
+        reviewed_at = CASE
+          WHEN public.ai_company_organizations.legal_name IS DISTINCT FROM EXCLUDED.legal_name
+            OR public.ai_company_organizations.website IS DISTINCT FROM EXCLUDED.website
+            OR public.ai_company_organizations.contact_email IS DISTINCT FROM EXCLUDED.contact_email
+            THEN NULL
+          ELSE public.ai_company_organizations.reviewed_at
         END,
         updated_at = now()
   RETURNING id INTO new_id;
