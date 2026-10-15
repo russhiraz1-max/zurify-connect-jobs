@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Briefcase, Loader2 } from "lucide-react";
+import { ArrowLeft, Briefcase, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +49,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [referralCode, setReferralCode] = useState((search.ref ?? "").toUpperCase());
-  const [accountType, setAccountType] = useState<"job_seeker" | "employer">("job_seeker");
+  const [accountType, setAccountType] = useState<"job_seeker" | "employer" | "ai_company">("job_seeker");
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -70,8 +70,9 @@ function AuthPage() {
     // Match public.is_staff(): the legacy `admin` role alone is not a trusted staff grant.
     const isAdmin = roles.some((role) => ["super_admin", "staff"].includes(role));
     const isClient = roles.includes("employer");
+    const isAiCompany = roles.includes("ai_company");
     const destination = redirectTo === "/dashboard"
-      ? isAdmin ? "/admin" : isClient ? "/client-dashboard" : "/dashboard"
+      ? isAdmin ? "/admin" : isAiCompany ? "/ai-workspace" : isClient ? "/client-dashboard" : "/dashboard"
       : redirectTo;
     navigate({ to: destination as never, replace: true });
   }
@@ -112,7 +113,7 @@ function AuthPage() {
       return;
     }
     toast.success("Account created!");
-    const destination = redirectTo === "/dashboard" && accountType === "employer" ? "/client-dashboard" : redirectTo;
+    const destination = redirectTo === "/dashboard" ? accountType === "ai_company" ? "/ai-workspace" : accountType === "employer" ? "/client-dashboard" : "/dashboard" : redirectTo;
     navigate({ to: destination as never, replace: true });
   }
 
@@ -234,7 +235,7 @@ function AuthPage() {
                 </div>
                 <fieldset className="space-y-2">
                   <legend className="text-sm font-medium">What do you want to do on Zurify?</legend>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "job_seeker" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}>
                       <input
                         type="radio"
@@ -261,6 +262,20 @@ function AuthPage() {
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold">Hire talent</span>
                         <span className="mt-1 block text-xs text-muted-foreground">Post work for a team</span>
+                      </span>
+                    </label>
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "ai_company" ? "border-sky-500 bg-sky-500/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="ai_company"
+                        checked={accountType === "ai_company"}
+                        onChange={() => setAccountType("ai_company")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1.5 text-sm font-semibold"><Building2 className="h-4 w-4 text-sky-600" /> AI data work</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Build language and training datasets</span>
                       </span>
                     </label>
                   </div>
