@@ -4,7 +4,7 @@ This file is the single durable progress tracker for the Zurify 2.0 work. Update
 
 **Current location:** Phase 2 — Foundation and security  
 **Current step:** Step 2.2 — Security/role audit and remediation proposals; AI-company and locked admin-configuration foundations are now in progress.  
-**Latest previously verified frontend build:** GitHub Actions run #424 passed with `npm ci` and `npm run build` on commit `a961a34e58cb77faaa54b7a73b8b9d149ab9b8ee`. **Latest previously verified isolated migration replay:** run #27 applied the migration chain and passed 21 structural/privilege/behavioral pgTAP assertions before the newest AI-company and platform-configuration migrations were added. Those newest changes are awaiting CI validation; do not treat earlier results as covering them. Vercel has previously reported a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
+**Latest verified frontend build:** GitHub Actions run #513 passed on code head `d286bfeb75181e8a2d28065919c27cd48520fbea`; it verified patched TanStack Start versions, completed `npm ci`, and completed `npm run build`. **Latest isolated migration replay:** Supabase local-stack workflow run #88 passed: the full migration chain reset on a disposable local Postgres stack and the expanded 41-assertion pgTAP smoke suite passed. This validates migration replay and the assertions in `supabase/tests/security_migration_smoke.test.sql`, not full browser E2E, comprehensive cross-user RLS/storage behavior, concurrency stress or payment correctness. Vercel has previously reported a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -43,7 +43,7 @@ Legend:
 - [~] Align the client-side admin shell and sign-in routing with database `is_staff()` semantics (`staff`/`super_admin` only); the legacy `admin` role alone now fails closed in the frontend. Audit other RPCs and role policies for remaining legacy-role inconsistencies.
 - [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
 - [~] Run all migrations in order against a disposable 2.0 database. Earlier migration replay passed; the newest AI-company and locked platform-configuration migrations are awaiting their CI result.
-- [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
+- [~] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation. The 41-assertion smoke suite covers selected privileges, onboarding behavior, locked settings and staff-review permissions; full cross-user RLS/storage and browser role-isolation tests remain.
 - [~] Add a trigger guard for engagement claim rows (streak, lucky, mystery, challenge, badge) so authenticated claim writes require a non-suspended freelancer-only account; validate all trigger/RPC combinations in isolated Supabase before considering closed.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
 - [x] Resolve root `package.json` / `package-lock.json` dependency declaration drift; the latest CI run used `npm ci` against the committed lockfile. Continue checking transitive dependency security and reproducibility.
@@ -110,9 +110,9 @@ Legend:
 
 A second pass found that the capacity migration required a `job_seeker` role for `apply_to_task`, but its paired `submit_task` RPC lacked the equivalent check. The withdrawal request RPC also relied on authentication/KYC/suspension checks without an explicit worker-role boundary. Source migrations now require a worker-only role for apply, submit and withdrawal, and fail closed for clients, special roles and mixed worker/client accounts. New direct-RPC cases are recorded in `docs/SECURITY_VALIDATION_MATRIX.md`.
 
-**Validation status:** frontend build and clean local migration replay passed. SQL authorization/RLS, OAuth, concurrency, wallet invariants and payment/RPC behavior tests remain outstanding. This does not authorize production migration or live payout changes.
+**Validation status:** frontend build and clean local migration replay passed on the current verified code head. The 41-assertion smoke suite passes. Full SQL authorization/RLS, OAuth-provider E2E, concurrency stress, wallet invariants and payment/webhook behavior tests remain outstanding. This does not authorize production migration or live payout changes.
 
 
 ### Engagement reward guard follow-up
 
-The claim-row trigger now uses a strict role allowlist: the caller must have `job_seeker` and must not have any role other than baseline `user` or `job_seeker`. This is safer than enumerating known client/admin roles because future roles (including the planned AI-company role) fail closed by default. Validation cases R-20/R-21 were added to the security matrix. The migration remains source-only and requires isolated database tests, including confirmation that trusted service-role operations behave as intended.
+The claim-row trigger now uses a strict role allowlist: the caller must have `job_seeker` and must not have any role other than baseline `user` or `job_seeker`. This is safer than enumerating known client/admin roles because future roles (including the planned AI-company role) fail closed by default. Validation cases R-20/R-21 were added to the security matrix. The complete migration chain now passes local replay, including this guard. Full worker claim/RPC behavior and trusted service-role combinations still need dedicated tests.
