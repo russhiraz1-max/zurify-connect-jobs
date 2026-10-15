@@ -91,6 +91,9 @@ function AuthPage() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      return toast.error("Use at least 8 characters with at least one letter and one number.");
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -286,7 +289,8 @@ function AuthPage() {
                 </div>
                 <div>
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
+                  <p className="mt-1 text-xs text-muted-foreground">At least 8 characters, including a letter and a number.</p>
+                  <Input id="password2" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
                 </div>
                 <div>
                   <Label htmlFor="ref">Referral code <span className="text-muted-foreground">(optional)</span></Label>
