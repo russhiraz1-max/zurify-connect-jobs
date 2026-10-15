@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(21);
+SELECT plan(29);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -118,6 +118,40 @@ SELECT ok(
 );
 
 
+SELECT ok(
+  EXISTS (SELECT 1 FROM pg_enum e JOIN pg_type t ON t.oid = e.enumtypid
+          JOIN pg_namespace n ON n.oid = t.typnamespace
+          WHERE n.nspname = 'public' AND t.typname = 'app_role' AND e.enumlabel = 'ai_company'),
+  'AI company is a dedicated application role'
+);
+
+SELECT ok(
+  (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.ai_company_organizations'::regclass),
+  'AI company organizations have row-level security enabled'
+);
+
+SELECT ok(
+  (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.ai_data_projects'::regclass),
+  'AI data projects have row-level security enabled'
+);
+
+SELECT ok(
+  has_function_privilege('authenticated', 'public.create_ai_company_profile(text,text,text)', 'EXECUTE'),
+  'authenticated AI-company users can invoke organization profile RPC'
+);
+
+SELECT ok(
+  NOT has_function_privilege('anon', 'public.create_ai_company_profile(text,text,text)', 'EXECUTE'),
+  'anonymous users cannot invoke organization profile RPC'
+);
+
+SELECT ok(
+  has_function_privilege('authenticated', 'public.create_ai_data_project(text,text,text,text,text,text,text,text,integer,boolean)', 'EXECUTE'),
+  'authenticated users can invoke AI data project RPC'
+);
+
+
+
 -- Behavioral onboarding checks using synthetic auth users. This file runs only
 -- against the disposable local Supabase database; the surrounding transaction
 -- is rolled back at the end of the test.
@@ -173,6 +207,33 @@ SELECT throws_ok(
   '22023',
   'Choose a supported account type',
   'onboarding rejects privileged or unsupported role values'
+);
+
+
+INSERT INTO auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30002',
+  'authenticated', 'authenticated', 'zurify-ai-company-test@example.invalid', '',
+  now(),
+  '{"provider":"google","providers":["google"]}'::jsonb,
+  '{}'::jsonb,
+  now(), now()
+);
+
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30002';
+SET LOCAL request.jwt.claim.role = 'authenticated';
+
+SELECT is(
+  public.complete_account_type('ai_company'),
+  'ai_company',
+  'OAuth user can choose the dedicated AI-company account type'
+);
+
+SELECT ok(
+  public.has_role('9e21a05e-5f12-4df6-94a7-4d6fbeb30002', 'ai_company'::public.app_role),
+  'AI-company onboarding assigns only the selected AI-company role'
 );
 
 SELECT * FROM finish();
