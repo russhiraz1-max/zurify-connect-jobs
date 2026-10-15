@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(29);
+SELECT plan(36);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -234,6 +234,50 @@ SELECT is(
 SELECT ok(
   public.has_role('9e21a05e-5f12-4df6-94a7-4d6fbeb30002', 'ai_company'::public.app_role),
   'AI-company onboarding assigns only the selected AI-company role'
+);
+
+
+SELECT ok(
+  NOT has_table_privilege('authenticated', 'public.platform_configuration', 'SELECT'),
+  'authenticated users cannot bypass the configuration read RPC'
+);
+
+SELECT ok(
+  NOT has_table_privilege('authenticated', 'public.platform_configuration', 'UPDATE'),
+  'authenticated users cannot bypass the audited configuration update RPC'
+);
+
+SELECT ok(
+  has_function_privilege('authenticated', 'public.get_admin_platform_configuration()', 'EXECUTE'),
+  'authenticated users can call the guarded admin configuration read RPC'
+);
+
+SELECT ok(
+  NOT has_function_privilege('anon', 'public.get_admin_platform_configuration()', 'EXECUTE'),
+  'anonymous users cannot call the admin configuration read RPC'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM pg_trigger t
+    JOIN pg_class c ON c.oid = t.tgrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = 'tasks'
+      AND t.tgname = 'guard_client_draft_feature_flag' AND NOT t.tgisinternal
+  ),
+  'client draft feature flag is enforced by a database trigger'
+);
+
+SELECT is(
+  public.is_platform_feature_enabled('client_drafts'),
+  true,
+  'enabled client draft flag is read by the database guard'
+);
+
+SELECT is(
+  public.is_platform_feature_enabled('live_payments'),
+  false,
+  'live payments remain disabled in the platform configuration'
 );
 
 SELECT * FROM finish();
