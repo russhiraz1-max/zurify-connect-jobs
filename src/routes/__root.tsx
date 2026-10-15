@@ -145,8 +145,9 @@ function RootComponent() {
         if (!active) return;
         const roles = (roleRows ?? []).map((row) => row.role);
         const isClient = roles.includes("employer");
+        const isAiCompany = roles.includes("ai_company");
         const isAdmin = roles.some((role) => ["super_admin", "staff", "admin"].includes(role));
-        const hasAccountType = roles.includes("employer") || roles.includes("job_seeker");
+        const hasAccountType = roles.includes("employer") || roles.includes("job_seeker") || roles.includes("ai_company");
         const hasPrivilegedOrSpecialRole = roles.some((role) =>
           ["super_admin", "staff", "admin", "advertiser"].includes(role),
         );
