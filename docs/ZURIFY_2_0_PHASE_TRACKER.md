@@ -3,8 +3,8 @@
 This file is the single durable progress tracker for the Zurify 2.0 work. Update it as changes are made and checks are run. A green frontend build is not proof that database policies, payment logic, or end-to-end flows are correct.
 
 **Current location:** Phase 2 — Foundation and security  
-**Current step:** Step 2.2 — Security/role audit and remediation proposals  
-**Latest verified frontend build:** GitHub Actions run #416 passed on code head `fc8776ad9f119f8140aa8e14a97167702fbe05eb`. It verified patched TanStack Start versions in the committed lockfile, ran `npm ci`, and completed `npm run build`. The `package.json` and lockfile root dependency declarations now match. **Latest isolated migration replay and security smoke tests:** Supabase local-stack workflow run #20 passed; it applied the complete migration chain to a disposable local Postgres database and passed the 16 structural/privilege pgTAP smoke assertions. This validates migration replay and those specific catalog checks only; behavioral authorization, RLS, OAuth, concurrency and money-movement tests remain outstanding. Vercel separately reports a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
+**Current step:** Step 2.2 — Security/role audit and remediation proposals; AI-company and locked admin-configuration foundations are now in progress.  
+**Latest previously verified frontend build:** GitHub Actions run #424 passed with `npm ci` and `npm run build` on commit `a961a34e58cb77faaa54b7a73b8b9d149ab9b8ee`. **Latest previously verified isolated migration replay:** run #27 applied the migration chain and passed 21 structural/privilege/behavioral pgTAP assertions before the newest AI-company and platform-configuration migrations were added. Those newest changes are awaiting CI validation; do not treat earlier results as covering them. Vercel has previously reported a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -28,7 +28,7 @@ Legend:
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
-- [~] Add the post-OAuth account-type selection screen, root redirect, and restricted `complete_account_type(text)` RPC migration (`20261013180000_safe_oauth_account_type_onboarding.sql`). The RPC locks the user's profile, permits only `job_seeker`/`employer`, rejects special roles and role switching, and is source-only until isolated DB/end-to-end tests pass.
+- [~] Add post-OAuth account selection and a restricted `complete_account_type(text)` RPC. The new forward migration `20261013210000_ai_company_organization_and_project_workflow.sql` extends the allowlist to `job_seeker`, `employer`, and `ai_company`; the trigger only trusts account selection from the email signup form and sends OAuth users through the authenticated chooser. New code is awaiting CI replay and end-to-end tests.
 - [ ] End-to-end test OAuth onboarding, password login, signup with confirmation on/off, confirmation links, logout, expired links, and password reset using synthetic accounts.
 - [ ] Validate redirect allowlists and canonical callback URLs in a separate Supabase 2.0 project.
 
@@ -42,7 +42,7 @@ Legend:
 - [~] Route legacy withdrawal rejection through reserve release and require the exact reserve to exist before release.
 - [~] Align the client-side admin shell and sign-in routing with database `is_staff()` semantics (`staff`/`super_admin` only); the legacy `admin` role alone now fails closed in the frontend. Audit other RPCs and role policies for remaining legacy-role inconsistencies.
 - [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
-- [ ] Run all migrations in order against a disposable 2.0 database.
+- [~] Run all migrations in order against a disposable 2.0 database. Earlier migration replay passed; the newest AI-company and locked platform-configuration migrations are awaiting their CI result.
 - [ ] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation for anon, freelancer, client, AI company, staff, admin, and super-admin.
 - [~] Add a trigger guard for engagement claim rows (streak, lucky, mystery, challenge, badge) so authenticated claim writes require a non-suspended freelancer-only account; validate all trigger/RPC combinations in isolated Supabase before considering closed.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
@@ -52,7 +52,7 @@ Legend:
 ### Step 2.3 — Safe client-workspace foundation
 
 - [~] Add client workspace navigation for desktop and mobile.
-- [~] Add a client draft workspace with active-category selection and own-task listing; publishing, client funding, billing, applicant management, and AI-company workflows remain unimplemented.
+- [~] Add a client draft workspace with active-category selection and own-task listing; publishing, client funding, billing and applicant management remain unimplemented. A distinct AI-company workspace is now being added in Phase 3.
 - [~] Add a draft-only task creation form and own-task list.
 - [~] Add client project/draft/published summaries and explicit messaging that funding is not enabled.
 - [ ] Test role checks, RPC input validation, ownership RLS, and draft creation in an isolated database.
@@ -64,7 +64,7 @@ Legend:
 
 - [ ] Build the complete freelancer workflow: discovery, eligibility, applications, active work, evidence/submissions, feedback/rework, completed work, wallet history, payout eligibility, support and rewards.
 - [ ] Build the complete client workflow: project creation/editing, review/publishing, applicants/workers, submission review, revisions, project budgets, spend tracking, invoices and receipts.
-- [ ] Build a distinct AI-company workflow for language/culture data collection, transcription, pronunciation, labeling, evaluation, batches, QA sampling, dataset exports and organization permissions.
+- [~] Add the first distinct AI-company foundation: organization verification, data-project drafts with language/dialect/locale/region and consent fields, organization/project owner isolation, staff review RPCs and submission gating. Batch assignment, QA sampling, dataset exports, organization seats and full lifecycle remain incomplete.
 - [ ] Add project/task status transitions, capacity enforcement, audit logs and owner isolation.
 - [ ] Preserve the six existing marketplace types and useful functionality where appropriate.
 
@@ -83,13 +83,13 @@ Legend:
 - [~] Begin authenticated workspace redesign with blue, sky blue, violet/purple accents, gradient surfaces and a clearer navigation hierarchy; client and freelancer navigation are separated in source, and the freelancer dashboard now redirects client-only accounts to the client workspace. Frontend build passed in run #272; role behavior still needs end-to-end testing.
 - [ ] Redesign public landing pages and role-specific dashboards into a consistent Zurify 2.0 design system.
 - [ ] Complete responsive mobile/desktop layouts, accessibility, loading/empty/error states and typography.
-- [ ] Build a locked admin control center for theme settings, feature flags, payment-provider selection, maintenance mode, role management and audit history.
-- [ ] Enforce every sensitive setting server-side; frontend visibility alone is never authorization.
+- [~] Add a super-admin-only runtime configuration RPC and control-center UI for theme palette, feature flags, preferred payment provider and maintenance mode. Database access is RPC-only, changes are audited, and live payments are hard-disabled. Role management, public maintenance enforcement and actual runtime application of every flag remain incomplete.
+- [~] Enforce super-admin authorization in configuration RPCs and enforce client-draft/AI-workspace flags at the database boundary. Remaining flags (funding, live payments, dataset exports and promo codes) are intentionally locked off until their workflows exist.
 - [ ] Remove obsolete Lovable-specific dependencies only after their responsibilities are understood and safely replaced.
 
 ## Phase 6 — Quality assurance and launch preparation
 
-- [ ] Run type checks, lint, build, unit/integration tests, migration tests and role-isolation tests.
+- [~] Run clean install/build and isolated migration/security smoke tests after every feature batch. Latest code head's checks are pending; lint, full type checks, browser E2E, RLS/storage and role-isolation coverage remain incomplete.
 - [ ] Test full client funding-to-project-to-worker-payment and freelancer earning-to-withdrawal paths using sandbox/synthetic accounts.
 - [ ] Run security review for RLS, storage, auth, secrets, webhooks, rate limits, concurrency, audit logs and privacy.
 - [ ] Validate email delivery and callback URLs in a separate environment.
