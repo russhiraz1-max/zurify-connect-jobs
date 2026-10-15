@@ -45,6 +45,14 @@ const clientAuthedNav = [
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
+const aiCompanyAuthedNav = [
+  { to: "/ai-workspace", label: "AI workspace", icon: LayoutDashboard },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
 const publicNav = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/faq", label: "FAQ" },
@@ -98,7 +106,7 @@ export function SiteHeader() {
               <nav className="space-y-0.5 p-3">
                 {user ? (
                   <>
-                    {(roles.includes("employer") ? clientAuthedNav : authedNav).map((item) => {
+                    {(roles.includes("ai_company") ? aiCompanyAuthedNav : roles.includes("ai_company") ? aiCompanyAuthedNav : roles.includes("employer") ? clientAuthedNav : authedNav).map((item) => {
                       const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
                       return (
                         <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
