@@ -139,7 +139,7 @@ LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
-AS $
+AS $$
 BEGIN
   IF auth.uid() IS NULL OR NOT public.is_super_admin(auth.uid()) THEN
     RAISE EXCEPTION 'Super-admin permission required' USING ERRCODE = '42501';
@@ -157,7 +157,7 @@ BEGIN
     WHERE singleton = true
   );
 END;
-$;
+$$;
 
 REVOKE EXECUTE ON FUNCTION public.get_admin_platform_configuration() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_admin_platform_configuration() TO authenticated;
