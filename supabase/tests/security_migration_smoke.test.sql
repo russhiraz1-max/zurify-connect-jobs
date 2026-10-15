@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(36);
+SELECT plan(38);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -278,6 +278,21 @@ SELECT is(
   public.is_platform_feature_enabled('live_payments'),
   false,
   'live payments remain disabled in the platform configuration'
+);
+
+
+SELECT throws_ok(
+  'SELECT public.get_admin_platform_configuration()',
+  '42501',
+  'Super-admin permission required',
+  'AI-company account cannot read the locked admin configuration'
+);
+
+SELECT throws_ok(
+  'SELECT public.update_platform_configuration(''blue-sky-violet'',''disabled'',false,''{}''::jsonb)',
+  '42501',
+  'Super-admin permission required',
+  'AI-company account cannot change locked platform configuration'
 );
 
 SELECT * FROM finish();
