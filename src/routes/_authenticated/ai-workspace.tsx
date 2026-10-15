@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Building2, CheckCircle2, Loader2, Plus, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -92,7 +92,7 @@ function AiWorkspacePage() {
     void navigate({ to: destination as never, replace: true });
   }, [user, sessionLoading, rolesLoading, roles, navigate]);
 
-  async function loadWorkspace() {
+  const loadWorkspace = useCallback(async () => {
     if (!user || !roles.includes("ai_company")) return;
     setLoadingData(true);
     try {
@@ -117,11 +117,11 @@ function AiWorkspacePage() {
     } finally {
       setLoadingData(false);
     }
-  }
+  }, [user, roles]);
 
   useEffect(() => {
     if (!sessionLoading && !rolesLoading && user && roles.includes("ai_company")) void loadWorkspace();
-  }, [sessionLoading, rolesLoading, user, roles]);
+  }, [sessionLoading, rolesLoading, user, roles, loadWorkspace]);
 
   async function saveOrganization(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
