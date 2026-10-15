@@ -22,7 +22,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Free signup with a clear role choice and role-specific onboarding questions.
 - [ ] Distinct freelancer dashboard and workflow.
 - [ ] Distinct client dashboard and workflow for posting work, managing applicants, reviewing delivery and tracking spend.
-- [ ] Distinct AI-company workflow; AI companies must not be treated as ordinary freelancers or just another client account.
+- [~] Add a distinct AI-company account role, organization-verification workflow and AI data-project drafts with consent/language metadata; batch QA, exports and complete lifecycle remain incomplete.
 - [ ] Add promotional/promo codes with server-side validation, eligibility, expiry/usage limits and audit history.
 - [ ] Improve mobile and desktop responsiveness, accessibility, loading/empty/error states and clear navigation.
 - [ ] Update site metadata, canonical URLs and copy to remove obsolete Lovable-hosted origins where appropriate.
@@ -39,8 +39,8 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Replace Lovable authentication only after understanding its existing OAuth/session responsibilities and verifying a complete replacement.
 
 ## 3. Admin control center and authorization
-- [ ] Build a locked admin-only settings/control center.
-- [ ] Centralize site theme/color settings, feature flags, provider selection, maintenance mode and relevant platform configuration.
+- [~] Add a super-admin-only configuration RPC and admin UI for palette, feature flags, preferred provider and maintenance setting; payment activation is hard-disabled and role management/runtime maintenance enforcement remain incomplete.
+- [~] Centralize theme palette, feature flags, provider preference and maintenance-mode setting in an audited configuration row; server-side authorization and client/AI workspace flag triggers are implemented in source, but newest migrations are awaiting CI.
 - [ ] Enforce permissions on the server/database, not just by hiding frontend routes or buttons.
 - [ ] Align `admin`, `staff`, `super_admin` and other legacy role behavior across frontend and SQL.
 - [ ] Restrict role assignment and permission changes to authorized super-admin paths with audit logs.
@@ -50,7 +50,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 
 ## 4. Marketplace and AI workforce
 - [ ] Preserve/improve existing job types and categories without breaking current useful workflows.
-- [ ] Add AI-company project creation for data collection, language/cultural tasks, transcription, pronunciation, data labeling and similar AI data work.
+- [~] Add AI-company organization setup and draft creation for data collection, language/cultural tasks, transcription, pronunciation, labeling and evaluation. No funding, worker assignment, exports or live publication.
 - [ ] Support project batches, task assignment/capacity, worker instructions, submission evidence, review queues and rework/rejection reasons.
 - [ ] Add quality controls: duplicate detection, gold/benchmark tasks where appropriate, agreement/scoring, suspicious-pattern checks, sampling and human escalation.
 - [ ] Support language/culture metadata such as locale, language, dialect, accent, region and task-specific consent where relevant.
@@ -94,7 +94,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Configure Resend for verified transactional email in the 2.0 environment; no API key is needed in source control.
 - [ ] Test confirmation, password reset, security notifications and relevant project/task email.
 - [ ] Audit existing notification/realtime behavior before replacing or removing it.
-- [ ] Document environment variables and which belong in Vercel server environment versus browser-visible configuration.
+- [~] Document browser-visible Supabase placeholders and server-only placeholders for Supabase service role, Resend, Flutterwave and future Paystack. No real credentials are included; backend integrations still need to be implemented before these secrets are used.
 - [ ] Add deployment health checks, useful logs without secrets/PII, and operational error handling.
 
 ## 8. Lovable cleanup and maintainability
@@ -123,7 +123,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Founder review of the preview/PR; no merge or production deployment until explicit approval.
 
 ## 10. Deployment configuration to complete later
-- [ ] Create the separate Supabase 2.0 project and verify its URL/keys.
+- [ ] Create the separate Supabase 2.0 project and verify its URL/keys. Never point this branch at the existing production project.
 - [ ] Configure Vercel project and preview/production environments without pointing the new build at the old production database.
 - [ ] Configure canonical site URL and Supabase redirect allowlist.
 - [ ] Configure Resend domain/sender and server-side API key.
@@ -196,7 +196,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 
 
 ### Authentication/onboarding edge cases to close before Phase 2 exits
-- [~] Add a post-OAuth account-type picker and restricted `complete_account_type(text)` RPC migration. The RPC permits only `job_seeker`/`employer`, locks the user's profile row, denies privileged accounts and role switching; the trigger/chooser alignment fix is source-only, and migration/flow remain untested.
+- [~] Add a post-OAuth account-type picker and restricted `complete_account_type(text)` RPC supporting `job_seeker`, `employer` and `ai_company`; locks the user's profile row and denies privileged roles/role switching. Latest migration replay and full OAuth flows are still pending.
 - [ ] Existing OAuth sign-ins must not silently change a user's account type.
 - [ ] Verify the account-type RPC cannot assign staff/admin/super-admin/advertiser roles and rejects changes after a role is already set.
 - [ ] Test OAuth retry, callback refresh, missing metadata, existing-account login and role-switch behavior with synthetic users.
