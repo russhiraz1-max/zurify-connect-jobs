@@ -1,6 +1,6 @@
 # Zurify 2.0 Security Validation Matrix
 
-Status: planned test cases; **not yet executed**. Run only against a disposable Supabase project created for Zurify 2.0 with synthetic users and fake wallet balances. Never run destructive setup SQL or test withdrawals against production.
+Status: selected database assertions executed by the disposable local Supabase CI workflow (run #95); the full matrix is **not yet executed**. Run only against a disposable Supabase project created for Zurify 2.0 with synthetic users and fake wallet balances. Never run destructive setup SQL or test withdrawals against production.
 
 ## Test identities
 
