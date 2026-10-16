@@ -200,3 +200,14 @@ Do not close security findings until the complete migration chain applies cleanl
 | A-01 | Staff member manually navigates to a super-admin-only route such as `/admin/settings` or `/admin/users` | Admin shell redirects to `/admin` and does not render nested route content |
 | A-02 | Staff member opens a permission-scoped route without its required permission | Admin shell redirects to `/admin`; server-side RPC/RLS still independently denies unauthorized data access |
 | A-03 | Staff member opens a route matching an unknown/unlisted admin path | Nested content is not rendered; super-admin-only fallback remains |
+
+
+## Database-enforced platform feature-flag tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| F-01 | Super-admin disables client_drafts; client calls create_client_task directly | Database trigger denies the insert with 42501; no draft row is created |
+| F-02 | Super-admin disables ai_company_workspace; AI-company owner calls create_ai_data_project directly | Database trigger denies the insert with 42501; no project row is created |
+| F-03 | Client-draft or AI-company flag configuration row is missing | Feature-check function fails closed; creation is denied |
+| F-04 | Caller tries to set client_funding, live_payments, dataset_exports, or promo_codes true through the configuration RPC | These incomplete workflows remain hard-disabled in persisted configuration |
+| F-05 | Non-super-admin directly reads or updates platform_configuration or calls its admin RPCs | Table privileges/RLS and guarded RPCs deny access; public config returns only safe theme/maintenance fields |
