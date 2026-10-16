@@ -37,6 +37,22 @@ export const authedNav = [
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
+const clientAuthedNav = [
+  { to: "/client-dashboard", label: "Client workspace", icon: Briefcase },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
+const aiCompanyAuthedNav = [
+  { to: "/ai-workspace", label: "AI workspace", icon: LayoutDashboard },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/support", label: "Support", icon: LifeBuoy },
+  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
 const publicNav = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/faq", label: "FAQ" },
@@ -46,7 +62,7 @@ const publicNav = [
 
 export function SiteHeader() {
   const { user } = useSession();
-  const { isStaff } = useRoles();
+  const { isStaff, roles } = useRoles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,6 +83,7 @@ export function SiteHeader() {
   };
 
   const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email ?? null;
+  const workspaceTo = roles.includes("ai_company") ? "/ai-workspace" : roles.includes("employer") ? "/client-dashboard" : "/dashboard";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur">
@@ -90,7 +107,7 @@ export function SiteHeader() {
               <nav className="space-y-0.5 p-3">
                 {user ? (
                   <>
-                    {authedNav.map((item) => {
+                    {(roles.includes("ai_company") ? aiCompanyAuthedNav : roles.includes("employer") ? clientAuthedNav : authedNav).map((item) => {
                       const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(item.to));
                       return (
                         <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
@@ -145,9 +162,16 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {!user && publicNav.slice(0, 3).map((i) => navItem(i.to, i.label))}
-          {user && navItem("/dashboard", "Dashboard")}
-          {user && navItem("/tasks", "Tasks")}
-          {user && navItem("/wallet", "Wallet")}
+          {user && (roles.includes("ai_company")
+            ? navItem("/ai-workspace", "AI workspace")
+            : roles.includes("employer")
+              ? navItem("/client-dashboard", "Client workspace")
+              : <>
+                  {navItem("/dashboard", "Dashboard")}
+                  {navItem("/tasks", "Tasks")}
+                  {navItem("/wallet", "Wallet")}
+                </>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -170,15 +194,15 @@ export function SiteHeader() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard" })}>
+                  <DropdownMenuItem onSelect={() => navigate({ to: workspaceTo as never })}>
                     <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
                     <UserIcon className="mr-2 h-4 w-4" /> Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/referrals" })}>
+                  {!roles.includes("ai_company") && !roles.includes("employer") && <DropdownMenuItem onSelect={() => navigate({ to: "/referrals" })}>
                     <Gift className="mr-2 h-4 w-4" /> Referrals
-                  </DropdownMenuItem>
+                  </DropdownMenuItem>}
                   <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
                     <SettingsIcon className="mr-2 h-4 w-4" /> Settings
                   </DropdownMenuItem>

@@ -1,0 +1,135 @@
+-- Zurify 2.0: reject a withdrawal only when the entire reserved amount can be
+-- released. This avoids silently masking a reserve mismatch with GREATEST/LEAST.
+-- Source-only until exercised against a disposable 2.0 database.
+
+-- Keep the three-argument overload explicit. A DEFAULT here overlaps the
+-- legacy two-argument RPC and can make PostgREST overload resolution ambiguous.
+-- The two-argument wrapper delegates to this function with FALSE.
+-- PostgreSQL cannot remove an existing argument DEFAULT via CREATE OR REPLACE,
+-- so drop/recreate this overload explicitly. The legacy two-argument wrapper
+-- is retained and regrants are restored below.
+DROP FUNCTION public.reject_withdrawal(uuid, text, boolean);
+
+CREATE FUNCTION public.reject_withdrawal(
+  _id uuid,
+  _reason text,
+  _suspend_withdrawals boolean
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+DECLARE
+  r RECORD;
+  w RECORD;
+  p RECORD;
+  pending_requests_cents bigint;
+BEGIN
+  IF NOT (
+    public.is_super_admin(auth.uid())
+    OR public.has_staff_permission(auth.uid(), 'approve_withdrawals')
+  ) THEN
+    RAISE EXCEPTION 'Forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT *
+    INTO r
+    FROM public.withdrawal_requests
+    WHERE id = _id
+    FOR UPDATE;
+
+  IF NOT FOUND OR r.status <> 'pending' THEN
+    RAISE EXCEPTION 'Withdrawal not pending';
+  END IF;
+
+  -- Match request_withdrawal's profile -> wallet lock order. The optional
+  -- withdrawal-hold update below touches profiles, so locking the profile
+  -- before the wallet prevents a profile/wallet lock inversion under load.
+  SELECT *
+    INTO p
+    FROM public.profiles
+    WHERE id = r.user_id
+    FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Profile not found';
+  END IF;
+
+  SELECT *
+    INTO w
+    FROM public.wallets
+    WHERE user_id = r.user_id
+    FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Wallet not found';
+  END IF;
+
+  -- The wallet stores one aggregate pending reserve, not a per-request
+  -- reserve. Reconcile that aggregate against all pending requests before
+  -- releasing one request; checking only >= amount could mask another mismatch.
+  SELECT COALESCE(sum(amount_cents), 0)
+    INTO pending_requests_cents
+    FROM public.withdrawal_requests
+    WHERE user_id = r.user_id
+      AND status = 'pending';
+
+  IF COALESCE(w.pending_withdrawal_cents, 0) <> pending_requests_cents
+     OR pending_requests_cents < r.amount_cents THEN
+    RAISE EXCEPTION 'Reserve mismatch; withdrawal requires reconciliation';
+  END IF;
+
+  UPDATE public.wallets
+    SET pending_withdrawal_cents = pending_withdrawal_cents - r.amount_cents,
+        available_cents = available_cents + r.amount_cents
+    WHERE id = w.id;
+
+  UPDATE public.withdrawal_requests
+    SET status = 'rejected',
+        reviewer_id = auth.uid(),
+        rejection_reason = COALESCE(NULLIF(btrim(_reason), ''), 'Withdrawal rejected.'),
+        processed_at = now()
+    WHERE id = r.id;
+
+  IF _suspend_withdrawals THEN
+    UPDATE public.profiles
+      SET withdrawal_hold = true
+      WHERE id = r.user_id;
+
+    INSERT INTO public.notifications(user_id, type, title, body, link)
+    VALUES (
+      r.user_id,
+      'withdrawal_hold_enabled',
+      'Withdrawals on hold',
+      'Your withdrawals have been paused. You can continue earning; contact support for details.',
+      '/support'
+    );
+  END IF;
+
+  INSERT INTO public.notifications(user_id, type, title, body, link)
+  VALUES (
+    r.user_id,
+    'withdrawal_rejected',
+    'Withdrawal rejected',
+    COALESCE(NULLIF(btrim(_reason), ''), 'Withdrawal rejected.'),
+    '/withdrawals'
+  );
+
+  INSERT INTO public.audit_logs(actor_id, action, target_type, target_id, meta)
+  VALUES (
+    auth.uid(),
+    'reject_withdrawal',
+    'withdrawal_requests',
+    r.id,
+    jsonb_build_object(
+      'reason', COALESCE(NULLIF(btrim(_reason), ''), 'Withdrawal rejected.'),
+      'suspend', _suspend_withdrawals,
+      'released_cents', r.amount_cents
+    )
+  );
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.reject_withdrawal(uuid, text, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.reject_withdrawal(uuid, text, boolean) TO authenticated;

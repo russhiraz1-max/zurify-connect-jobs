@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
-export type AppRole = "super_admin" | "staff" | "user" | "advertiser" | "job_seeker" | "employer" | "admin";
+export type AppRole = "super_admin" | "staff" | "user" | "advertiser" | "job_seeker" | "employer" | "ai_company" | "admin";
 export type StaffPermission =
   | "review_submissions"
   | "review_reports"
@@ -11,7 +11,9 @@ export type StaffPermission =
   | "view_tasks"
   | "view_withdrawals"
   | "approve_withdrawals"
-  | "review_applications";
+  | "review_applications"
+  | "review_ai_companies"
+  | "review_ai_projects";
 
 export function useRoles() {
   const { user, loading: sessionLoading } = useSession();
@@ -37,7 +39,9 @@ export function useRoles() {
     return () => { cancelled = true; };
   }, [user, sessionLoading]);
 
-  const isSuperAdmin = roles.includes("super_admin") || roles.includes("admin");
+  const isSuperAdmin = roles.includes("super_admin");
+  // Match the database helper public.is_staff(), which recognizes only staff and super_admin.
+  // The legacy `admin` role is not a trusted staff grant and must fail closed.
   const isStaff = isSuperAdmin || roles.includes("staff");
   const has = (perm: StaffPermission) => isSuperAdmin || permissions.includes(perm);
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Briefcase, Loader2 } from "lucide-react";
+import { ArrowLeft, Briefcase, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,14 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const initialTab = search.mode === "signup" || search.ref ? "signup" : "signin";
   const navigate = useNavigate();
-  const redirectTo = search.redirect ?? "/dashboard";
+  // Only allow internal app paths; never accept protocol-relative or external redirects.
+  const requestedRedirect = search.redirect ?? "/dashboard";
+  const redirectTo = requestedRedirect.startsWith("/")
+    && !requestedRedirect.startsWith("//")
+    && !requestedRedirect.includes("\\")
+    && !/[\u0000-\u001F\u007F]/.test(requestedRedirect)
+    ? requestedRedirect
+    : "/dashboard";
 
   const [tab, setTab] = useState<"signin" | "signup">(initialTab);
   const [loading, setLoading] = useState(false);
@@ -42,11 +49,12 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [referralCode, setReferralCode] = useState((search.ref ?? "").toUpperCase());
+  const [accountType, setAccountType] = useState<"job_seeker" | "employer" | "ai_company">("job_seeker");
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setLoading(false); return toast.error(error.message); }
     const { data: statusRows } = await supabase.rpc("get_my_account_status" as never);
     const suspended = (statusRows as { suspended: boolean }[] | null)?.[0]?.suspended;
@@ -57,7 +65,16 @@ function AuthPage() {
       return;
     }
     toast.success("Welcome back!");
-    navigate({ to: redirectTo });
+    const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", signInData.user.id);
+    const roles = (roleRows ?? []).map((row) => row.role);
+    // Match public.is_staff(): the legacy `admin` role alone is not a trusted staff grant.
+    const isAdmin = roles.some((role) => ["super_admin", "staff"].includes(role));
+    const isClient = roles.includes("employer");
+    const isAiCompany = roles.includes("ai_company");
+    const destination = redirectTo === "/dashboard"
+      ? isAdmin ? "/admin" : isAiCompany ? "/ai-workspace" : isClient ? "/client-dashboard" : "/dashboard"
+      : redirectTo;
+    navigate({ to: destination as never, replace: true });
   }
 
   async function handleForgotPassword() {
@@ -74,13 +91,16 @@ function AuthPage() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      return toast.error("Use at least 8 characters with at least one letter and one number.");
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { full_name: fullName, account_type: accountType },
       },
     });
     if (error) { setLoading(false); return toast.error(error.message); }
@@ -91,14 +111,19 @@ function AuthPage() {
       else toast.success("Referral code applied!");
     }
     setLoading(false);
+    if (!data.session) {
+      toast.success("Account created. Check your email to confirm your address, then you will be redirected to your dashboard.");
+      return;
+    }
     toast.success("Account created!");
-    navigate({ to: redirectTo });
+    const destination = redirectTo === "/dashboard" ? accountType === "ai_company" ? "/ai-workspace" : accountType === "employer" ? "/client-dashboard" : "/dashboard" : redirectTo;
+    navigate({ to: destination as never, replace: true });
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/`,
     });
     if (result.error) {
       setGoogleLoading(false);
@@ -211,13 +236,61 @@ function AuthPage() {
                   <Label htmlFor="name">Full name</Label>
                   <Input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="mt-1.5" />
                 </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">What do you want to do on Zurify?</legend>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "job_seeker" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="job_seeker"
+                        checked={accountType === "job_seeker"}
+                        onChange={() => setAccountType("job_seeker")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">Find work</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Freelancer or task worker</span>
+                      </span>
+                    </label>
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "employer" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="employer"
+                        checked={accountType === "employer"}
+                        onChange={() => setAccountType("employer")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">Hire talent</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Post work for a team</span>
+                      </span>
+                    </label>
+                    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${accountType === "ai_company" ? "border-sky-500 bg-sky-500/5" : "border-border hover:bg-muted/50"}`}>
+                      <input
+                        type="radio"
+                        name="accountType"
+                        value="ai_company"
+                        checked={accountType === "ai_company"}
+                        onChange={() => setAccountType("ai_company")}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1.5 text-sm font-semibold"><Building2 className="h-4 w-4 text-sky-600" /> AI data work</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">Build language and training datasets</span>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
                 <div>
                   <Label htmlFor="email2">Email</Label>
                   <Input id="email2" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5" />
                 </div>
                 <div>
                   <Label htmlFor="password2">Password</Label>
-                  <Input id="password2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
+                  <p className="mt-1 text-xs text-muted-foreground">At least 8 characters, including a letter and a number.</p>
+                  <Input id="password2" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5" />
                 </div>
                 <div>
                   <Label htmlFor="ref">Referral code <span className="text-muted-foreground">(optional)</span></Label>

@@ -1,0 +1,43 @@
+name: Verify Supabase migrations (isolated local database)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/verify-supabase-migrations.yml"
+  push:
+    branches: [feat/zurify-2.0-foundation]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/verify-supabase-migrations.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrations-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  migration-reset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Confirm CLI and local reset command
+        run: |
+          supabase --version
+          supabase db reset --help
+      - name: Start disposable Supabase stack
+        run: supabase start
+      - name: Apply the complete migration chain to local Postgres
+        run: supabase db reset --local --no-seed
+      - name: Run database security smoke tests
+        run: supabase test db
+      - name: Stop disposable Supabase stack
+        if: always()
+        run: supabase stop --no-backup

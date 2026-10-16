@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -15,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountRealtime } from "@/components/account-realtime";
 import { ThemeProvider } from "@/lib/theme";
+import { PlatformThemeSync } from "@/components/platform-theme-sync";
 
 
 function NotFoundComponent() {
@@ -39,11 +41,11 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error instanceof Error ? error : new Error(String(error)), { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -128,15 +130,56 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+    let active = true;
+    const redirectIfOnEntryPage = (userId: string | undefined) => {
+      if (!active || !userId || typeof window === "undefined") return;
+      const path = window.location.pathname;
+      if (path !== "/" && path !== "/auth") return;
+
+      // Defer the table lookup until the auth-state callback has returned. This
+      // avoids calling Supabase auth methods inside its auth lock callback.
+      void Promise.resolve().then(async () => {
+        const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+        if (!active) return;
+        const roles = (roleRows ?? []).map((row) => row.role);
+        const isClient = roles.includes("employer");
+        const isAiCompany = roles.includes("ai_company");
+        const isAdmin = roles.some((role) => ["super_admin", "staff", "admin"].includes(role));
+        const hasAccountType = roles.includes("employer") || roles.includes("job_seeker") || roles.includes("ai_company");
+        const hasPrivilegedOrSpecialRole = roles.some((role) =>
+          ["super_admin", "staff", "admin", "advertiser"].includes(role),
+        );
+        const destination = !hasAccountType && !hasPrivilegedOrSpecialRole
+          ? "/choose-account-type"
+          : isAdmin
+            ? "/admin"
+            : isClient
+              ? "/client-dashboard"
+              : "/dashboard";
+        void navigate({ to: destination as never, replace: true });
+      });
+    };
+
+    // Check the persisted session once on mount.
+    void supabase.auth.getSession().then(({ data }) => {
+      redirectIfOnEntryPage(data.session?.user.id);
+    });
+
+    // Use the session passed by Supabase. Do not call Supabase auth methods
+    // from inside this callback; doing so can deadlock its auth lock.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event !== "SIGNED_OUT") {
+        queryClient.invalidateQueries();
+        if (event === "SIGNED_IN") redirectIfOnEntryPage(session?.user.id);
+      }
     });
-    return () => sub.subscription.unsubscribe();
-  }, [router, queryClient]);
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, [router, queryClient, navigate]);
 
   return (
     <QueryClientProvider client={queryClient}>

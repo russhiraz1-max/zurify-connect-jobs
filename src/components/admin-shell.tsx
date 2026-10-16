@@ -1,9 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, type ReactNode } from "react";
 import {
   Shield, LayoutDashboard, ListChecks, Send, FileCheck2, ArrowDownToLine,
   Users, UserCog, Tag, Flag, Megaphone, ScrollText, Settings as SettingsIcon,
-  LifeBuoy, Bell, Gift, BadgeCheck, Trophy, Sparkles, PartyPopper, Crown,
+  LifeBuoy, Bell, Gift, BadgeCheck, Trophy, Sparkles, PartyPopper, Crown, Building2, Database,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -22,6 +22,8 @@ const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/tasks", label: "Jobs", icon: ListChecks, perm: "view_tasks" },
   { to: "/admin/applications", label: "Applications", icon: Send, perm: "review_applications" },
+  { to: "/admin/ai-companies", label: "AI Companies", icon: Building2, perm: "review_ai_companies" },
+  { to: "/admin/ai-projects", label: "AI Projects", icon: Database, perm: "review_ai_projects" },
   { to: "/admin/submissions", label: "Submissions", icon: FileCheck2, perm: "review_submissions" },
   { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownToLine, perm: "view_withdrawals" },
   { to: "/admin/verification", label: "Identity Verification", icon: BadgeCheck, perm: "approve_withdrawals" },
@@ -44,7 +46,43 @@ const NAV: NavItem[] = [
 
 export function AdminShell({ children, title, subtitle }: { children: ReactNode; title?: string; subtitle?: string }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
-  const { isSuperAdmin, has } = useRoles();
+  const navigate = useNavigate();
+  const { isSuperAdmin, isStaff, has, loading } = useRoles();
+  const isOverview = pathname === "/admin" || pathname === "/admin/";
+  const currentItem = NAV.find(item =>
+    item.exact
+      ? pathname === item.to
+      : pathname === item.to || pathname.startsWith(item.to + "/"),
+  );
+  // Navigation visibility is not authorization: enforce the same permission
+  // model before rendering each nested admin page for staff users.
+  const routeAllowed = isSuperAdmin || isOverview || Boolean(
+    currentItem && !currentItem.superOnly && (!currentItem.perm || has(currentItem.perm)),
+  );
+
+  useEffect(() => {
+    if (loading) return;
+    if (!isStaff) {
+      void navigate({ to: "/dashboard", replace: true });
+    } else if (!routeAllowed) {
+      void navigate({ to: "/admin", replace: true });
+    }
+  }, [loading, isStaff, routeAllowed, navigate]);
+
+  // Never render nested admin content before the matching role/permission check.
+  // Database RLS and RPC checks remain the actual security boundary.
+  if (loading || !isStaff || !routeAllowed) {
+    const message = loading
+      ? "Checking admin access…"
+      : !isStaff
+        ? "Redirecting to your dashboard…"
+        : "Redirecting to an authorized admin page…";
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <p className="text-sm text-muted-foreground">{message}</p>
+      </div>
+    );
+  }
   const nav = NAV.filter(item => {
     if (item.exact && item.to === "/admin") return true;
     if (isSuperAdmin) return true;

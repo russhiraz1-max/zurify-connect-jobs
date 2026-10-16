@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Wallet, Clock, TrendingUp, ArrowUpRight, Bell, Megaphone, BadgeCheck, Gift,
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { useRoles } from "@/lib/roles";
 import { dateTime } from "@/lib/format";
 import { useEngagement } from "@/lib/engagement";
 import { isJobLockedForUser, useJobProgress } from "@/lib/user-jobs";
@@ -43,9 +44,19 @@ type ReferralSummary = { code: string; users_referred: number; total_commission_
 const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
 function DashboardPage() {
-  const { user } = useSession();
+  const { user, loading: sessionLoading } = useSession();
+  const { roles, loading: rolesLoading } = useRoles();
+  const navigate = useNavigate();
+  const isClientOnly = roles.includes("employer")
+    && !roles.includes("staff")
+    && !roles.includes("super_admin");
   const { data: eng, refresh: refreshEng } = useEngagement();
   const progress = useJobProgress();
+
+  useEffect(() => {
+    if (sessionLoading || rolesLoading || !isClientOnly) return;
+    void navigate({ to: "/client-dashboard", replace: true });
+  }, [sessionLoading, rolesLoading, isClientOnly, navigate]);
 
   const [wallet, setWallet] = useState<WalletRow | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -60,7 +71,7 @@ function DashboardPage() {
 
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || sessionLoading || rolesLoading || isClientOnly) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -107,7 +118,7 @@ function DashboardPage() {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, sessionLoading, rolesLoading, isClientOnly]);
 
   const stats = [
     { label: "Available balance", value: usd(wallet?.available_cents ?? 0), icon: Wallet },
@@ -130,6 +141,16 @@ function DashboardPage() {
     [tasks, progress],
   );
 
+
+  if (sessionLoading || rolesLoading || isClientOnly) {
+    return (
+      <AppShell title="Your workspace" subtitle="Checking your account permissions…">
+        <div className="py-12 text-sm text-muted-foreground">
+          {isClientOnly ? "Opening your client workspace…" : "Loading your dashboard…"}
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title="Welcome back" subtitle="Your earnings command center.">

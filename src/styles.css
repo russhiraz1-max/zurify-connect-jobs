@@ -143,6 +143,37 @@
 }
 
 
+
+/* Admin-selectable runtime palettes. Blue remains the primary direction. */
+:root[data-theme-palette="blue-sky-indigo"] {
+  --primary: oklch(0.52 0.18 270);
+  --primary-hover: oklch(0.46 0.19 270);
+  --brand: oklch(0.52 0.18 270);
+  --accent: oklch(0.94 0.04 270);
+  --accent-foreground: oklch(0.28 0.12 270);
+  --ring: oklch(0.52 0.18 270);
+}
+:root.dark[data-theme-palette="blue-sky-indigo"] {
+  --primary: oklch(0.7 0.16 270);
+  --primary-hover: oklch(0.76 0.16 270);
+  --accent: oklch(0.3 0.06 270);
+  --ring: oklch(0.7 0.16 270);
+}
+:root[data-theme-palette="blue-sky-cyan"] {
+  --primary: oklch(0.52 0.17 235);
+  --primary-hover: oklch(0.46 0.18 235);
+  --brand: oklch(0.52 0.17 235);
+  --accent: oklch(0.94 0.04 225);
+  --accent-foreground: oklch(0.28 0.1 235);
+  --ring: oklch(0.52 0.17 235);
+}
+:root.dark[data-theme-palette="blue-sky-cyan"] {
+  --primary: oklch(0.7 0.15 235);
+  --primary-hover: oklch(0.76 0.15 235);
+  --accent: oklch(0.3 0.06 225);
+  --ring: oklch(0.7 0.15 235);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -169,4 +200,38 @@
 
 @utility bg-brand-gradient {
   background: linear-gradient(135deg, var(--primary), oklch(0.6 0.2 268));
+}
+
+
+/* Zurify 2.0 workspace accents: blue remains primary; violet and sky add depth. */
+@custom-variant purple (&:is(.theme-purple *));
+
+.theme-purple {
+  --primary: oklch(0.56 0.2 285);
+  --primary-hover: oklch(0.49 0.21 285);
+  --primary-foreground: oklch(0.99 0.005 280);
+  --brand: oklch(0.56 0.2 285);
+  --brand-foreground: oklch(0.99 0.005 280);
+  --accent: oklch(0.94 0.045 290);
+  --accent-foreground: oklch(0.3 0.12 285);
+  --ring: oklch(0.56 0.2 285);
+}
+
+.dark .theme-purple,
+.theme-purple.dark {
+  --primary: oklch(0.76 0.16 285);
+  --primary-hover: oklch(0.81 0.14 285);
+  --primary-foreground: oklch(0.18 0.04 285);
+  --brand: oklch(0.76 0.16 285);
+  --brand-foreground: oklch(0.18 0.04 285);
+  --accent: oklch(0.32 0.075 285);
+  --accent-foreground: oklch(0.97 0.01 280);
+  --ring: oklch(0.76 0.16 285);
+}
+
+@utility bg-workspace-glow {
+  background:
+    radial-gradient(ellipse 38% 28% at 92% 0%, color-mix(in oklab, oklch(0.68 0.18 285) 12%, transparent), transparent 78%),
+    radial-gradient(ellipse 36% 24% at 0% 8%, color-mix(in oklab, oklch(0.7 0.14 220) 14%, transparent), transparent 76%),
+    var(--color-background);
 }

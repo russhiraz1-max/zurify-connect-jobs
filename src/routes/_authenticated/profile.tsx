@@ -33,7 +33,7 @@ type WalletRow = {
 
 function ProfilePage() {
   const { user } = useSession();
-  const { isSuperAdmin, isStaff } = useRoles();
+  const { isSuperAdmin, isStaff, roles } = useRoles();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileRow | null>(null);
@@ -73,7 +73,7 @@ function ProfilePage() {
   }
 
   const initials = (form.full_name || user?.email || "?").slice(0, 2).toUpperCase();
-  const roleLabel = isSuperAdmin ? "Super Admin" : isStaff ? "Staff" : "Member";
+  const roleLabel = isSuperAdmin ? "Super Admin" : isStaff ? "Staff" : roles.includes("employer") ? "Client" : roles.includes("job_seeker") ? "Freelancer" : "Member";
   const accountStatus = profile?.suspended ? { label: "Suspended", variant: "destructive" as const }
     : profile?.withdrawal_hold ? { label: "Withdrawals on hold", variant: "secondary" as const }
     : { label: "Active", variant: "default" as const };
