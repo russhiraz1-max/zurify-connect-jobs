@@ -3,8 +3,8 @@
 This file is the single durable progress tracker for the Zurify 2.0 work. Update it as changes are made and checks are run. A green frontend build is not proof that database policies, payment logic, or end-to-end flows are correct.
 
 **Current location:** Phase 2 — Foundation and security  
-**Current step:** Step 2.2 — Security/role audit and remediation proposals; AI-company and locked admin-configuration foundations are now in progress.  
-**Latest verified frontend build:** GitHub Actions run #513 passed on code head `d286bfeb75181e8a2d28065919c27cd48520fbea`; it verified patched TanStack Start versions, completed `npm ci`, and completed `npm run build`. **Latest isolated migration replay:** Supabase local-stack workflow run #88 passed: the full migration chain reset on a disposable local Postgres stack and the expanded 41-assertion pgTAP smoke suite passed. This validates migration replay and the assertions in `supabase/tests/security_migration_smoke.test.sql`, not full browser E2E, comprehensive cross-user RLS/storage behavior, concurrency stress or payment correctness. Vercel has previously reported a build-rate-limit/plan-upgrade failure, so no Vercel preview success is claimed.
+**Current step:** Step 2.2 — Security/role audit and remediation proposals, with the client/AI-company foundations and locked admin-configuration work underway.  
+**Latest verified frontend build:** GitHub Actions run #525 passed on code head `3573ce045810ffc02267c043de1ad8df335b5905`; patched TanStack Start versions were checked, `npm ci` passed, and both `npm run build` and `npm run typecheck` passed. **Latest isolated migration replay:** Supabase local-stack workflow run #95 passed: the full migration chain reset on disposable local Postgres and the expanded 51-assertion pgTAP smoke suite passed. This validates migration replay and those assertions, not full browser E2E, comprehensive cross-user RLS/storage behavior, concurrency stress or payment correctness. Vercel status for this head is green, but this is a preview check, not a production deployment or live-payment test.
 
 Legend:
 - `[x]` implemented and validated with evidence
@@ -28,7 +28,7 @@ Legend:
 - [~] Handle signup with email confirmation without prematurely entering a protected dashboard.
 - [~] Add freelancer/client signup intent; the database trigger source accepts only non-privileged allowlisted roles.
 - [~] Fix a password-recovery event/session race in the reset-password page.
-- [~] Add post-OAuth account selection and a restricted `complete_account_type(text)` RPC. The new forward migration `20261013210000_ai_company_organization_and_project_workflow.sql` extends the allowlist to `job_seeker`, `employer`, and `ai_company`; the trigger only trusts account selection from the email signup form and sends OAuth users through the authenticated chooser. New code is awaiting CI replay and end-to-end tests.
+- [~] Add post-OAuth account selection and a restricted `complete_account_type(text)` RPC. The current trigger/RPC allowlist supports `job_seeker`, `employer`, and `ai_company`; email signup intent is handled separately from OAuth users, who are directed through the authenticated chooser. The migration chain and smoke suite pass locally in CI; OAuth callback, confirmation, refresh and role behavior still need browser end-to-end tests.
 - [ ] End-to-end test OAuth onboarding, password login, signup with confirmation on/off, confirmation links, logout, expired links, and password reset using synthetic accounts.
 - [ ] Validate redirect allowlists and canonical callback URLs in a separate Supabase 2.0 project.
 
@@ -42,8 +42,8 @@ Legend:
 - [~] Route legacy withdrawal rejection through reserve release and require the exact reserve to exist before release.
 - [~] Align the client-side admin shell and sign-in routing with database `is_staff()` semantics (`staff`/`super_admin` only); the legacy `admin` role alone now fails closed in the frontend. Audit other RPCs and role policies for remaining legacy-role inconsistencies.
 - [~] Add a staff-role guard to the shared admin shell so non-staff child content is not rendered while unauthorized users are redirected; backend RLS/RPC authorization still needs validation.
-- [~] Run all migrations in order against a disposable 2.0 database. Earlier migration replay passed; the newest AI-company and locked platform-configuration migrations are awaiting their CI result.
-- [~] Test RLS, direct table writes, RPC calls, storage reads/writes, and role isolation. The 41-assertion smoke suite covers selected privileges, onboarding behavior, locked settings and staff-review permissions; full cross-user RLS/storage and browser role-isolation tests remain.
+- [x] Replay the complete checked-in migration chain against a disposable local Supabase/Postgres stack in CI; workflow run #95 passed. This is not a production database test and does not replace end-to-end/RLS/storage/concurrency testing.
+- [~] Run the 51-assertion pgTAP smoke suite for selected privileges, onboarding behavior, AI-company project gating and locked settings; it passed in CI run #95. Full cross-user RLS/storage and browser role-isolation tests remain.
 - [~] Add a trigger guard for engagement claim rows (streak, lucky, mystery, challenge, badge) so authenticated claim writes require a non-suspended freelancer-only account; validate all trigger/RPC combinations in isolated Supabase before considering closed.
 - [ ] Test withdrawal request/approval/rejection/retry paths, duplicate processing, reserve mismatch, ledger totals, and rollback behavior.
 - [x] Resolve root `package.json` / `package-lock.json` dependency declaration drift; the latest CI run used `npm ci` against the committed lockfile. Continue checking transitive dependency security and reproducibility.
@@ -89,7 +89,7 @@ Legend:
 
 ## Phase 6 — Quality assurance and launch preparation
 
-- [~] Run clean install/build and isolated migration/security smoke tests after every feature batch. Latest code head's checks are pending; lint, full type checks, browser E2E, RLS/storage and role-isolation coverage remain incomplete.
+- [~] Run clean install/build/typecheck and isolated migration/security smoke tests after feature batches. Latest head `3573ce0` passed build, typecheck and the 51-assertion migration smoke suite. Lint, browser E2E, broad RLS/storage and role-isolation coverage remain incomplete.
 - [ ] Test full client funding-to-project-to-worker-payment and freelancer earning-to-withdrawal paths using sandbox/synthetic accounts.
 - [ ] Run security review for RLS, storage, auth, secrets, webhooks, rate limits, concurrency, audit logs and privacy.
 - [ ] Validate email delivery and callback URLs in a separate environment.
