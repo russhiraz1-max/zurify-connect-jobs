@@ -22,7 +22,7 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Free signup with a clear role choice and role-specific onboarding questions.
 - [ ] Distinct freelancer dashboard and workflow.
 - [ ] Distinct client dashboard and workflow for posting work, managing applicants, reviewing delivery and tracking spend.
-- [~] Add a distinct AI-company account role, organization-verification workflow, AI data-project drafts with consent/language metadata, and staff permission-gated review queues. Full browser E2E, batches, QA, exports and complete lifecycle remain incomplete.
+- [~] Add a distinct AI-company account role, organization-verification workflow, AI data-project drafts with consent/language metadata, and staff permission-gated review queues. Migration and smoke tests pass; full browser E2E, batches, QA, exports and complete lifecycle remain incomplete.
 - [ ] Add promotional/promo codes with server-side validation, eligibility, expiry/usage limits and audit history.
 - [ ] Improve mobile and desktop responsiveness, accessibility, loading/empty/error states and clear navigation.
 - [ ] Update site metadata, canonical URLs and copy to remove obsolete Lovable-hosted origins where appropriate.
@@ -39,8 +39,8 @@ Legend: [ ] not complete, [~] in progress, [x] completed and verified.
 - [ ] Replace Lovable authentication only after understanding its existing OAuth/session responsibilities and verifying a complete replacement.
 
 ## 3. Admin control center and authorization
-- [~] Add a super-admin-only configuration RPC and admin UI for palette, feature flags, preferred provider and maintenance setting; payment activation is hard-disabled and role management/runtime maintenance enforcement remain incomplete.
-- [~] Centralize theme palette, feature flags, provider preference and maintenance-mode setting in an audited configuration row; server-side authorization and client/AI workspace flag triggers are implemented in source, but newest migrations are awaiting CI.
+- [~] Add a super-admin-only configuration RPC and admin UI for palette, feature flags, preferred provider and maintenance setting; latest migration chain and smoke tests pass in CI. Payment activation remains hard-disabled; role management and runtime maintenance enforcement remain incomplete.
+- [~] Centralize theme palette, feature flags, provider preference and maintenance-mode setting in an audited configuration row; server-side authorization and client/AI workspace flag triggers are implemented in source and the full migration chain passed isolated CI replay. Browser/runtime and role-isolation tests remain.
 - [ ] Enforce permissions on the server/database, not just by hiding frontend routes or buttons.
 - [ ] Align `admin`, `staff`, `super_admin` and other legacy role behavior across frontend and SQL.
 - [ ] Restrict role assignment and permission changes to authorized super-admin paths with audit logs.
