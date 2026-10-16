@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
 BEGIN;
-SELECT plan(51);
+SELECT plan(53);
 
 SELECT ok(
   to_regprocedure('public.complete_account_type(text)') IS NOT NULL,
@@ -447,6 +447,41 @@ SELECT is(
   (SELECT payments_enabled FROM public.platform_configuration WHERE singleton = true),
   false,
   'provider selection cannot activate real payment processing'
+);
+
+-- Verify that feature flags stop real writes at the database boundary, not
+-- merely in the control-center UI. The test account is synthetic and this
+-- entire test transaction rolls back.
+INSERT INTO auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) VALUES (
+  '9e21a05e-5f12-4df6-94a7-4d6fbeb30005',
+  'authenticated', 'authenticated', 'zurify-client-flag-test@example.invalid', '',
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"account_type":"employer"}'::jsonb,
+  now(), now()
+);
+
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30005';
+SET LOCAL request.jwt.claim.role = 'authenticated';
+
+SELECT throws_ok(
+  'SELECT public.create_client_task(''Flag disabled draft'', ''This synthetic description is long enough for validation.'', ''Instructions for this synthetic draft.'', 100, NULL, 10, 10)',
+  '42501',
+  'Client draft creation is temporarily disabled',
+  'disabled client-draft flag blocks draft creation in the database'
+);
+
+SET LOCAL request.jwt.claim.sub = '9e21a05e-5f12-4df6-94a7-4d6fbeb30002';
+SET LOCAL request.jwt.claim.role = 'authenticated';
+
+SELECT throws_ok(
+  'SELECT public.create_ai_data_project(''Flag disabled AI project'', ''language_culture'', ''This synthetic project description is long enough for validation.'', ''These synthetic instructions require contributor consent and a quality review.'', ''Swahili'', ''Coastal Swahili'', ''sw-KE'', ''Kenya'', 25, true)',
+  '42501',
+  'AI-company workspace is temporarily disabled',
+  'disabled AI-company flag blocks project writes in the database'
 );
 
 SELECT * FROM finish();
